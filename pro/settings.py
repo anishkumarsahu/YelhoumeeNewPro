@@ -148,3 +148,20 @@ MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), "media_cdn")
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+PWA_APP_NAME = 'YELHOUMEE'
+PWA_APP_DESCRIPTION = "In-house management Application."
+PWA_APP_THEME_COLOR = '#272E38'
+PWA_APP_DISPLAY = 'standalone'
+PWA_APP_START_URL = '/'
+PWA_APP_ICONS = [
+    {"src": "static/sw/images/favicon.ico", "type": "image/x-icon", "sizes": "16x16 32x32"},
+    {"src": "static/sw/images/icon-192.png", "type": "image/png", "sizes": "192x192"},
+    {"src": "static/sw/images/icon-512.png", "type": "image/png", "sizes": "512x512"},
+    {"src": "static/sw/images/icon-192-maskable.png", "type": "image/png", "sizes": "192x192", "purpose": "maskable"},
+    {"src": "static/sw/images/icon-512-maskable.png", "type": "image/png", "sizes": "512x512", "purpose": "maskable"}
+  ]
+
+
+PWA_SERVICE_WORKER_PATH = os.path.join(BASE_DIR, 'home', '../static/sw/sw.js')

@@ -13,10 +13,15 @@ def loginPage(request):
     else:
         return redirect('/')
 
+
+def admin_home(request):
+    return render(request, 'home/admin/adminHome.html')
+
+
+
 def user_logout(request):
     logout(request)
     return redirect("homeApp:loginPage")
-
 
 
 @csrf_exempt
@@ -31,7 +36,7 @@ def postLogin(request):
             login(request, user)
             if 'Admin' in request.user.groups.values_list('name',
                                                           flat=True) or 'Staff' in request.user.groups.values_list(
-                    'name', flat=True):
+                'name', flat=True):
                 return JsonResponse({'message': 'success', 'data': '/'}, safe=False)
             elif 'Executive' in request.user.groups.values_list('name', flat=True):
                 return JsonResponse({'message': 'success', 'data': '/ecom/home/'}, safe=False)
@@ -45,13 +50,12 @@ def postLogin(request):
         return JsonResponse({'message': 'fail'}, safe=False)
 
 
-
 def homepage(request):
     if request.user.is_authenticated:
         if 'Executive' in request.user.groups.values_list('name', flat=True):
             return redirect('/ecom/home/')
 
-        else :
+        else:
             try:
                 val = Validity.objects.last()
                 message = "Your License is Valid till {}".format(val.expiryDate.strftime('%d-%m-%Y'))
@@ -66,7 +70,7 @@ def homepage(request):
 
             context = {
                 'message': message,
-                'messageEcom':messageEcom
+                'messageEcom': messageEcom
             }
 
             return render(request, 'home/main.html', context)
