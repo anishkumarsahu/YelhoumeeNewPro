@@ -153,6 +153,17 @@
 
     <div class="item">
         <div class="header">
+            Staff
+        </div>
+        <div class="menu">
+            <a class="item" href="{% url 'homeApp:user_list' %}">
+                <div><i class="user tie icon"></i>User List</div>
+            </a>
+
+        </div>
+    </div>
+    <div class="item">
+        <div class="header">
             Profile
         </div>
         <div class="menu">
@@ -160,7 +171,7 @@
                 <div><i class="user icon"></i>My Profile</div>
             </a>
             <a class="item" href="#">
-                <div> <i class="sign out alternate icon"></i>Logout</div>
+                <div><i class="sign out alternate icon"></i>Logout</div>
             </a>
         </div>
     </div>
@@ -221,98 +232,106 @@
         {% block body %}
             <div class="ui segment">
                 <div class="ui breadcrumb">
-                    <div class="active section">Home</div>
+                    <div class="active section">Dashboard</div>
                 </div>
             </div>
-            <div class="ui centered grid">
-
-                <div class="sixteen wide tablet nine wide computer column" style="margin-top: 2rem">
-
-                    <div class="ui raised brown segment padded  ">
-                        <form class="ui tiny form" id="expenseForm">
-                            <h4 class="ui  left aligned  dividing header">Search Customer</h4>
-
-                            <div class="two fields">
-
-                                <div class="field">
-                                    <label>Search By Customer</label>
-                                    <select class="ui search dropdown" id="customerNameID">
-                                        <option value="">Search By Customer</option>
-                                        {% for customer in customers %}
-                                            <option value="{{ customer.name }}|{{ customer.pk }}"> {{ customer.name }}
-                                                - {{ customer.address }}</option>
-                                        {% endfor %}
-
-                                    </select>
-                                </div>
-
-
-                                <div class="field" style="padding-top: 1.666em;">
-                                    <button type="button" class="ui fluid green button" id="searchBtn"
-                                            onclick="GetCustomerDetail()">
-                                        <i class="icon search"></i>
-                                        Search
-                                    </button>
-                                    <button type="button" style="display: none" class="ui fluid red button"
-                                            onclick="clearDetail()" id="cancelBtn">
-                                        <i class="icon cancel"></i>
-                                        Clear
-                                    </button>
+            <div class="ui grid stackable padded">
+                <div class="four wide computer eight wide tablet sixteen wide mobile column">
+                    <div class="ui fluid card">
+                        <div class="content">
+                            <div class="ui right floated header red">
+                                <i class="icon shopping cart"></i>
+                            </div>
+                            <div class="header">
+                                <div class="ui red header">
+                                    3958
                                 </div>
                             </div>
-
-                        </form>
+                            <div class="meta">
+                                orders
+                            </div>
+                            <div class="description">
+                                Elliot requested permission to view your contact details
+                            </div>
+                        </div>
+                        <div class="extra content">
+                            <div class="ui two buttons">
+                                <div class="ui red button">More Info</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="sixteen wide tablet nine wide computer column" id="cDetailDiv" style="display: none">
-                    <h5 class="ui horizontal left aligned divider header">
-                        <i class="left align icon"></i>
-                        Customer Details
-                    </h5>
-                    <div class="ui aligned basic segment">
-                        <table class="ui unstackable olive table">
-                            <thead>
-                            <tr>
-                                <th>Properties</th>
-                                <th>Value</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr>
-                                <td>Name</td>
-                                <td id="cName"></td>
-                            </tr>
-                            <tr>
-                                <td>Address</td>
-                                <td id="cAddress"></td>
-                            </tr>
-                            <tr>
-                                <td>Total Billed (₹)</td>
-                                <td class="left marked red negative" id="cTotal"></td>
-                            </tr>
-                            <tr>
-                                <td>Total Paid (₹)</td>
-                                <td class="left marked green positive" id="cPaid"></td>
-                            </tr>
-                            <tr>
-                                <td>Due (₹)</td>
-                                <td class="left marked orange warning" id="cDue">Denied</td>
-                            </tr>
-                            <tr>
-                                <td colspan="2" style="text-align: center">
-                                    <button class="positive mini ui button" onclick="startBooking()">Start Booking
-                                    </button>
-
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
-
+                <div class="four wide computer eight wide tablet sixteen wide mobile column">
+                    <div class="ui fluid card">
+                        <div class="content">
+                            <div class="ui right floated header green">
+                                <i class="icon clock"></i>
+                            </div>
+                            <div class="header">
+                                <div class="ui header green">57.6%</div>
+                            </div>
+                            <div class="meta">
+                                Time
+                            </div>
+                            <div class="description">
+                                Elliot requested permission to view your contact details
+                            </div>
+                        </div>
+                        <div class="extra content">
+                            <div class="ui two buttons">
+                                <div class="ui green button">More Info</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="four wide computer eight wide tablet sixteen wide mobile column">
+                    <div class="ui fluid card">
+                        <div class="content">
+                            <div class="ui right floated header teal">
+                                <i class="icon briefcase"></i>
+                            </div>
+                            <div class="header">
+                                <div class="ui teal header">3112</div>
+                            </div>
+                            <div class="meta">
+                                Saves
+                            </div>
+                            <div class="description">
+                                Elliot requested permission to view your contact details
+                            </div>
+                        </div>
+                        <div class="extra content">
+                            <div class="ui two buttons">
+                                <div class="ui teal button">More Info</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="four wide computer eight wide tablet sixteen wide mobile column">
+                    <div class="ui fluid card">
+                        <div class="content">
+                            <div class="ui right floated header purple">
+                                <i class="icon trophy"></i>
+                            </div>
+                            <div class="header">
+                                <div class="ui purple header">9805</div>
+                            </div>
+                            <div class="meta">
+                                Views
+                            </div>
+                            <div class="description">
+                                Elliot requested permission to view your contact details
+                            </div>
+                        </div>
+                        <div class="extra content">
+                            <div class="ui two buttons">
+                                <div class="ui purple button">More Info</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <input type="hidden" id="cID">
         {% endblock %}
     </div>
 
@@ -324,92 +343,8 @@
     </div>
 </div>
 
-<div class="ui medium modal" id="cart">
-    <i class="close icon"></i>
-    <div class="header" style="font-size: 15px;">My Cart <span id="cartItems" class="ui text purple"></span>
-        <div class="ui tiny violet label">
-            Customer Name : <span id="customerNameCart">N/A</span>
-        </div>
-    </div>
-    <div class="scrolling content">
-        <table class="ui unstackable blue table cartTable" id="cartTable">
-            <thead>
-            <tr>
-                <th>SlNo.</th>
-                <th>Name</th>
-                <th>MRP(₹)</th>
-                <th>QTY</th>
-                <th>Total(₹)</th>
-                <th>Remove</th>
-            </tr>
-            </thead>
-            <tbody>
-
-            </tbody>
-              <div class="ui calendar cartTableDate" id="calender2">
-                <label class="ui tiny purple label ">Expected Delivery Date:</label>
-
-                <div class="ui input mini left icon">
-                    <i class="calendar icon"></i>
-                    <input type="text" placeholder="Date" id="deliveryDate">
-                </div>
-            </div>
-            <div class="ui tiny purple label cartTable">
-                Total(₹) : <span id="grandTotal"> 0.00</span>
-            </div>
-
-        </table>
-        <p id="NoItem">No item added.</p>
-    </div>
-    <div class="center aligned actions">
-        <div class="ui orange button deny" onclick="clearCart()">Clear</div>
-        <div class="ui negative button">Cancel</div>
-        <button class="ui green button" onclick="confirmOrderModal()">Place Order</button>
-    </div>
-</div>
 
 
-<div class="ui basic modal custom" id="delItemModal">
-    <div class="ui icon header">
-        <i class="archive icon"></i>
-        Item will be Deleted.
-    </div>
-    <div class="content">
-        <p style="text-align: center">The Item detail will be deleted, are you sure to delete
-            this Item?</p>
-    </div>
-    <div class="actions">
-        <div class="ui red basic cancel inverted button" onclick="cart()">
-            <i class="remove icon"></i>
-            No
-        </div>
-        <input type="hidden" id="itemDelID">
-        <div class="ui green ok inverted button" onclick="deleteItem()">
-            <i class="checkmark icon"></i>
-            Yes
-        </div>
-    </div>
-</div>
-
-
-<div class="ui mini test modal front transition" id="confirmOrderModal"><i
-        class="close icon"></i>
-    <div class="header">
-        Order Confirmation
-    </div>
-    <div class="content">
-        <p>Are you sure you want to place your order?</p>
-    </div>
-    <div class="actions">
-        <div class="ui red button" onclick="cancelOrder()">
-            No
-        </div>
-        <div class="ui green right labeled icon button" onclick="placeOrder()">
-            Yes
-            <i class="checkmark icon"></i>
-        </div>
-    </div>
-</div>
 
 <script src="https://frontendfunn.github.io/semantic-ui-admin-dashboard-template/js/script.js"></script>
 
@@ -417,196 +352,6 @@
     $(window).on("load", function () {
         $(".preloader").fadeOut(50);
     });
-    var today = new Date();
-    $('#calender2')
-        .calendar({
-                initialDate: today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear(),
-                monthFirst: false,
-                type: 'date',
-                formatter: {
-                    date: function (date, settings) {
-                        if (!date) return '';
-                        var day = date.getDate();
-                        var month = date.getMonth() + 1;
-                        var year = date.getFullYear();
-                        return day + '/' + month + '/' + year;
-                    }
-                },
-                popupOptions: {
-                    observeChanges: false
-                }
-
-            }
-        );
-    function clearCart() {
-        itemArray = [];
-        localStorage.setItem("ItemArray", JSON.stringify(itemArray));
-        dataCountArray = localStorage.getItem("ItemArray");
-        dataCount = JSON.parse(dataCountArray);
-
-        $('.cartCount').html(dataCount.length);
-        calculateGrandTotal();
-
-    }
-
-
-    var ItemArray = JSON.parse(localStorage.getItem("ItemArray"));
-    if (null === ItemArray) {
-        var itemArray = [];
-        localStorage.setItem("ItemArray", JSON.stringify(itemArray));
-
-    }
-    var dataCountArray = localStorage.getItem("ItemArray");
-    var dataCount = JSON.parse(dataCountArray);
-
-    $('.cartCount').html(dataCount.length);
-
-    function addCart() {
-        var id = $('#pID').val();
-        var pname = $('#pName').html();
-        var pQuantity = $('#pQuantity').val();
-        var pUnit = $('#pUnit').html();
-        var pMrp = $('#pMrp').html();
-        {#        var ItemArray = [];#}
-        ItemArray = JSON.parse(localStorage.getItem('ItemArray')) || [];
-        if (ItemArray.length === 0) {
-
-
-            var p = {
-                "ProductName": pname,
-                "ID": id,
-                "Quantity": pQuantity,
-                'Unit': pUnit,
-                'MRP': pMrp
-            };
-            ItemArray.push(p);
-            localStorage.setItem("ItemArray", JSON.stringify(ItemArray));
-            $('.cartCount').html(dataCount.length);
-        }
-        else {
-            var foundCount = 1;
-            for (var i = 0; i < ItemArray.length; i++) {
-                if (ItemArray[i].ID === id) {
-                    ItemArray[i].ProductName = pname;
-                    ItemArray[i].Quantity = pQuantity;
-                    ItemArray[i].MRP = pMrp;
-                    foundCount++;
-
-                }
-                localStorage.setItem("ItemArray", JSON.stringify(ItemArray));
-            }
-            if (foundCount === 1) {
-                var p = {
-                    "ProductName": pname,
-                    "ID": id,
-                    "Quantity": pQuantity,
-                    'Unit': pUnit,
-                    'MRP': pMrp
-                };
-                ItemArray.push(p);
-                localStorage.setItem("ItemArray", JSON.stringify(ItemArray));
-            }
-            $('body')
-                .toast({
-                    class: 'success',
-                    message: 'Item Added To Cart.'
-                })
-            ;
-        }
-        dataCountArray = localStorage.getItem("ItemArray");
-        dataCount = JSON.parse(dataCountArray);
-
-        $('.cartCount').html(dataCount.length);
-        $('#pQuantity').val(1);
-        $('#addToCart').modal('hide');
-
-
-    }
-
-    function cart() {
-        if (dataCount.length === 0) {
-            $('#NoItem').css('display', '');
-            $('.cartTable').css('display', 'none');
-            $('.cartTableDate').css('display', 'none');
-            $('#cartItems').html('');
-
-        } else {
-            $('.cartTable').css('display', '');
-            $('.cartTableDate').css('display', '');
-            $('#NoItem').css('display', 'none');
-            $('.cartTable tbody').html('');
-            dataCount = dataCount.sort(function (a, b) {
-                return a.ID - b.ID;
-            });
-            if (dataCount.length === 1) {
-                $('#cartItems').html('( 1 Item )');
-
-            } else {
-                $('#cartItems').html('( ' + dataCount.length + ' Items )');
-            }
-            var grandTotal = 0.0;
-            $.each(dataCount, function (index, value) {
-                var total = parseFloat(dataCount[index].Quantity) * parseFloat(dataCount[index].MRP);
-                $('.cartTable tbody').append('<tr id="' + dataCount[index].ID + '" ><td>' + parseInt(index + 1) + '</td><td id="proName' + dataCount[index].ID + '">' + dataCount[index].ProductName + '</td><td id ="mrp' + dataCount[index].ID + '">' + dataCount[index].MRP + '</td><td><div class="ui right mini labeled input"><input id="QNT' + dataCount[index].ID + '" onkeyup="changeQuantity(' + dataCount[index].ID + ')" type="number" style="max-width:50%" value="' + dataCount[index].Quantity + '" placeholder="Quantity"><div class="ui basic label">' + dataCount[index].Unit + '</div></td><td id ="total' + dataCount[index].ID + '">' + total + '</td><td ></button><button style="font-size:10px;" onclick="delItem(' + dataCount[index].ID + ')" class="ui circular youtube icon button"><i class="trash alternate icon"></i></button></td></tr>');
-                grandTotal = grandTotal + total
-
-            });
-            $('#grandTotal').html(grandTotal);
-        }
-        $('#cart').modal('show');
-        $('.cartCount').html(dataCount.length);
-        $('#customerNameCart').html(localStorage.getItem('customerName'))
-
-    }
-    function calculateGrandTotal() {
-        var grandTotal = 0.0
-        $.each(dataCount, function (index, value) {
-            var total = parseFloat(dataCount[index].Quantity) * parseFloat(dataCount[index].MRP);
-            grandTotal = grandTotal + total
-
-        });
-        $('#grandTotal').html(grandTotal);
-    }
-
-    function delItem(id) {
-        $('#delItemModal')
-            .modal('show')
-        ;
-        $('#itemDelID').val(id);
-
-    }
-    function deleteItem() {
-        var id = $('#itemDelID').val();
-        $('#' + id).remove();
-        {#        var id = $('#deleteItemID').val();#}
-        dataCount = $.grep(dataCount, function (e) {
-            return e.ID != id
-        });
-        localStorage.setItem("ItemArray", JSON.stringify(dataCount));
-        cart();
-        $('body')
-            .toast({
-                class: 'warning',
-                message: 'Item Removed From Cart!',
-
-            })
-        ;
-        calculateGrandTotal();
-
-
-    }
-    function changeQuantity(id) {
-        var q = $('#QNT' + id).val();
-        var mrp = $('#mrp' + id).html();
-        var result = dataCount.find(({ID}) => ID === "" + id);
-        result.Quantity = q;
-
-        var total = parseFloat(q) * parseFloat(mrp);
-        $('#total' + id).html(total);
-        calculateGrandTotal();
-
-
-    }
 
     function showLoading() {
         $('#saveBtn').css('display', 'none');
@@ -619,48 +364,6 @@
 
     }
 
-    $('.ui.productListSearch')
-        .search({
-            apiSettings: {
-                url: '/ecom/product_list_api/1/?searchProduct={query}'
-            },
-            fields: {
-                results: 'data',
-                title: 'Name',
-                "price": "Category",
-                "description": "Address",
-            },
-            onSelect: function (result) {
-                var sortData = $('#productSearch').val();
-                {#                    console.log(sortData);#}
-                location.href = '/ecom/browse_products/?product=' + sortData;
-
-                {#                $('#customerID').val(result.ID);#}
-                {#                     $(getProductList(pageCount));#}
-
-
-            },
-            cache: false,
-            minCharacters: 3
-        });
-
-    function loadMore() {
-        pageCount++;
-        getProductList(pageCount);
-        return pageCount;
-    }
-
-    function confirmOrderModal() {
-        $('#confirmOrderModal')
-            .modal('show');
-    }
-    function cancelOrder() {
-        $('#confirmOrderModal')
-            .modal('hide');
-        $('#cart')
-            .modal('show');
-    }
-
 </script>
 <script src="https://cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.4/js/dataTables.semanticui.min.js"></script>
@@ -671,31 +374,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.print.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.colVis.min.js"></script>
 
 {% block js %}
     <script>
 
-        function clearDetail() {
-            location.reload();
-            {#            localStorage.removeItem("customerID");#}
-            {#            localStorage.removeItem("customerName");#}
-            localStorage.setItem("customerID", 'N/A');
-            localStorage.setItem("customerName", 'N/A');
-
-        }
-
-   {% comment %}     function startBooking() {
-            var cID = $('#cID').val();
-            var customerName = $('#cName').html();
-            localStorage.setItem("customerID", cID);
-            localStorage.setItem("customerName", customerName);
-            location.href = "{% url 'ecomApp:browse_products' %}";
-            console.log(localStorage.getItem('customerName'));
-
-
-        }
-{% endcomment %}
     </script>
 
 {% endblock %}

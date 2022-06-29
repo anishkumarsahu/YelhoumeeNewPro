@@ -3,5 +3,5 @@ from .views import *
 
 urlpatterns = [
     # pages
-    path(r'^$', activate, name='activate'),
-    ]
+    path('', activate, name='activate'),
+]

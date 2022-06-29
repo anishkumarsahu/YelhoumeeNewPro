@@ -17,6 +17,8 @@ def loginPage(request):
 def admin_home(request):
     return render(request, 'home/admin/adminHome.html')
 
+def user_list(request):
+    return render(request, 'home/admin/userList.html')
 
 
 def user_logout(request):

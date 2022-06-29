@@ -7,7 +7,8 @@ urlpatterns = [
     path('', loginPage, name='loginPage'),
     path('logout/', user_logout, name='logout'),
     path('postLogin/', postLogin, name='UserLogin'),
-    #admin
+    # admin
     path('admin_home/', admin_home, name='admin_home'),
+    path('user_list/', user_list, name='user_list'),
 
-    ]
+]
