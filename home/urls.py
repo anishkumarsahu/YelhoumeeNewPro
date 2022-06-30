@@ -1,5 +1,6 @@
 from django.urls import path
 from .views import *
+from .apiView import *
 
 urlpatterns = [
     # pages
@@ -10,5 +11,7 @@ urlpatterns = [
     # admin
     path('admin_home/', admin_home, name='admin_home'),
     path('user_list/', user_list, name='user_list'),
+    # api
+    path('api/add_staff_api/', add_staff_api, name='add_staff_api'),
 
 ]

@@ -2,7 +2,7 @@ from activation.models import Validity, EcomValidity
 from django.contrib.auth import logout, authenticate, login
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
-
+from .models import *
 # Create your views here.
 from django.views.decorators.csrf import csrf_exempt
 
@@ -17,8 +17,13 @@ def loginPage(request):
 def admin_home(request):
     return render(request, 'home/admin/adminHome.html')
 
+
 def user_list(request):
-    return render(request, 'home/admin/userList.html')
+    groups = StaffGroup.objects.filter(isDeleted__exact=False).order_by('name')
+    context = {
+        'groups': groups
+    }
+    return render(request, 'home/admin/userList.html', context)
 
 
 def user_logout(request):

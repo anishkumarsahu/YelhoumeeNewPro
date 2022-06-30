@@ -38,7 +38,7 @@ class StaffUser(models.Model):
     userPassword = models.CharField(max_length=200, blank=True, null=True)
     group = models.CharField(max_length=200, blank=True, null=True)
     user_ID = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE)
-    isActive = models.BooleanField(default=True)
+    isActive = models.CharField(max_length=200, blank=True, null=True)
     datetime = models.DateTimeField(auto_now_add=True, auto_now=False)
     lastUpdatedOn = models.DateTimeField(auto_now_add=False, auto_now=True)
     isDeleted = models.BooleanField(default=False)

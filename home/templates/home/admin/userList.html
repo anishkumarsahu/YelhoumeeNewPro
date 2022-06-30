@@ -8,6 +8,71 @@
 {% block body %}
 
     <style>
+        .avatar-upload {
+            position: relative;
+            max-width: 115px;
+            margin: 5px auto;
+        }
+
+        .avatar-upload .avatar-edit {
+            position: absolute;
+            right: 12px;
+            z-index: 1;
+            top: 10px;
+        }
+
+        .avatar-upload .avatar-edit input {
+            display: none;
+        }
+
+        .avatar-upload .avatar-edit input + label {
+            display: inline-block;
+            width: 25px;
+            height: 25px;
+            margin-bottom: 0;
+            border-radius: 100%;
+            background: #FFFFFF;
+            border: 1px solid transparent;
+            box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.12);
+            cursor: pointer;
+            font-weight: normal;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .avatar-upload .avatar-edit input + label:hover {
+            background: #f1f1f1;
+            border-color: #d6d6d6;
+        }
+
+        .avatar-upload .avatar-edit input + label:after {
+            color: #757575;
+            position: absolute;
+            top: 10px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            margin: auto;
+
+        }
+
+        .avatar-upload .avatar-preview {
+            width: 100px;
+            height: 100px;
+            position: relative;
+            border-radius: 100%;
+            border: 6px solid #F8F8F8;
+            box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.1);
+        }
+
+        .avatar-upload .avatar-preview > div {
+            width: 100%;
+            height: 100%;
+            border-radius: 100%;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
         .sidenav {
             height: 100%;
             width: 200px;
@@ -79,17 +144,14 @@
                         <table class="ui sortable celled very compact table" id="UserTable" style="margin-top: 5px">
                             <thead>
                             <tr>
+                                <th>Photo</th>
                                 <th>Name</th>
                                 <th>Username</th>
                                 <th>Password</th>
                                 <th>PhoneNo.</th>
                                 <th>Address</th>
-                                <th>City</th>
-                                <th>Zip</th>
-                                <th>State</th>
                                 <th>Email</th>
                                 <th>IsActive?</th>
-                                <th>D_Target</th>
                                 <th>Actions</th>
                             </tr>
                             </thead>
@@ -101,14 +163,39 @@
                     <div class="ui modal" id="myModalUser">
                         <i class="close icon"></i>
                         <div class="header">
-                            User Details
+                            Add Staff
                         </div>
                         <div class="content">
 
-                            <form class="ui form" id="addUserForm">{% csrf_token %}
+                            <form class="ui tiny form" id="addUserForm">{% csrf_token %}
+                                <div class="field required">
+                                    <label>Photo</label>
 
+                                    <div class="ui" style="width: 100%; text-align: center">
+                                        <div class="ui icon header">
+                                            <div class="inline ">
 
-                                <div class="one fields">
+                                                <div class="avatar-upload">
+                                                    <div class="avatar-edit">
+                                                        <input type='file' id="imageUpload" name="photo"
+                                                               accept=".png, .jpg, .jpeg"/>
+                                                        <label for="imageUpload"><i class="edit icon"
+                                                                                    style="font-size: 1rem;padding: 0.4rem"></i>
+                                                        </label>
+                                                    </div>
+                                                    <div class="avatar-preview">
+                                                        <div id="cImg"
+                                                             style="background-image: url('https://cdn-icons.flaticon.com/png/512/4785/premium/4785452.png?token=exp=1651559899~hmac=8bd1641cd72c54268deafab8b26dd7a9');">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="one required fields">
                                     <div class="sixteen wide field">
                                         <label>Name</label>
                                         <input type="text" name="Name" placeholder="Full Name" id="CompanyUserName">
@@ -117,88 +204,62 @@
                                 </div>
 
                                 <div class="two fields">
-                                    <div class="field">
+                                    <div class="field required">
                                         <label>Phone No.</label>
-                                        <input type="number" name="Phone" id="UserPhoneNo">
+                                        <input type="number" name="Phone" id="UserPhoneNo" placeholder="Phone Number">
                                     </div>
                                     <div class="field">
                                         <label>Email</label>
-                                        <input type="text" name="Email" id="UserEmail">
+                                        <input type="text" placeholder="Email Address" name="Email" id="UserEmail">
                                     </div>
                                 </div>
 
                                 <div class="field">
 
-                                    <div class="fields">
+                                    <div class="required fields">
 
-                                        <div class="twelve wide field">
+                                        <div class="sixteen wide field">
                                             <label>Address</label>
-                                            <input type="text" name="shipping[address]" placeholder="Street Address"
+                                            <input type="text" name="shipping[address]" placeholder="Full Address"
                                                    id="UserAddress">
                                         </div>
 
-                                        <div class="four wide field">
-                                            <label>Zip</label>
-                                            <input type="text" name="shipping[address-2]" placeholder="ZIP"
-                                                   id="UserZip">
-                                        </div>
                                     </div>
                                 </div>
                                 <div class="two fields">
-                                    <div class="field">
-                                        <label>State</label>
-                                        <select class="ui fluid dropdown" id="UserState">
-                                            <option value="" hidden>State</option>
-                                            <option value="Andhra Pradesh">Andhra Pradesh</option>
-                                            <option value="Arunachal Pradesh">Arunachal Pradesh</option>
-                                            <option value="Assam">Assam</option>
-                                            <option value="Bihar">Bihar</option>
-                                            <option value="Chhattisgarh">Chhattisgarh</option>
-                                            <option value="Goa">Goa</option>
-                                            <option value="Gujarat">Gujarat</option>
-                                            <option value="Haryana">Haryana</option>
-                                            <option value="Himachal Pradesh">Himachal Pradesh</option>
-                                            <option value="Jammu & Kashmir">Jammu & Kashmir</option>
-                                            <option value="Jarkhand">Jarkhand</option>
-                                            <option value="Karnataka">Karnataka</option>
-                                            <option value="Kerala">Kerala</option>
-                                            <option value="Madhya Pradesh">Madhya Pradesh</option>
-                                            <option value="Maharastra">Maharastra</option>
-                                            <option value="Manipur" selected>Manipur</option>
-                                            <option value="Meghalaya">Meghalaya</option>
-                                            <option value="Mizoram">Mizoram</option>
-                                            <option value="Nagaland">Nagaland</option>
-                                            <option value="Orissa">Orissa</option>
-                                            <option value="Punjab">Punjab</option>
-                                            <option value="Rajasthan">Rajasthan</option>
-                                            <option value="Sikkim">Sikkim</option>
-                                            <option value="Tamil Nadu">Tamil Nadu</option>
-                                            <option value="Telangana">Telangana</option>
-                                            <option value="Tripura">Tripura</option>
-                                            <option value="Utter Pradesh">Utter Pradesh</option>
-                                            <option value="Uttarakhand">Uttarakhand</option>
-                                            <option value="West Bengal">West Bengal</option>
+                                    <div class="field required">
+                                        <label>Group</label>
+                                        <select class="ui fluid dropdown" id="UserGroup">
+                                            <option value="" hidden>Group</option>
+                                            {% for group in groups %}
+                                                <option value="{{ group.name }}">{{ group.name|capfirst }}</option>
+                                            {% endfor %}
+
+
                                         </select>
                                     </div>
 
-                                    <div class="field">
-                                        <label>City</label>
-                                        <input type="text" name="city" id="UserCity">
+                                    <div class="field required">
+                                        <label>Is-Active</label>
+                                        <select class="ui fluid dropdown" id="UserStatus">
+                                            <option value="" hidden>Status</option>
+                                            <option value="Active" selected>Active</option>
+                                            <option value="In-Active">In-Active</option>
+
+                                        </select>
                                     </div>
                                 </div>
-                                <div class="three fields">
-                                    <div class="field">
+                                <div class="two fields">
+                                    <div class="field required">
                                         <label>Password</label>
-                                        <input type="password" name="Password" id="UserPwd">
+                                        <input type="password" name="Password" id="UserPwd" placeholder="Password">
                                     </div>
-                                    <div class="field">
+                                    <div class="field required">
                                         <label>Confirm Password</label>
-                                        <input type="password" name="Password" id="ConfirmPwd">
+                                        <input type="password" name="Password" id="ConfirmPwd"
+                                               placeholder="Confirm Password">
                                     </div>
-                                    <div class="field">
-                                        <label>Set Daily Target(Rs.)</label>
-                                        <input type="number" name="Target" id="Target" value="0">
-                                    </div>
+
                                 </div>
 
 
@@ -236,7 +297,7 @@
                     </div>
                 </div>
 
-                <div class="ui modal" id="userModal">
+                {% comment %} <div class="ui modal" id="userModal">
                     <i class="close icon"></i>
                     <div class="header">
                         Edit User
@@ -347,7 +408,7 @@
                             </button>
                         </div>
                     </div>
-                </div>
+                </div>{% endcomment %}
             </div>
         </div>
     </div>
@@ -361,14 +422,21 @@
 
         $('.tabular.menu .item').tab();
 
-
-        function getSettingData(index) {
-            if (index === 'user') {
-                userTab.ajax.reload(null, false);
-
+        function readURLPhoto(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#cImg').css('background-image', 'url(' + e.target.result + ')');
+                    $('#cImg').hide();
+                    $('#cImg').fadeIn(650);
+                }
+                reader.readAsDataURL(input.files[0]);
             }
-
         }
+
+        $("#imageUpload").change(function () {
+            readURLPhoto(this);
+        });
 
 
         function showUserModal() {
@@ -381,24 +449,23 @@
 
         function addUser() {
             //for User
+            var imageUpload = document.getElementById("imageUpload").files[0];
             var CompanyUserName = $('#CompanyUserName').val();
             var UserPhoneNo = $('#UserPhoneNo').val();
             var UserEmail = $('#UserEmail').val();
             var UserAddress = $('#UserAddress').val();
-            var UserZip = $('#UserZip').val();
-            var UserState = $('#UserState').val();
-            var UserCity = $('#UserCity').val();
+            var UserGroup = $('#UserGroup').val();
+            var UserStatus = $('#UserStatus').val();
             var UserPwd = $('#UserPwd').val();
             var ConfirmPwd = $('#ConfirmPwd').val();
-            var Target = $('#Target').val();
 
 
-            if (CompanyUserName === '' || UserPhoneNo === '' || UserEmail === '' ||
-                UserAddress === '' || Target === '' || UserZip === '' || UserState === '' || UserCity === '' || UserPwd === '' || ConfirmPwd === '') {
+            if (CompanyUserName === '' || UserPhoneNo === '' || imageUpload === undefined ||
+                UserAddress === '' || UserPwd === '' || ConfirmPwd === '' || UserGroup === '' || UserStatus === '') {
                 $('body')
                     .toast({
                         class: 'orange',
-                        message: 'User Name, Phone Number, Email, Address ... are required !. Also ensure that password is matched'
+                        message: 'User Name, Phone Number, Photo, Address ... are required !. Also ensure that password is matched'
                     })
                 ;
             } else {
@@ -406,15 +473,14 @@
                 var csrfmiddlewaretoken = $("input[name='csrfmiddlewaretoken']").val();
 
                 data = new FormData();
+                data.append('imageUpload', imageUpload);
                 data.append('CompanyUserName', CompanyUserName);
                 data.append('UserPhoneNo', UserPhoneNo);
                 data.append('UserEmail', UserEmail);
                 data.append('UserAddress', UserAddress);
-                data.append('UserZip', UserZip);
-                data.append('UserState', UserState);
-                data.append('UserCity', UserCity);
+                data.append('UserGroup', UserGroup);
+                data.append('UserStatus', UserStatus);
                 data.append('UserPwd', UserPwd);
-                data.append('Target', Target);
 
 
                 data.append('csrfmiddlewaretoken', csrfmiddlewaretoken);
@@ -432,7 +498,7 @@
 
                     $.ajax({
                         type: 'post',
-                        url: '#',
+                        url: '{% url "homeApp:add_staff_api" %}',
                         data: data,
                         contentType: false,
                         cache: false,
