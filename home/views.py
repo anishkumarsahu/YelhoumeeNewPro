@@ -11,7 +11,7 @@ def loginPage(request):
     if not request.user.is_authenticated:
         return render(request, 'home/login.html')
     else:
-        return redirect('/')
+        return redirect('/admin_home/')
 
 
 def admin_home(request):
@@ -24,6 +24,10 @@ def user_list(request):
         'groups': groups
     }
     return render(request, 'home/admin/userList.html', context)
+
+
+def product_list(request):
+    return render(request, 'home/productList.html')
 
 
 def user_logout(request):
@@ -41,12 +45,10 @@ def postLogin(request):
 
         if user is not None:
             login(request, user)
-            if 'Admin' in request.user.groups.values_list('name',
-                                                          flat=True) or 'Staff' in request.user.groups.values_list(
-                'name', flat=True):
-                return JsonResponse({'message': 'success', 'data': '/'}, safe=False)
-            elif 'Executive' in request.user.groups.values_list('name', flat=True):
-                return JsonResponse({'message': 'success', 'data': '/ecom/home/'}, safe=False)
+            if 'Admin' in request.user.groups.values_list('name', flat=True):
+                return JsonResponse({'message': 'success', 'data': '/admin_home/'}, safe=False)
+            # elif 'Executive' in request.user.groups.values_list('name', flat=True):
+            #     return JsonResponse({'message': 'success', 'data': '/ecom/home/'}, safe=False)
             else:
                 return JsonResponse({'message': 'fail'}, safe=False)
 

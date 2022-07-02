@@ -8,70 +8,6 @@
 {% block body %}
 
     <style>
-        .avatar-upload {
-            position: relative;
-            max-width: 115px;
-            margin: 5px auto;
-        }
-
-        .avatar-upload .avatar-edit {
-            position: absolute;
-            right: 12px;
-            z-index: 1;
-            top: 10px;
-        }
-
-        .avatar-upload .avatar-edit input {
-            display: none;
-        }
-
-        .avatar-upload .avatar-edit input + label {
-            display: inline-block;
-            width: 25px;
-            height: 25px;
-            margin-bottom: 0;
-            border-radius: 100%;
-            background: #FFFFFF;
-            border: 1px solid transparent;
-            box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.12);
-            cursor: pointer;
-            font-weight: normal;
-            transition: all 0.2s ease-in-out;
-        }
-
-        .avatar-upload .avatar-edit input + label:hover {
-            background: #f1f1f1;
-            border-color: #d6d6d6;
-        }
-
-        .avatar-upload .avatar-edit input + label:after {
-            color: #757575;
-            position: absolute;
-            top: 10px;
-            left: 0;
-            right: 0;
-            text-align: center;
-            margin: auto;
-
-        }
-
-        .avatar-upload .avatar-preview {
-            width: 100px;
-            height: 100px;
-            position: relative;
-            border-radius: 100%;
-            border: 6px solid #F8F8F8;
-            box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.1);
-        }
-
-        .avatar-upload .avatar-preview > div {
-            width: 100%;
-            height: 100%;
-            border-radius: 100%;
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-position: center;
-        }
 
 
         #UserTable_length {
@@ -98,12 +34,12 @@
         <div class="sixteen wide column">
             <div class="ui  pointing secondary menu">
                 <div style="cursor: pointer;" class="item active" data-tab="user"
-                >Staff Users
+                >Products
                 </div>
                 <div style=" position: absolute;right: 1.5rem;top: 18px;">
                     <button class="ui green mini plus button right" onclick="showUserModal()">
                         <i class="plus square outline icon"></i>
-                        Add User
+                        Add Product
                     </button>
                 </div>
             </div>
@@ -139,38 +75,11 @@
                     <div class="ui modal" id="myModalUser">
                         <i class="close icon"></i>
                         <div class="header">
-                            Add Staff
+                            Add Product
                         </div>
                         <div class="content">
 
                             <form class="ui tiny form" id="addForm">{% csrf_token %}
-                                <div class="field required">
-                                    <label>Photo</label>
-
-                                    <div class="ui" style="width: 100%; text-align: center">
-                                        <div class="ui icon header">
-                                            <div class="inline ">
-
-                                                <div class="avatar-upload">
-                                                    <div class="avatar-edit">
-                                                        <input type='file' id="imageUpload" name="photo"
-                                                               accept=".png, .jpg, .jpeg"/>
-                                                        <label for="imageUpload"><i class="edit icon"
-                                                                                    style="font-size: 1rem;padding: 0.4rem"></i>
-                                                        </label>
-                                                    </div>
-                                                    <div class="avatar-preview">
-                                                        <div id="cImg"
-                                                             style="background-image: url('https://cdn-icons.flaticon.com/png/512/4785/premium/4785452.png?token=exp=1651559899~hmac=8bd1641cd72c54268deafab8b26dd7a9');">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                </div>
-
                                 <div class="one required fields">
                                     <div class="sixteen wide field">
                                         <label>Name</label>
@@ -588,33 +497,33 @@
                     if (response.message === 'success') {
                         $('body')
                             .toast({
-                                    class: 'success',
-                                    message: 'User Detail Deleted Successfully.'
-                                })
-                            ;
+                                class: 'success',
+                                message: 'User Detail Deleted Successfully.'
+                            })
+                        ;
 
 
-                            userTab.ajax.reload();
-                        } else {
-                            $('body')
-                                .toast({
-                                    class: 'error',
-                                    message: 'An error occurred !'
-                                })
-                            ;
-
-                        }
-
-                        return response;
-                    },
-                    error: function () {
+                        userTab.ajax.reload();
+                    } else {
                         $('body')
                             .toast({
                                 class: 'error',
                                 message: 'An error occurred !'
                             })
                         ;
+
                     }
+
+                    return response;
+                },
+                error: function () {
+                    $('body')
+                        .toast({
+                            class: 'error',
+                            message: 'An error occurred !'
+                        })
+                    ;
+                }
             });
 
         }

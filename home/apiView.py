@@ -76,66 +76,137 @@ def add_staff_api(request):
         except:
             return JsonResponse({'message': 'error'}, safe=False)
 
-    
-class ProductListForImageJson(BaseDatatableView):
-    order_columns = ['name', 'brand', 'categoryID', 'mrp', 'cost', 'spWithoutGst', 'spWithGst', 'barcode']
+
+class StaffUserListJson(BaseDatatableView):
+    order_columns = ['photo', 'name', 'username', 'userPassword', 'group', 'phone', 'address', 'isActive', 'datetime']
 
     def get_initial_queryset(self):
-        if 'Admin' in self.request.user.groups.values_list('name', flat=True):
-
-            return Product.objects.filter(wareHouse_ID__isDeleted__exact=False, company_ID__isDeleted__exact=False,
-                                          isDeleted__exact=False)
-        else:
-            user = CompanyUser.objects.get(user_ID_id=self.request.user.pk)
-            return Product.objects.filter(wareHouse_ID__isDeleted__exact=False, company_ID__isDeleted__exact=False,
-                                          isDeleted__exact=False, company_ID_id=user.company_ID_id,
-                                          productType__iexact='Normal')
+        # if 'Admin' in self.request.user.groups.values_list('name', flat=True):
+        return StaffUser.objects.filter(isDeleted__exact=False)
 
     def filter_queryset(self, qs):
 
         search = self.request.GET.get('search[value]', None)
         if search:
             qs = qs.filter(
-                Q(name__icontains=search) | Q(brand__icontains=search)
-                | Q(categoryID__name__icontains=search) | Q(mrp__icontains=search)
-                | Q(cost__icontains=search) | Q(spWithoutGst__icontains=search)
-                | Q(spWithGst__icontains=search)
-            ).order_by('-id')
+                Q(name__icontains=search) | Q(username__icontains=search)
+                | Q(group__icontains=search) | Q(phone__icontains=search)
+                | Q(address__icontains=search) | Q(isActive__icontains=search)
+                | Q(datetime__icontains=search)
+            )
 
         return qs
 
     def prepare_results(self, qs):
         json_data = []
         for item in qs:
-            images = '<button class="mini ui red button">No Image Added</button>'
-            img = ProductImage.objects.filter(productID_id=item.pk, isDeleted__exact=False)
-            if img.count() < 1:
-                images = '<button class="mini ui red button">No Image Added</button>'
-            else:
-                images = ''
-                for i in img:
-                    images += '<img class="ui avatar image" src="{}">'.format(i.productImage.thumbnail.url)
+            images = '<img class="ui avatar image" src="{}">'.format(item.photo.thumbnail.url)
 
-            if 'Admin' in self.request.user.groups.values_list('name', flat=True):
-                action = '''
-                    <button style="font-size:10px;" onclick = "GetProductImageDetail('{}')" class="ui circular facebook icon button green">
-                                               <i class="image icon"></i>
-                                             </button>
-
-                        '''.format(item.pk),
-            else:
-                action = '<button class="mini ui button">Denied</button>'
+            action = '''<button style="font-size:10px;" onclick = "GetUserDetails('{}')" class="ui circular facebook icon button green">
+                    <i class="pen icon"></i>
+                  </button>
+                  <button style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
+                    <i class="trash alternate icon"></i>
+                  </button></td>'''.format(item.pk, item.pk),
 
             json_data.append([
-                escape(item.name),  # escape HTML for security reasons
-                escape(item.brand),
-                escape(item.categoryID.name),
-                escape(item.mrp),
-                escape(item.cost),
-                escape(item.spWithoutGst),
-                escape(item.spWithGst),
-                images,
+                images,  # escape HTML for security reasons
+                escape(item.name),
+                escape(item.username),
+                escape(item.userPassword),
+                escape(item.group),
+                escape(item.phone),
+                escape(item.address),
+                escape(item.isActive),
+                escape(item.datetime.strftime('%d-%m-%Y %I:%M %p')),
                 action,
 
             ])
+
         return json_data
+
+
+@transaction.atomic
+@csrf_exempt
+def delete_staff_user(request):
+    if request.method == 'POST':
+        try:
+            id = request.POST.get("userID")
+            staff = StaffUser.objects.get(pk=int(id))
+            staff.isDeleted = True
+            staff.save()
+            new_user = User.objects.get(pk=staff.user_ID_id)
+            new_user.is_active = False
+            new_user.save()
+
+            return JsonResponse({'message': 'success'}, safe=False)
+        except:
+            return JsonResponse({'message': 'error'}, safe=False)
+
+
+def get_staff_user_detail(request):
+    id = request.GET.get('id')
+    C_User = get_object_or_404(StaffUser, id=id)
+    # instance = BankDetails.objects.get(companyID_id=company.pk)
+
+    data = {
+        'ID': C_User.pk,
+        'UserName': C_User.name,
+        'UserPhone': C_User.phone,
+        'UserAddress': C_User.address,
+        'UserEmail': C_User.email,
+        'UserPassword': C_User.userPassword,
+        'UserGroup': C_User.group,
+        'IsActive': C_User.isActive,
+        'ImgUrl': C_User.photo.medium.url
+
+    }
+    return JsonResponse({'data': data}, safe=False)
+
+
+@transaction.atomic
+@csrf_exempt
+def edit_staff_api(request):
+    if request.method == 'POST':
+        try:
+            EditUserId = request.POST.get("EditUserId")
+            CompanyUserName = request.POST.get("CompanyUserName")
+            UserPhoneNo = request.POST.get("UserPhoneNo")
+            UserEmail = request.POST.get("UserEmail")
+            UserAddress = request.POST.get("UserAddress")
+            UserGroup = request.POST.get("UserGroup")
+            UserStatus = request.POST.get("UserStatus")
+            UserPwd = request.POST.get("UserPwd")
+
+            staff = StaffUser.objects.get(pk=int(EditUserId))
+            staff.name = CompanyUserName
+            staff.phone = UserPhoneNo
+            staff.email = UserEmail
+            staff.address = UserAddress
+            staff.group = UserGroup
+            staff.isActive = UserStatus
+            staff.userPassword = UserPwd
+            staff.save()
+
+            new_user = User.objects.get(pk=staff.user_ID_id)
+            new_user.set_password(UserPwd)
+            if UserStatus == 'Active':
+                new_user.is_active = True
+            else:
+                new_user.is_active = False
+            new_user.save()
+            new_user.groups.clear()
+            try:
+                g = Group.objects.get(name=UserGroup)
+                g.user_set.add(new_user.pk)
+                g.save()
+
+            except:
+                g = Group()
+                g.name = UserGroup
+                g.save()
+                g.user_set.add(new_user.pk)
+                g.save()
+            return JsonResponse({'message': 'success'}, safe=False)
+        except:
+            return JsonResponse({'message': 'error'}, safe=False)
