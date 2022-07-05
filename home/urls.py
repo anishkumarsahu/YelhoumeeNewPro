@@ -12,6 +12,9 @@ urlpatterns = [
     path('admin_home/', admin_home, name='admin_home'),
     path('user_list/', user_list, name='user_list'),
     path('product_list/', product_list, name='product_list'),
+    path('purchase_list/', purchase_list, name='purchase_list'),
+    path('purchase_add/', purchase_add, name='purchase_add'),
+    path('supplier_add/', supplier_add, name='supplier_add'),
 
     # api Staff
     path('api/add_staff_api/', add_staff_api, name='add_staff_api'),
@@ -19,5 +22,19 @@ urlpatterns = [
     path('api/get_staff_user_detail/', get_staff_user_detail, name='get_staff_user_detail'),
     path('api/edit_staff_api/', edit_staff_api, name='edit_staff_api'),
     path('api/StaffUserListJson/', StaffUserListJson.as_view(), name='StaffUserListJson'),
+
+    # api Product
+    path('api/add_product_api/', add_product_api, name='add_product_api'),
+    path('api/delete_product/', delete_product, name='delete_product'),
+    path('api/get_product_detail/', get_product_detail, name='get_product_detail'),
+    path('api/edit_product_api/', edit_product_api, name='edit_product_api'),
+    path('api/ProductListJson/', ProductListJson.as_view(), name='ProductListJson'),
+
+    # api Supplier
+    path('api/add_supplier_api/', add_supplier_api, name='add_supplier_api'),
+    path('api/delete_supplier/', delete_supplier, name='delete_supplier'),
+    path('api/get_supplier_detail/', get_supplier_detail, name='get_supplier_detail'),
+    path('api/edit_supplier_api/', edit_supplier_api, name='edit_supplier_api'),
+    path('api/SupplierListJson/', SupplierListJson.as_view(), name='SupplierListJson'),
 
 ]

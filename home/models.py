@@ -48,3 +48,78 @@ class StaffUser(models.Model):
 
     class Meta:
         verbose_name_plural = 'b) User List'
+
+
+class Unit(models.Model):
+    name = models.CharField(max_length=200, blank=True, null=True)
+    datetime = models.DateTimeField(auto_now_add=True, auto_now=False)
+    lastUpdatedOn = models.DateTimeField(auto_now_add=False, auto_now=True)
+    isDeleted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = 'c) Unit List'
+
+
+class Category(models.Model):
+    name = models.CharField(max_length=200, blank=True, null=True)
+    datetime = models.DateTimeField(auto_now_add=True, auto_now=False)
+    lastUpdatedOn = models.DateTimeField(auto_now_add=False, auto_now=True)
+    isDeleted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = 'd) Category List'
+
+
+class Brand(models.Model):
+    name = models.CharField(max_length=200, blank=True, null=True)
+    datetime = models.DateTimeField(auto_now_add=True, auto_now=False)
+    lastUpdatedOn = models.DateTimeField(auto_now_add=False, auto_now=True)
+    isDeleted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = 'e) Brand List'
+
+
+class Product(models.Model):
+    name = models.CharField(max_length=200, blank=True, null=True)
+    stock = models.FloatField(default=0.0)
+    categoryID = models.CharField(max_length=200, blank=True, null=True)
+    brandID = models.CharField(max_length=200, blank=True, null=True)
+    unitID = models.CharField(max_length=200, blank=True, null=True)
+    cp = models.FloatField(default=0.0)
+    mrp = models.FloatField(default=0.0)
+    sp = models.FloatField(default=0.0)
+    datetime = models.DateTimeField(auto_now_add=True, auto_now=False)
+    lastUpdatedOn = models.DateTimeField(auto_now_add=False, auto_now=True)
+    isDeleted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = 'f) Product List'
+
+
+class Supplier(models.Model):
+    name = models.CharField(max_length=200, blank=True, null=True)
+    phone = models.CharField(max_length=200, blank=True, null=True)
+    gst = models.CharField(max_length=200, blank=True, null=True)
+    address = models.CharField(max_length=500, blank=True, null=True)
+    datetime = models.DateTimeField(auto_now_add=True, auto_now=False)
+    lastUpdatedOn = models.DateTimeField(auto_now_add=False, auto_now=True)
+    isDeleted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = 'g) Supplier List'

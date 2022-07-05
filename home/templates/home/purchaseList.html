@@ -1,7 +1,7 @@
 {% extends 'home/admin/adminHome.html' %}
 {% load static %}
 {% block title %}
-    <title>Products</title>
+    <title>Purchase</title>
 {% endblock %}
 {% block css %}
 {% endblock %}
@@ -339,24 +339,24 @@
                         } else {
                             $('body')
                                 .toast({
-                                        class: 'error',
-                                        message: 'An error occurred !'
-                                    })
-                                ;
-
-                            }
-
-                            return response;
-                        },
-                        error: function () {
-                            $('body')
-                                .toast({
                                     class: 'error',
                                     message: 'An error occurred !'
                                 })
                             ;
+
                         }
-                    });
+
+                        return response;
+                    },
+                    error: function () {
+                        $('body')
+                            .toast({
+                                class: 'error',
+                                message: 'An error occurred !'
+                            })
+                        ;
+                    }
+                });
 
 
             }
@@ -373,7 +373,7 @@
             buttons: [{
                 extend: 'excel',
                 exportOptions: {
-                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+                    columns: [1, 2, 3, 4, 5, 6, 7, 8]
                 }
             }
                 {% comment %}      , {
@@ -556,24 +556,24 @@
                         } else {
                             $('body')
                                 .toast({
-                                        class: 'error',
-                                        message: 'An error occurred !'
-                                    })
-                                ;
-
-                            }
-
-                            return response;
-                        },
-                        error: function () {
-                            $('body')
-                                .toast({
                                     class: 'error',
                                     message: 'An error occurred !'
                                 })
                             ;
+
                         }
-                    });
+
+                        return response;
+                    },
+                    error: function () {
+                        $('body')
+                            .toast({
+                                class: 'error',
+                                message: 'An error occurred !'
+                            })
+                        ;
+                    }
+                });
 
 
             }

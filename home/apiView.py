@@ -210,3 +210,267 @@ def edit_staff_api(request):
             return JsonResponse({'message': 'success'}, safe=False)
         except:
             return JsonResponse({'message': 'error'}, safe=False)
+
+
+# ---------------------------------Product ----------------------------------------------------
+
+@transaction.atomic
+@csrf_exempt
+def add_product_api(request):
+    if request.method == 'POST':
+        try:
+            productName = request.POST.get("productName")
+            stock = request.POST.get("stock")
+            unit = request.POST.get("unit")
+            category = request.POST.get("category")
+            brand = request.POST.get("brand")
+            cp = request.POST.get("cp")
+            mrp = request.POST.get("mrp")
+            sp = request.POST.get("sp")
+
+            pro = Product()
+            pro.name = productName
+            pro.unitID = unit
+            pro.categoryID = category
+            pro.brandID = brand
+            pro.stock = float(stock)
+            pro.cp = float(cp)
+            pro.mrp = float(mrp)
+            pro.sp = float(sp)
+            pro.save()
+
+            return JsonResponse({'message': 'success'}, safe=False)
+        except:
+            return JsonResponse({'message': 'error'}, safe=False)
+
+
+class ProductListJson(BaseDatatableView):
+    order_columns = ['name', 'stock', 'unitID', 'categoryID', 'brandID', 'cp', 'mrp', 'sp', 'datetime']
+
+    def get_initial_queryset(self):
+        # if 'Admin' in self.request.user.groups.values_list('name', flat=True):
+        return Product.objects.filter(isDeleted__exact=False)
+
+    def filter_queryset(self, qs):
+
+        search = self.request.GET.get('search[value]', None)
+        if search:
+            qs = qs.filter(
+                Q(name__icontains=search) | Q(stock__icontains=search)
+                | Q(unitID__icontains=search) | Q(categoryID__icontains=search)
+                | Q(brandID__icontains=search) | Q(cp__icontains=search) |
+                Q(mrp__icontains=search) | Q(sp__icontains=search)
+                | Q(datetime__icontains=search)
+            )
+
+        return qs
+
+    def prepare_results(self, qs):
+        json_data = []
+        for item in qs:
+            action = '''<button style="font-size:10px;" onclick = "GetUserDetails('{}')" class="ui circular facebook icon button green">
+                    <i class="pen icon"></i>
+                  </button>
+                  <button style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
+                    <i class="trash alternate icon"></i>
+                  </button></td>'''.format(item.pk, item.pk),
+
+            json_data.append([
+                escape(item.name),
+                escape(item.stock),
+                escape(item.unitID),
+                escape(item.categoryID),
+                escape(item.brandID),
+                escape(item.cp),
+                escape(item.mrp),
+                escape(item.sp),
+                escape(item.datetime.strftime('%d-%m-%Y %I:%M %p')),
+                action,
+
+            ])
+
+        return json_data
+
+
+@transaction.atomic
+@csrf_exempt
+def delete_product(request):
+    if request.method == 'POST':
+        try:
+            id = request.POST.get("userID")
+            pro = Product.objects.get(pk=int(id))
+            pro.isDeleted = True
+            pro.save()
+
+            return JsonResponse({'message': 'success'}, safe=False)
+        except:
+            return JsonResponse({'message': 'error'}, safe=False)
+
+
+def get_product_detail(request):
+    id = request.GET.get('id')
+    instance = get_object_or_404(Product, id=id)
+    # instance = BankDetails.objects.get(companyID_id=company.pk)
+
+    data = {
+        'ID': instance.pk,
+        'ProductName': instance.name,
+        'Stock': instance.stock,
+        'Unit': instance.unitID,
+        'Category': instance.categoryID,
+        'Brand': instance.brandID,
+        'CP': instance.cp,
+        'MRP': instance.mrp,
+        'SP': instance.sp
+    }
+    return JsonResponse({'data': data}, safe=False)
+
+
+@transaction.atomic
+@csrf_exempt
+def edit_product_api(request):
+    if request.method == 'POST':
+        try:
+            Id = request.POST.get("EditUserId")
+            productName = request.POST.get("productName")
+            stock = request.POST.get("stock")
+            unit = request.POST.get("unit")
+            category = request.POST.get("category")
+            brand = request.POST.get("brand")
+            cp = request.POST.get("cp")
+            mrp = request.POST.get("mrp")
+            sp = request.POST.get("sp")
+
+            pro = Product.objects.get(id=int(Id))
+            pro.name = productName
+            pro.unitID = unit
+            pro.categoryID = category
+            pro.brandID = brand
+            pro.stock = float(stock)
+            pro.cp = float(cp)
+            pro.mrp = float(mrp)
+            pro.sp = float(sp)
+            pro.save()
+
+            return JsonResponse({'message': 'success'}, safe=False)
+        except:
+            return JsonResponse({'message': 'error'}, safe=False)
+
+
+# ---------------------------------Supplier ----------------------------------------------------
+
+@transaction.atomic
+@csrf_exempt
+def add_supplier_api(request):
+    if request.method == 'POST':
+        try:
+            supplierName = request.POST.get("supplierName")
+            phone = request.POST.get("phone")
+            gst = request.POST.get("gst")
+            address = request.POST.get("address")
+
+            obj = Supplier()
+            obj.name = supplierName
+            obj.phone = phone
+            obj.gst = gst
+            obj.address = address
+            obj.save()
+
+            return JsonResponse({'message': 'success'}, safe=False)
+        except:
+            return JsonResponse({'message': 'error'}, safe=False)
+
+
+@transaction.atomic
+@csrf_exempt
+def delete_supplier(request):
+    if request.method == 'POST':
+        try:
+            id = request.POST.get("userID")
+            obj = Supplier.objects.get(pk=int(id))
+            obj.isDeleted = True
+            obj.save()
+            return JsonResponse({'message': 'success'}, safe=False)
+        except:
+            return JsonResponse({'message': 'error'}, safe=False)
+
+
+class SupplierListJson(BaseDatatableView):
+    order_columns = ['name', 'phone', 'gst', 'address', 'datetime']
+
+    def get_initial_queryset(self):
+        # if 'Admin' in self.request.user.groups.values_list('name', flat=True):
+        return Supplier.objects.filter(isDeleted__exact=False)
+
+    def filter_queryset(self, qs):
+
+        search = self.request.GET.get('search[value]', None)
+        if search:
+            qs = qs.filter(
+                Q(name__icontains=search) | Q(phone__icontains=search)
+                | Q(gst__icontains=search) | Q(addtress__icontains=search)
+                | Q(datetime__icontains=search)
+            )
+
+        return qs
+
+    def prepare_results(self, qs):
+        json_data = []
+        for item in qs:
+            action = '''<button style="font-size:10px;" onclick = "GetUserDetails('{}')" class="ui circular facebook icon button green">
+                    <i class="pen icon"></i>
+                  </button>
+                  <button style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
+                    <i class="trash alternate icon"></i>
+                  </button></td>'''.format(item.pk, item.pk),
+
+            json_data.append([
+                escape(item.name),
+                escape(item.phone),
+                escape(item.gst),
+                escape(item.address),
+                escape(item.datetime.strftime('%d-%m-%Y %I:%M %p')),
+                action,
+
+            ])
+
+        return json_data
+
+
+def get_supplier_detail(request):
+    id = request.GET.get('id')
+    instance = get_object_or_404(Supplier, id=id)
+    # instance = BankDetails.objects.get(companyID_id=company.pk)
+
+    data = {
+        'ID': instance.pk,
+        'Name': instance.name,
+        'Phone': instance.phone,
+        'GST': instance.gst,
+        'Address': instance.address,
+
+    }
+    return JsonResponse({'data': data}, safe=False)
+
+
+@transaction.atomic
+@csrf_exempt
+def edit_supplier_api(request):
+    if request.method == 'POST':
+        try:
+            Id = request.POST.get("EditUserId")
+            supplierName = request.POST.get("supplierName")
+            phone = request.POST.get("phone")
+            gst = request.POST.get("gst")
+            address = request.POST.get("address")
+
+            obj = Supplier.objects.get(id=int(Id))
+            obj.name = supplierName
+            obj.phone = phone
+            obj.gst = gst
+            obj.address = address
+            obj.save()
+
+            return JsonResponse({'message': 'success'}, safe=False)
+        except:
+            return JsonResponse({'message': 'error'}, safe=False)

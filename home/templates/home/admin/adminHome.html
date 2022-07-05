@@ -6,8 +6,11 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0,  user-scalable=0"/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
-    <title>Yelhoumee</title>
-      {% progressive_web_app_meta %}
+    {% block title %}
+        <title>Yelhoumee</title>
+    {% endblock %}
+
+    {% progressive_web_app_meta %}
 
     <link rel="icon" href="{% static 'sw/images/favicon.ico' %}" sizes="any">
     <link rel="apple-touch-icon" href="{% static 'sw/images/apple-touch-icon.png' %}">
@@ -135,13 +138,6 @@
                     Dashboard
                 </div>
             </a>
-
-            <a class="item" href="#">
-                <div>
-                    <i class="icon shopping basket"></i>
-                    Browse Product
-                </div>
-            </a>
         </div>
     </div>
     <div class="item">
@@ -165,11 +161,14 @@
             Purchase
         </div>
         <div class="menu">
-            <a class="item" href="#">
+            <a class="item" href="{% url 'homeApp:purchase_list' %}">
                 <div><i class="cash register icon"></i>Purchase List</div>
             </a>
             <a class="item" href="{% url 'homeApp:product_list' %}">
                 <div><i class="product hunt icon"></i>Products List</div>
+            </a>
+            <a class="item" href="{% url 'homeApp:supplier_add' %}">
+                <div><i class="people carry icon"></i>Supplier List</div>
             </a>
 
         </div>

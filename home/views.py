@@ -27,7 +27,28 @@ def user_list(request):
 
 
 def product_list(request):
-    return render(request, 'home/productList.html')
+    units = Unit.objects.filter(isDeleted__exact=False).order_by('name')
+    categories = Category.objects.filter(isDeleted__exact=False).order_by('name')
+    brands = Brand.objects.filter(isDeleted__exact=False).order_by('name')
+
+    context = {
+        'units': units,
+        'categories': categories,
+        'brands': brands
+    }
+    return render(request, 'home/productList.html', context)
+
+
+def purchase_list(request):
+    return render(request, 'home/purchaseList.html')
+
+
+def purchase_add(request):
+    return render(request, 'home/purchaseAdd.html')
+
+
+def supplier_add(request):
+    return render(request, 'home/supplierList.html')
 
 
 def user_logout(request):

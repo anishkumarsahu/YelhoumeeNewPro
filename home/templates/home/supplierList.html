@@ -1,7 +1,7 @@
 {% extends 'home/admin/adminHome.html' %}
 {% load static %}
 {% block title %}
-    <title>Products</title>
+    <title>Supplier</title>
 {% endblock %}
 {% block css %}
 {% endblock %}
@@ -34,12 +34,12 @@
         <div class="sixteen wide column">
             <div class="ui  pointing secondary menu">
                 <div style="cursor: pointer;" class="item active" data-tab="user"
-                >Products
+                >Supplier
                 </div>
                 <div style=" position: absolute;right: 1.5rem;top: 18px;">
                     <button class="ui green mini plus button right" onclick="showUserModal()">
                         <i class="plus square outline icon"></i>
-                        Add Product
+                        Add Supplier
                     </button>
                 </div>
             </div>
@@ -49,20 +49,16 @@
                     <div class="wide">
                         <h5 class="ui horizontal left aligned divider header">
                             <i class="left align icon"></i>
-                            Product List
+                            Supplier List
                         </h5>
                         <table class="ui unstackable  sortable celled very nowrap very compact table" id="UserTable"
                                style="margin-top: 5px;width: 100%">
                             <thead>
                             <tr>
                                 <th>Name</th>
-                                <th>Stock</th>
-                                <th>Unit</th>
-                                <th>Category</th>
-                                <th>Brand</th>
-                                <th>CP(₹)</th>
-                                <th>MRP(₹)</th>
-                                <th>SP(₹)</th>
+                                <th>Phone No.</th>
+                                <th>GST</th>
+                                <th>Address</th>
                                 <th>Added On</th>
                                 <th>Actions</th>
                             </tr>
@@ -75,66 +71,33 @@
                     <div class="ui modal" id="myModalUser">
                         <i class="close icon"></i>
                         <div class="header">
-                            Add Product
+                            Add Supplier
                         </div>
                         <div class="content">
 
                             <form class="ui tiny form" id="addForm">{% csrf_token %}
                                 <div class="one required fields">
                                     <div class="sixteen wide field">
-                                        <label>Product Name</label>
-                                        <input type="text" name="Name" placeholder="Product Name" id="productName">
+                                        <label>Supplier Name</label>
+                                        <input type="text" name="Name" placeholder="Supplier Name" id="supplierName">
                                     </div>
 
                                 </div>
 
                                 <div class="two fields">
                                     <div class="field required">
-                                        <label>Stock Available</label>
-                                        <input type="number" name="stock" id="stock" placeholder="Stock Available">
+                                        <label>Phone Number</label>
+                                        <input type="number" name="phone" id="phone" placeholder="Phone Number">
                                     </div>
                                     <div class="field">
-                                        <label>Unit</label>
-                                        <select class="ui fluid dropdown" id="unit">
-                                            {% for unit in units %}
-                                                <option value="{{ unit.name }}">{{ unit.name|capfirst }}</option>
-                                            {% endfor %}
-                                        </select>
+                                        <label>GST Number</label>
+                                        <input type="text" name="gst" id="gst" placeholder="GST Number">
                                     </div>
                                 </div>
-                                <div class="two fields">
-                                    <div class="field required">
-                                        <label>Category</label>
-                                        <select class="ui fluid dropdown" id="category">
-                                            {% for category in categories %}
-                                                <option value="{{ category.name }}">{{ category.name|capfirst }}</option>
-                                            {% endfor %}
-
-                                        </select>
-                                    </div>
-
-                                    <div class="field required">
-                                        <label>Brand</label>
-                                        <select class="ui fluid dropdown" id="brand">
-                                            {% for brand in brands %}
-                                                <option value="{{ brand.name }}">{{ brand.name|capfirst }}</option>
-                                            {% endfor %}
-
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="three fields">
-                                    <div class="field required">
-                                        <label>Cost Price(₹)</label>
-                                        <input type="number" name="cp" id="cp" placeholder="Cost Price">
-                                    </div>
-                                    <div class="field required">
-                                        <label>MRP(₹)</label>
-                                        <input type="number" name="mrp" id="mrp" placeholder="MRP">
-                                    </div>
-                                    <div class="field required">
-                                        <label>Selling Price(₹)</label>
-                                        <input type="number" name="sp" id="sp" placeholder="Selling Price">
+                                <div class="one required fields">
+                                    <div class="sixteen wide field">
+                                        <label>Address</label>
+                                        <input type="text" name="address" placeholder="Supplier Address" id="address">
                                     </div>
 
                                 </div>
@@ -156,11 +119,11 @@
                 <div class="ui basic modal custom" id="deleteUser">
                     <div class="ui icon header">
                         <i class="archive icon"></i>
-                        Product Details will be Deleted
+                        Supplier Details will be Deleted
                     </div>
                     <div class="content">
-                        <p style="text-align: center">The Product will be deleted, are you sure to delete this
-                            Product?</p>
+                        <p style="text-align: center">The Supplier will be deleted, are you sure to delete this
+                            Supplier?</p>
                     </div>
                     <div class="actions">
                         <div class="ui red basic cancel inverted button">
@@ -178,66 +141,33 @@
                 <div class="ui modal" id="userModal">
                     <i class="close icon"></i>
                     <div class="header">
-                        Edit Product Details
+                        Edit Supplier Details
                     </div>
                     <div class="content">
 
                         <form class="ui tiny form" id="EditForm">{% csrf_token %}
                             <div class="one required fields">
                                 <div class="sixteen wide field">
-                                    <label>Product Name</label>
-                                    <input type="text" name="Name" placeholder="Product Name" id="productNameEdit">
+                                    <label>Supplier Name</label>
+                                    <input type="text" name="Name" placeholder="Supplier Name" id="supplierNameEdit">
                                 </div>
 
                             </div>
 
                             <div class="two fields">
                                 <div class="field required">
-                                    <label>Stock Available</label>
-                                    <input type="number" name="stock" id="stockEdit" placeholder="Stock Available">
+                                    <label>Phone Number</label>
+                                    <input type="number" name="phone" id="phoneEdit" placeholder="Phone Number">
                                 </div>
                                 <div class="field">
-                                    <label>Unit</label>
-                                    <select class="ui fluid dropdown" id="unitEdit">
-                                        {% for unit in units %}
-                                            <option value="{{ unit.name }}">{{ unit.name|capfirst }}</option>
-                                        {% endfor %}
-                                    </select>
+                                    <label>GST Number</label>
+                                    <input type="text" name="gst" id="gstEdit" placeholder="GST Number">
                                 </div>
                             </div>
-                            <div class="two fields">
-                                <div class="field required">
-                                    <label>Category</label>
-                                    <select class="ui fluid dropdown" id="categoryEdit">
-                                        {% for category in categories %}
-                                            <option value="{{ category.name }}">{{ category.name|capfirst }}</option>
-                                        {% endfor %}
-
-                                    </select>
-                                </div>
-
-                                <div class="field required">
-                                    <label>Brand</label>
-                                    <select class="ui fluid dropdown" id="brandEdit">
-                                        {% for brand in brands %}
-                                            <option value="{{ brand.name }}">{{ brand.name|capfirst }}</option>
-                                        {% endfor %}
-
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="three fields">
-                                <div class="field required">
-                                    <label>Cost Price(₹)</label>
-                                    <input type="number" name="cp" id="cpEdit" placeholder="Cost Price">
-                                </div>
-                                <div class="field required">
-                                    <label>MRP(₹)</label>
-                                    <input type="number" name="mrp" id="mrpEdit" placeholder="MRP">
-                                </div>
-                                <div class="field required">
-                                    <label>Selling Price(₹)</label>
-                                    <input type="number" name="sp" id="spEdit" placeholder="Selling Price">
+                            <div class="one required fields">
+                                <div class="sixteen wide field">
+                                    <label>Address</label>
+                                    <input type="text" name="address" placeholder="Supplier Address" id="addressEdit">
                                 </div>
 
                             </div>
@@ -278,18 +208,13 @@
 
         function addUser() {
 
-            var productName = $('#productName').val();
-            var stock = $('#stock').val();
-            var unit = $('#unit').val();
-            var category = $('#category').val();
-            var brand = $('#brand').val();
-            var cp = $('#cp').val();
-            var mrp = $('#mrp').val();
-            var sp = $('#sp').val();
+            var supplierName = $('#supplierName').val();
+            var phone = $('#phone').val();
+            var gst = $('#gst').val();
+            var address = $('#address').val();
 
 
-            if (productName === '' || stock === '' || mrp === '' ||
-                unit === '' || category === '' || brand === '' || cp === '' || sp === '') {
+            if (supplierName === '' || phone === '' || address === '') {
                 $('body')
                     .toast({
                         class: 'orange',
@@ -301,14 +226,10 @@
                 var csrfmiddlewaretoken = $("input[name='csrfmiddlewaretoken']").val();
 
                 data = new FormData();
-                data.append('productName', productName);
-                data.append('stock', stock);
-                data.append('unit', unit);
-                data.append('category', category);
-                data.append('brand', brand);
-                data.append('cp', cp);
-                data.append('mrp', mrp);
-                data.append('sp', sp);
+                data.append('supplierName', supplierName);
+                data.append('phone', phone);
+                data.append('gst', gst);
+                data.append('address', address);
 
 
                 data.append('csrfmiddlewaretoken', csrfmiddlewaretoken);
@@ -316,7 +237,7 @@
 
                 $.ajax({
                     type: 'post',
-                    url: '{% url "homeApp:add_product_api" %}',
+                    url: '{% url "homeApp:add_supplier_api" %}',
                     data: data,
                     contentType: false,
                     cache: false,
@@ -328,7 +249,7 @@
                             $('body')
                                 .toast({
                                     class: 'success',
-                                    message: 'New Product Added Successfully.'
+                                    message: 'New Supplier Added Successfully.'
                                 })
                             ;
 
@@ -339,24 +260,24 @@
                         } else {
                             $('body')
                                 .toast({
-                                        class: 'error',
-                                        message: 'An error occurred !'
-                                    })
-                                ;
-
-                            }
-
-                            return response;
-                        },
-                        error: function () {
-                            $('body')
-                                .toast({
                                     class: 'error',
                                     message: 'An error occurred !'
                                 })
                             ;
+
                         }
-                    });
+
+                        return response;
+                    },
+                    error: function () {
+                        $('body')
+                            .toast({
+                                class: 'error',
+                                message: 'An error occurred !'
+                            })
+                        ;
+                    }
+                });
 
 
             }
@@ -373,7 +294,7 @@
             buttons: [{
                 extend: 'excel',
                 exportOptions: {
-                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+                    columns: [0, 1, 2, 3, 4]
                 }
             }
                 {% comment %}      , {
@@ -385,23 +306,19 @@
             ],
             "columnDefs": [
                 {"name": "name", "targets": 0, "orderable": true},
-                {"name": "stock", "targets": 1, "orderable": true},
-                {"name": "unitID", "targets": 2, "orderable": true},
-                {"name": "categoryID", "targets": 3, "orderable": true},
-                {"name": "brandID", "targets": 4, "orderable": true},
-                {"name": "cp", "targets": 5, "orderable": true},
-                {"name": "mrp", "targets": 6, "orderable": true},
-                {"name": "sp", "targets": 7, "orderable": true},
-                {"name": "datetime", "targets": 8, "orderable": true},
-                {"name": "action", "targets": 9, "orderable": false}
+                {"name": "phone", "targets": 1, "orderable": true},
+                {"name": "gst", "targets": 2, "orderable": true},
+                {"name": "address", "targets": 3, "orderable": true},
+                {"name": "datetime", "targets": 4, "orderable": true},
+                {"name": "action", "targets": 5, "orderable": false}
 
             ],
-            aaSorting: [[8, 'desc']],
+            aaSorting: [[0, 'asc']],
             "lengthMenu": [[8, 25, 50, 100, -1], [8, 25, 50, 100, "All"]],
             "pageLength": 8,
             "processing": true,
             "serverSide": true,
-            "ajax": "{% url 'homeApp:ProductListJson' %}"
+            "ajax": "{% url 'homeApp:SupplierListJson' %}"
         });
 
 
@@ -418,7 +335,7 @@
             formdata.append('userID', id);
 
             $.ajax({
-                url: "{% url 'homeApp:delete_product' %}",
+                url: "{% url 'homeApp:delete_supplier' %}",
                 type: "post",
                 data: formdata,
                 contentType: false,
@@ -464,19 +381,14 @@
             $('#userModal').modal('show');
             $.ajax({
                 type: 'get',
-                url: '{% url "homeApp:get_product_detail"%}?id=' + id,
+                url: '{% url "homeApp:get_supplier_detail"%}?id=' + id,
 
                 success: function (response) {
-                    console.log(response);
                     $('#EditUserId').val(response.data['ID']);
-                    $('#productNameEdit').val(response.data['ProductName']);
-                    $('#stockEdit').val(response.data['Stock']);
-                    $('#unitEdit').val(response.data['Unit']).change();
-                    $('#categoryEdit').val(response.data['Category']).change();
-                    $('#brandEdit').val(response.data['Brand']).change();
-                    $('#cpEdit').val(response.data['CP'])
-                    $('#mrpEdit').val(response.data['MRP']);
-                    $('#spEdit').val(response.data['SP']);
+                    $('#supplierNameEdit').val(response.data['Name']);
+                    $('#phoneEdit').val(response.data['Phone']);
+                    $('#gstEdit').val(response.data['GST']);
+                    $('#addressEdit').val(response.data['Address']);
 
 
                 },
@@ -494,18 +406,13 @@
         function editUser() {
 
             var EditUserId = $('#EditUserId').val();
-            var productName = $('#productNameEdit').val();
-            var stock = $('#stockEdit').val();
-            var unit = $('#unitEdit').val();
-            var category = $('#categoryEdit').val();
-            var brand = $('#brandEdit').val();
-            var cp = $('#cpEdit').val();
-            var mrp = $('#mrpEdit').val();
-            var sp = $('#spEdit').val();
+            var supplierName = $('#supplierNameEdit').val();
+            var phone = $('#phoneEdit').val();
+            var gst = $('#gstEdit').val();
+            var address = $('#addressEdit').val();
 
 
-            if (productName === '' || stock === '' || mrp === '' ||
-                unit === '' || category === '' || brand === '' || cp === '' || sp === '') {
+            if (supplierName === '' || phone === '' || address === '') {
                 $('body')
                     .toast({
                         class: 'orange',
@@ -517,14 +424,11 @@
                 var csrfmiddlewaretoken = $("input[name='csrfmiddlewaretoken']").val();
 
                 data = new FormData();
-                data.append('productName', productName);
-                data.append('stock', stock);
-                data.append('unit', unit);
-                data.append('category', category);
-                data.append('brand', brand);
-                data.append('cp', cp);
-                data.append('mrp', mrp);
-                data.append('sp', sp);
+                data.append('supplierName', supplierName);
+                data.append('phone', phone);
+                data.append('gst', gst);
+                data.append('address', address);
+
                 data.append('EditUserId', EditUserId);
 
 
@@ -533,7 +437,7 @@
 
                 $.ajax({
                     type: 'post',
-                    url: '{% url "homeApp:edit_product_api" %}',
+                    url: '{% url "homeApp:edit_supplier_api" %}',
                     data: data,
                     contentType: false,
                     cache: false,
@@ -545,7 +449,7 @@
                             $('body')
                                 .toast({
                                     class: 'success',
-                                    message: 'Product detail updated Successfully.'
+                                    message: 'Supplier detail updated Successfully.'
                                 })
                             ;
 
@@ -556,24 +460,24 @@
                         } else {
                             $('body')
                                 .toast({
-                                        class: 'error',
-                                        message: 'An error occurred !'
-                                    })
-                                ;
-
-                            }
-
-                            return response;
-                        },
-                        error: function () {
-                            $('body')
-                                .toast({
                                     class: 'error',
                                     message: 'An error occurred !'
                                 })
                             ;
+
                         }
-                    });
+
+                        return response;
+                    },
+                    error: function () {
+                        $('body')
+                            .toast({
+                                class: 'error',
+                                message: 'An error occurred !'
+                            })
+                        ;
+                    }
+                });
 
 
             }
