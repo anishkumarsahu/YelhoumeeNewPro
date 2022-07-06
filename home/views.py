@@ -44,7 +44,13 @@ def purchase_list(request):
 
 
 def purchase_add(request):
-    return render(request, 'home/purchaseAdd.html')
+    suppliers = Supplier.objects.filter(isDeleted__exact=False).order_by('name')
+    products = Product.objects.filter(isDeleted__exact=False).order_by('name')
+    context = {
+        'suppliers': suppliers,
+        'products': products
+    }
+    return render(request, 'home/purchaseAdd.html', context)
 
 
 def supplier_add(request):

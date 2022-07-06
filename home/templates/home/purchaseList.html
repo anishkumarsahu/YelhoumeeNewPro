@@ -34,13 +34,13 @@
         <div class="sixteen wide column">
             <div class="ui  pointing secondary menu">
                 <div style="cursor: pointer;" class="item active" data-tab="user"
-                >Products
+                >Purchase
                 </div>
                 <div style=" position: absolute;right: 1.5rem;top: 18px;">
-                    <button class="ui green mini plus button right" onclick="showUserModal()">
+                    <a href="{% url 'homeApp:purchase_add' %}" class="ui green mini plus button right">
                         <i class="plus square outline icon"></i>
-                        Add Product
-                    </button>
+                        Add Purchase
+                    </a>
                 </div>
             </div>
             <div class="ui tab " data-tab="user">
@@ -71,86 +71,6 @@
                             </tbody>
                         </table>
                     </div>
-
-                    <div class="ui modal" id="myModalUser">
-                        <i class="close icon"></i>
-                        <div class="header">
-                            Add Product
-                        </div>
-                        <div class="content">
-
-                            <form class="ui tiny form" id="addForm">{% csrf_token %}
-                                <div class="one required fields">
-                                    <div class="sixteen wide field">
-                                        <label>Product Name</label>
-                                        <input type="text" name="Name" placeholder="Product Name" id="productName">
-                                    </div>
-
-                                </div>
-
-                                <div class="two fields">
-                                    <div class="field required">
-                                        <label>Stock Available</label>
-                                        <input type="number" name="stock" id="stock" placeholder="Stock Available">
-                                    </div>
-                                    <div class="field">
-                                        <label>Unit</label>
-                                        <select class="ui fluid dropdown" id="unit">
-                                            {% for unit in units %}
-                                                <option value="{{ unit.name }}">{{ unit.name|capfirst }}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="two fields">
-                                    <div class="field required">
-                                        <label>Category</label>
-                                        <select class="ui fluid dropdown" id="category">
-                                            {% for category in categories %}
-                                                <option value="{{ category.name }}">{{ category.name|capfirst }}</option>
-                                            {% endfor %}
-
-                                        </select>
-                                    </div>
-
-                                    <div class="field required">
-                                        <label>Brand</label>
-                                        <select class="ui fluid dropdown" id="brand">
-                                            {% for brand in brands %}
-                                                <option value="{{ brand.name }}">{{ brand.name|capfirst }}</option>
-                                            {% endfor %}
-
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="three fields">
-                                    <div class="field required">
-                                        <label>Cost Price(₹)</label>
-                                        <input type="number" name="cp" id="cp" placeholder="Cost Price">
-                                    </div>
-                                    <div class="field required">
-                                        <label>MRP(₹)</label>
-                                        <input type="number" name="mrp" id="mrp" placeholder="MRP">
-                                    </div>
-                                    <div class="field required">
-                                        <label>Selling Price(₹)</label>
-                                        <input type="number" name="sp" id="sp" placeholder="Selling Price">
-                                    </div>
-
-                                </div>
-
-
-                            </form>
-
-                            <div class="actions" style="padding-top: 20px; padding-bottom: 20px ;float: right">
-                                <div class="ui cancel button">Cancel</div>
-                                <button class="ui right labeled icon button green" onclick="addUser()">
-                                    Submit
-                                    <i class="checkmark icon"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="ui basic modal custom" id="deleteUser">
@@ -171,87 +91,6 @@
                         <div class="ui green ok inverted button" onclick="deleteUser()">
                             <i class="checkmark icon"></i>
                             Yes
-                        </div>
-                    </div>
-                </div>
-
-                <div class="ui modal" id="userModal">
-                    <i class="close icon"></i>
-                    <div class="header">
-                        Edit Product Details
-                    </div>
-                    <div class="content">
-
-                        <form class="ui tiny form" id="EditForm">{% csrf_token %}
-                            <div class="one required fields">
-                                <div class="sixteen wide field">
-                                    <label>Product Name</label>
-                                    <input type="text" name="Name" placeholder="Product Name" id="productNameEdit">
-                                </div>
-
-                            </div>
-
-                            <div class="two fields">
-                                <div class="field required">
-                                    <label>Stock Available</label>
-                                    <input type="number" name="stock" id="stockEdit" placeholder="Stock Available">
-                                </div>
-                                <div class="field">
-                                    <label>Unit</label>
-                                    <select class="ui fluid dropdown" id="unitEdit">
-                                        {% for unit in units %}
-                                            <option value="{{ unit.name }}">{{ unit.name|capfirst }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="two fields">
-                                <div class="field required">
-                                    <label>Category</label>
-                                    <select class="ui fluid dropdown" id="categoryEdit">
-                                        {% for category in categories %}
-                                            <option value="{{ category.name }}">{{ category.name|capfirst }}</option>
-                                        {% endfor %}
-
-                                    </select>
-                                </div>
-
-                                <div class="field required">
-                                    <label>Brand</label>
-                                    <select class="ui fluid dropdown" id="brandEdit">
-                                        {% for brand in brands %}
-                                            <option value="{{ brand.name }}">{{ brand.name|capfirst }}</option>
-                                        {% endfor %}
-
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="three fields">
-                                <div class="field required">
-                                    <label>Cost Price(₹)</label>
-                                    <input type="number" name="cp" id="cpEdit" placeholder="Cost Price">
-                                </div>
-                                <div class="field required">
-                                    <label>MRP(₹)</label>
-                                    <input type="number" name="mrp" id="mrpEdit" placeholder="MRP">
-                                </div>
-                                <div class="field required">
-                                    <label>Selling Price(₹)</label>
-                                    <input type="number" name="sp" id="spEdit" placeholder="Selling Price">
-                                </div>
-
-                            </div>
-
-
-                            <input type="hidden" id="EditUserId">
-                        </form>
-
-                        <div class="actions" style="padding-top: 20px; padding-bottom: 20px ;float: right">
-                            <div class="ui cancel button">Cancel</div>
-                            <button class="ui right labeled icon button green" onclick="editUser()">
-                                Update
-                                <i class="checkmark icon"></i>
-                            </button>
                         </div>
                     </div>
                 </div>
