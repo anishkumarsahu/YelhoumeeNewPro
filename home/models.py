@@ -123,3 +123,46 @@ class Supplier(models.Model):
 
     class Meta:
         verbose_name_plural = 'g) Supplier List'
+
+
+class Purchase(models.Model):
+    supplierID = models.ForeignKey(Supplier, blank=True, null=True, on_delete=models.CASCADE)
+    supplierName = models.CharField(max_length=200, blank=True, null=True)
+    taxableAmount = models.FloatField(default=0.0)
+    gstAmount = models.FloatField(default=0.0)
+    otherCharges = models.FloatField(default=0.0)
+    roundOff = models.FloatField(default=0.0)
+    grandTotal = models.FloatField(default=0.0)
+    invoiceNumber = models.CharField(max_length=200, blank=True, null=True)
+    invoiceDate = models.DateField(blank=True, null=True)
+    datetime = models.DateTimeField(auto_now_add=True, auto_now=False)
+    lastUpdatedOn = models.DateTimeField(auto_now_add=False, auto_now=True)
+    isDeleted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.supplierName
+
+    class Meta:
+        verbose_name_plural = 'h) Purchase List'
+
+
+class PurchaseProduct(models.Model):
+    purchaseID = models.ForeignKey(Purchase, blank=True, null=True, on_delete=models.CASCADE)
+    productID = models.ForeignKey(Product, blank=True, null=True, on_delete=models.CASCADE)
+    productName = models.CharField(max_length=200, blank=True, null=True)
+    category = models.CharField(max_length=200, blank=True, null=True)
+    quantity = models.IntegerField(default=0)
+    unit = models.CharField(max_length=200, blank=True, null=True)
+    rate = models.FloatField(default=0.0)
+    gst = models.FloatField(default=0.0)
+    total = models.FloatField(default=0.0)
+    net = models.FloatField(default=0.0)
+    datetime = models.DateTimeField(auto_now_add=True, auto_now=False)
+    lastUpdatedOn = models.DateTimeField(auto_now_add=False, auto_now=True)
+    isDeleted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.productName
+
+    class Meta:
+        verbose_name_plural = 'i) Purchase Product List'

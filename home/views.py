@@ -1,3 +1,5 @@
+from functools import wraps
+
 from activation.models import Validity, EcomValidity
 from django.contrib.auth import logout, authenticate, login
 from django.http import JsonResponse
@@ -7,13 +9,27 @@ from .models import *
 from django.views.decorators.csrf import csrf_exempt
 
 
+def check_group(group_name):
+    def _check_group(view_func):
+        @wraps(view_func)
+        def wrapper(request, *args, **kwargs):
+            if not request.user.groups.filter(name=group_name).exists():
+                return redirect('/')
+            return view_func(request, *args, **kwargs)
+
+        return wrapper
+
+    return _check_group
+
+
 def loginPage(request):
-    if not request.user.is_authenticated:
-        return render(request, 'home/login.html')
-    else:
-        return redirect('/admin_home/')
+    # if not request.user.is_authenticated:
+    return render(request, 'home/login.html')
+    # else:
+    #     return redirect('/admin_home/')
 
 
+@check_group('Admin')
 def admin_home(request):
     return render(request, 'home/admin/adminHome.html')
 
@@ -74,8 +90,8 @@ def postLogin(request):
             login(request, user)
             if 'Admin' in request.user.groups.values_list('name', flat=True):
                 return JsonResponse({'message': 'success', 'data': '/admin_home/'}, safe=False)
-            # elif 'Executive' in request.user.groups.values_list('name', flat=True):
-            #     return JsonResponse({'message': 'success', 'data': '/ecom/home/'}, safe=False)
+            elif 'Collection' in request.user.groups.values_list('name', flat=True):
+                return JsonResponse({'message': 'success', 'data': '/ecom/home/'}, safe=False)
             else:
                 return JsonResponse({'message': 'fail'}, safe=False)
 

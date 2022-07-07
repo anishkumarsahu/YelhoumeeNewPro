@@ -147,11 +147,15 @@
                     </a>
                     <a class="teal item ">
                         <strong style="color: black;">Other Charges (₹) :</strong>
-                        <div class="ui violet label" id="otherCharges" contentEditable="true">0.00</div>
+                        <div onkeyup="calTaxAndTotal()" class="ui violet label" id="otherCharges"
+                             contentEditable="true">0.00
+                        </div>
                     </a>
                     <a class="teal item ">
                         <strong style="color: black;">Round Off (₹) :</strong>
-                        <div class="ui violet label" id="roundOff" contentEditable="true">0.00</div>
+                        <div onkeyup="calTaxAndTotal()" class="ui violet label" id="roundOff" contentEditable="true">
+                            0.00
+                        </div>
                     </a>
                     <a class="teal item active">
                         <strong style="color: black;">Grand Total (₹) :</strong>
@@ -356,6 +360,99 @@
 
         function updateSubItems() {
             addSubItems();
+
+        }
+
+        function salesSave() {
+            showLoading();
+            var taxable = $('#taxable').html();
+            var totalGst = $('#totalGst').html();
+            var otherCharges = $('#otherCharges').html();
+            var roundOff = $('#roundOff').html();
+            var grandTotal = $('#grandTotal').html();
+            var supplierNameID = $('#supplierNameID').val();
+            var invoice = $('#invoice').val();
+            var idate = $('#idate').val();
+            var datas = '';
+            $('#itemTable tbody tr').each(function () {
+                var id = $(this).closest('tr').attr('id');
+                var product = $('#product' + id).html();
+                var quantity = $('#quantity' + id).html();
+                var rate = $('#rate' + id).html();
+                var tax = $('#tax' + id).html();
+                var net = $('#net' + id).html();
+                var total = $('#total' + id).html();
+                datas = datas + '' + id + '|' + product + '|' + quantity + '|' + rate + '|' + tax + '|' + net + '|' + total + '@'
+            });
+
+            if (taxable === '' || totalGst === '' || otherCharges === '' || roundOff === '' || grandTotal === '' ||
+                supplierNameID === '' || invoice === '' || idate === '' || datas === '') {
+                $('body')
+                    .toast({
+                        class: 'orange',
+                        message: '* fields are required !'
+                    })
+                ;
+                hideLoading();
+            } else {
+                data = new FormData();
+                data.append('taxable', taxable);
+                data.append('totalGst', totalGst);
+                data.append('otherCharges', otherCharges);
+                data.append('roundOff', roundOff);
+                data.append('grandTotal', grandTotal);
+                data.append('supplierNameID', supplierNameID);
+                data.append('invoice', invoice);
+                data.append('idate', idate);
+                data.append('datas', datas);
+
+                $.ajax({
+                    type: 'post',
+                    url: '{% url "homeApp:add_purchase_api" %}',
+                    data: data,
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+
+
+                    success: function (response) {
+                        if (response.message === 'success') {
+                            $('body')
+                                .toast({
+                                    class: 'success',
+                                    message: 'New purchase created Successfully.'
+                                });
+
+                            hideLoading();
+
+                            location.href = "{% url 'homeApp:purchase_list' %}"
+
+                        } else {
+                            $('body')
+                                .toast({
+                                    class: 'error',
+                                    message: 'An error occurred !'
+                                })
+                            ;
+                            hideLoading();
+                        }
+
+                        return response;
+                    },
+                    error: function () {
+                        $('body')
+                            .toast({
+                                class: 'error',
+                                message: 'An error occurred !'
+                            })
+                        ;
+                        hideLoading();
+                    }
+
+                });
+
+
+            }
 
         }
 

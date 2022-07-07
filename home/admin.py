@@ -53,3 +53,19 @@ class SupplierAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Supplier, SupplierAdmin)
+
+
+class PurchaseProductListAdmin(admin.TabularInline):
+    model = PurchaseProduct
+    extra = 0
+
+
+class PurchaseAdmin(admin.ModelAdmin):
+    search_fields = ['supplierName']
+    list_display = ['supplierName', 'taxableAmount', 'gstAmount', 'otherCharges', 'invoiceDate', 'grandTotal',
+                    'invoiceNumber', 'isDeleted', 'datetime', 'lastUpdatedOn']
+
+    inlines = (PurchaseProductListAdmin,)
+
+
+admin.site.register(Purchase, PurchaseAdmin)

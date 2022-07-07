@@ -37,4 +37,10 @@ urlpatterns = [
     path('api/edit_supplier_api/', edit_supplier_api, name='edit_supplier_api'),
     path('api/SupplierListJson/', SupplierListJson.as_view(), name='SupplierListJson'),
 
+    # api purchase
+    path('api/add_purchase_api/', add_purchase_api, name='add_purchase_api'),
+    path('api/delete_purchase/', delete_purchase, name='delete_purchase'),
+    path('api/get_purchase_detail/<int:id>/', get_purchase_detail, name='get_purchase_detail'),
+    path('api/PurchaseListJson/', PurchaseListJson.as_view(), name='PurchaseListJson'),
+
 ]

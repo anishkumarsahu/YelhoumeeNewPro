@@ -474,3 +474,146 @@ def edit_supplier_api(request):
             return JsonResponse({'message': 'success'}, safe=False)
         except:
             return JsonResponse({'message': 'error'}, safe=False)
+
+
+# ----------------------------------Purchase------------------------
+
+@csrf_exempt
+@transaction.atomic
+def add_purchase_api(request):
+    if request.method == 'POST':
+        taxable = request.POST.get("taxable")
+        totalGst = request.POST.get("totalGst")
+        otherCharges = request.POST.get("otherCharges")
+        roundOff = request.POST.get("roundOff")
+        grandTotal = request.POST.get("grandTotal")
+        supplierNameID = request.POST.get("supplierNameID")
+        invoice = request.POST.get("invoice")
+        idate = request.POST.get("idate")
+        datas = request.POST.get("datas")
+        pur = Purchase()
+        s = str(supplierNameID).split('|')
+        pur.supplierID_id = int(s[1])
+        pur.supplierName = s[0]
+        pur.taxableAmount = float(taxable)
+        pur.gstAmount = float(totalGst)
+        pur.otherCharges = float(otherCharges)
+        pur.roundOff = float(roundOff)
+        pur.grandTotal = float(grandTotal)
+        pur.invoiceNumber = invoice
+        pur.invoiceDate = datetime.strptime(idate, '%d/%m/%Y')
+        pur.save()
+
+        splited_receive_item = datas.split("@")
+        for item in splited_receive_item[:-1]:
+            item_details = item.split('|')
+            p = PurchaseProduct()
+            p.purchaseID_id = pur.pk
+            p.productID_id = int(item_details[0])
+            p.productName = item_details[1]
+            p.quantity = float(item_details[2])
+            p.rate = float(item_details[3])
+            p.gst = float(item_details[4])
+            p.net = float(item_details[5])
+            p.total = float(item_details[6])
+            pro = Product.objects.get(pk=int(int(item_details[0])))
+            ori_stock = pro.stock
+            pro.stock = (ori_stock + float(item_details[2]))
+            pro.save()
+            p.save()
+        return JsonResponse({'message': 'success'}, safe=False)
+
+
+class PurchaseListJson(BaseDatatableView):
+    order_columns = ['supplierName', 'invoiceNumber', 'invoiceDate', 'taxableAmount', 'gstAmount', 'otherCharges',
+                     'roundOff', 'grandTotal', 'datetime']
+
+    def get_initial_queryset(self):
+        # if 'Admin' in self.request.user.groups.values_list('name', flat=True):
+        return Purchase.objects.filter(isDeleted__exact=False)
+
+    def filter_queryset(self, qs):
+
+        search = self.request.GET.get('search[value]', None)
+        if search:
+            qs = qs.filter(
+                Q(supplierName__icontains=search) | Q(invoiceNumber__icontains=search)
+                | Q(invoiceDate__icontains=search) | Q(grandTotal__icontains=search)
+                | Q(datetime__icontains=search)
+            )
+
+        return qs
+
+    def prepare_results(self, qs):
+        json_data = []
+        for item in qs:
+            action = '''<button style="font-size:10px;" onclick = "GetPurchaseDetail('{}')" class="ui circular facebook icon button green">
+                    <i class="receipt icon"></i>
+                  </button>
+                  <button style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
+                    <i class="trash alternate icon"></i>
+                  </button></td>'''.format(item.pk, item.pk),
+
+            json_data.append([
+                escape(item.supplierName),
+                escape(item.invoiceNumber),
+                escape(item.invoiceDate.strftime('%d-%m-%Y')),
+                escape(item.taxableAmount),
+                escape(item.gstAmount),
+                escape(item.otherCharges),
+                escape(item.roundOff),
+                escape(item.grandTotal),
+                escape(item.datetime.strftime('%d-%m-%Y %I:%M %p')),
+                action,
+
+            ])
+
+        return json_data
+
+
+def get_purchase_detail(request, id=None):
+    instance = get_object_or_404(Purchase, pk=id)
+    basic = {
+        'Name': instance.supplierName,
+        'Gst': instance.supplierID.gst,
+        'Phone': instance.supplierID.phone,
+        'Address': instance.supplierID.address,
+    }
+    items = PurchaseProduct.objects.filter(purchaseID_id=instance.pk)
+    item_list = []
+    for i in items:
+        item_dic = {
+            'ItemID': i.pk,
+            'ItemProductName': i.productName,
+            'ItemQuantity': i.quantity,
+            'ItemRate': i.rate,
+            'ItemGst': i.gst,
+            'ItemnetRate': i.net,
+            'ItemTotal': i.total,
+
+        }
+        item_list.append(item_dic)
+
+    data = {
+        'Basic': basic,
+        'Items': item_list
+
+    }
+    return JsonResponse({'data': data}, safe=False)
+
+
+@csrf_exempt
+@transaction.atomic
+def delete_purchase(request):
+    if request.method == 'POST':
+        id = request.POST.get("ID")
+        print(id)
+        sale = Purchase.objects.get(pk=int(id))
+        sale.isDeleted = True
+        sale.save()
+        sales_products = PurchaseProduct.objects.filter(purchaseID_id=int(id))
+        for pro in sales_products:
+            product = Product.objects.get(pk=pro.productID_id)
+            product.stock = product.stock - pro.quantity
+            product.save()
+        return JsonResponse({'message': 'success'}, safe=False)

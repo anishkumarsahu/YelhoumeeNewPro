@@ -49,20 +49,20 @@
                     <div class="wide">
                         <h5 class="ui horizontal left aligned divider header">
                             <i class="left align icon"></i>
-                            Product List
+                            Purchase List
                         </h5>
                         <table class="ui unstackable  sortable celled very nowrap very compact table" id="UserTable"
                                style="margin-top: 5px;width: 100%">
                             <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Stock</th>
-                                <th>Unit</th>
-                                <th>Category</th>
-                                <th>Brand</th>
-                                <th>CP(₹)</th>
-                                <th>MRP(₹)</th>
-                                <th>SP(₹)</th>
+                                <th>Supplier</th>
+                                <th>InvoiceNo.(₹)</th>
+                                <th>InDate(₹)</th>
+                                <th>SubTotal(₹)</th>
+                                <th>GST(₹)</th>
+                                <th>OtherCharges(₹)</th>
+                                <th>RoundOff(₹)</th>
+                                <th>GrandTotal(₹)</th>
                                 <th>Added On</th>
                                 <th>Actions</th>
                             </tr>
@@ -76,11 +76,11 @@
                 <div class="ui basic modal custom" id="deleteUser">
                     <div class="ui icon header">
                         <i class="archive icon"></i>
-                        Product Details will be Deleted
+                        Purchase Details will be Deleted
                     </div>
                     <div class="content">
-                        <p style="text-align: center">The Product will be deleted, are you sure to delete this
-                            Product?</p>
+                        <p style="text-align: center">The Purchase will be deleted, are you sure to delete this
+                            Purchase?</p>
                     </div>
                     <div class="actions">
                         <div class="ui red basic cancel inverted button">
@@ -99,6 +99,72 @@
             </div>
         </div>
     </div>
+
+
+    <div class="ui overlay fullscreen modal front transition scrolling">
+        <div class="header">
+            Purchase <span class="ui teal text">Detail.</span>
+        </div>
+        <div class="content" style="padding-top: 0!important;">
+            <div class="description">
+                <div class="ui right aligned basic segment">
+                    <table class="ui green unstackable table">
+                        <tbody>
+                        <tr>
+                            <td>Supplier Name</td>
+                            <td id="supplierDetail">N/A</td>
+                        </tr>
+                        <tr>
+                            <td>Phone Number</td>
+                            <td id="phoneDetail">N/A</td>
+                        </tr>
+                        <tr>
+                            <td>GST Number</td>
+                            <td id="gstDetail">N/A</td>
+                        </tr>
+                        <tr>
+                            <td>Address</td>
+                            <td id="addressDetail">N/A</td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                    <h4 style="text-align: left">LIST OF PURCHASE ITEMS:</h4>
+                    <div class="row" style="padding-bottom: 0!important;padding-top: 0!important;">
+                        <div class="twelve wide column"
+                             style="padding-top: 0!important;padding-bottom: 0; overflow-x: scroll">
+                            <table class="ui  purple unstackable  table" id="itemTable">
+                                <thead>
+                                <tr>
+                                    <th>Sl No.</th>
+                                    <th>Product</th>
+                                    <th>Quantity</th>
+                                    <th>Rate(₹)</th>
+                                    <th>Gst %</th>
+                                    <th>Total(₹)</th>
+                                    <th>Net Total(₹)</th>
+                                </tr>
+                                </thead>
+                                <tbody id="my_body">
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <div class="ui primary approve button">
+                Close
+                <i class="compress arrows alternate icon"></i>
+            </div>
+        </div>
+    </div>
+
+
+
 {% endblock %}
 
 {% block js %}
@@ -109,97 +175,6 @@
 
         function showUserModal() {
             $('#myModalUser').modal('show');
-        }
-
-        function EditUser() {
-            $('')
-        }
-
-        function addUser() {
-
-            var productName = $('#productName').val();
-            var stock = $('#stock').val();
-            var unit = $('#unit').val();
-            var category = $('#category').val();
-            var brand = $('#brand').val();
-            var cp = $('#cp').val();
-            var mrp = $('#mrp').val();
-            var sp = $('#sp').val();
-
-
-            if (productName === '' || stock === '' || mrp === '' ||
-                unit === '' || category === '' || brand === '' || cp === '' || sp === '') {
-                $('body')
-                    .toast({
-                        class: 'orange',
-                        message: '* fields are required.'
-                    })
-                ;
-            } else {
-
-                var csrfmiddlewaretoken = $("input[name='csrfmiddlewaretoken']").val();
-
-                data = new FormData();
-                data.append('productName', productName);
-                data.append('stock', stock);
-                data.append('unit', unit);
-                data.append('category', category);
-                data.append('brand', brand);
-                data.append('cp', cp);
-                data.append('mrp', mrp);
-                data.append('sp', sp);
-
-
-                data.append('csrfmiddlewaretoken', csrfmiddlewaretoken);
-
-
-                $.ajax({
-                    type: 'post',
-                    url: '{% url "homeApp:add_product_api" %}',
-                    data: data,
-                    contentType: false,
-                    cache: false,
-                    processData: false,
-
-
-                    success: function (response) {
-                        if (response.message === 'success') {
-                            $('body')
-                                .toast({
-                                    class: 'success',
-                                    message: 'New Product Added Successfully.'
-                                })
-                            ;
-
-
-                            userTab.ajax.reload();
-                            $('#addForm').trigger('reset');
-                            $('#myModalUser').modal('toggle');
-                        } else {
-                            $('body')
-                                .toast({
-                                    class: 'error',
-                                    message: 'An error occurred !'
-                                })
-                            ;
-
-                        }
-
-                        return response;
-                    },
-                    error: function () {
-                        $('body')
-                            .toast({
-                                class: 'error',
-                                message: 'An error occurred !'
-                            })
-                        ;
-                    }
-                });
-
-
-            }
-
         }
 
 
@@ -223,14 +198,14 @@
                       }{% endcomment %}
             ],
             "columnDefs": [
-                {"name": "name", "targets": 0, "orderable": true},
-                {"name": "stock", "targets": 1, "orderable": true},
-                {"name": "unitID", "targets": 2, "orderable": true},
-                {"name": "categoryID", "targets": 3, "orderable": true},
-                {"name": "brandID", "targets": 4, "orderable": true},
-                {"name": "cp", "targets": 5, "orderable": true},
-                {"name": "mrp", "targets": 6, "orderable": true},
-                {"name": "sp", "targets": 7, "orderable": true},
+                {"name": "supplierName", "targets": 0, "orderable": true},
+                {"name": "invoiceNumber", "targets": 1, "orderable": true},
+                {"name": "invoiceDate", "targets": 2, "orderable": true},
+                {"name": "taxableAmount", "targets": 3, "orderable": true},
+                {"name": "gstAmount", "targets": 4, "orderable": true},
+                {"name": "otherCharges", "targets": 5, "orderable": true},
+                {"name": "roundOff", "targets": 6, "orderable": true},
+                {"name": "grandTotal", "targets": 7, "orderable": true},
                 {"name": "datetime", "targets": 8, "orderable": true},
                 {"name": "action", "targets": 9, "orderable": false}
 
@@ -240,7 +215,7 @@
             "pageLength": 8,
             "processing": true,
             "serverSide": true,
-            "ajax": "{% url 'homeApp:ProductListJson' %}"
+            "ajax": "{% url 'homeApp:PurchaseListJson' %}"
         });
 
 
@@ -254,10 +229,10 @@
         function deleteUser() {
             var id = $('#UserID').val();
             var formdata = new FormData();
-            formdata.append('userID', id);
+            formdata.append('ID', id);
 
             $.ajax({
-                url: "{% url 'homeApp:delete_product' %}",
+                url: "{% url 'homeApp:delete_purchase' %}",
                 type: "post",
                 data: formdata,
                 contentType: false,
@@ -269,7 +244,7 @@
                         $('body')
                             .toast({
                                 class: 'success',
-                                message: 'Product Detail Deleted Successfully.'
+                                message: 'Purchase Detail Deleted Successfully.'
                             })
                         ;
 
@@ -299,36 +274,6 @@
 
         }
 
-        function GetUserDetails(id) {
-            $('#userModal').modal('show');
-            $.ajax({
-                type: 'get',
-                url: '{% url "homeApp:get_product_detail"%}?id=' + id,
-
-                success: function (response) {
-                    console.log(response);
-                    $('#EditUserId').val(response.data['ID']);
-                    $('#productNameEdit').val(response.data['ProductName']);
-                    $('#stockEdit').val(response.data['Stock']);
-                    $('#unitEdit').val(response.data['Unit']).change();
-                    $('#categoryEdit').val(response.data['Category']).change();
-                    $('#brandEdit').val(response.data['Brand']).change();
-                    $('#cpEdit').val(response.data['CP'])
-                    $('#mrpEdit').val(response.data['MRP']);
-                    $('#spEdit').val(response.data['SP']);
-
-
-                },
-                error: function () {
-                    $('body')
-                        .toast({
-                            class: 'error',
-                            message: 'An error occurred !'
-                        })
-                    ;
-                }
-            });
-        }
 
         function editUser() {
 
@@ -418,6 +363,40 @@
             }
         }
 
+
+        function GetPurchaseDetail(id) {
+            $.ajax({
+                type: 'get',
+                url: '/api/get_purchase_detail/' + id + '/',
+
+                success: function (response) {
+                    $('#itemTable tbody tr').remove();
+                    $('#supplierDetail').html(response.data.Basic['Name']);
+                    $('#gstDetail').html(response.data.Basic['Gst']);
+                    $('#phoneDetail').html(response.data.Basic['Phone']);
+                    $('#addressDetail').html(response.data.Basic['Address']);
+
+                    var i;
+                    for (i = 0; i < response.data.Items.length; i++) {
+                        $('#itemTable tbody').append('<tr id ="' + response.data.Items[i]['ItemID'] + '" ><td id ="row' + response.data.Items[i]['ItemID'] + '">#</td> <td id ="product' + response.data.Items[i]['ItemID'] + '">' + response.data.Items[i]['ItemProductName'] + '</td><td id ="quantity' + response.data.Items[i]['ItemID'] + '">' + response.data.Items[i]['ItemQuantity'] + '</td><td id ="price' + response.data.Items[i]['ItemID'] + '">' + response.data.Items[i]['ItemRate'] + '</td><td id ="gst' + response.data.Items[i]['ItemID'] + '">' + response.data.Items[i]['ItemGst'] + '</td>><td id ="total' + response.data.Items[i]['ItemID'] + '">' + response.data.Items[i]['ItemTotal'] + '</td><td id ="netprice' + response.data.Items[i]['ItemnetRate'] + '">' + response.data.Items[i]['ItemnetRate'] + '</td</tr>');
+
+                    }
+                },
+
+                error: function () {
+                    $('body')
+                        .toast({
+                            class: 'error',
+                            message: 'An error occurred !'
+                        })
+                    ;
+                }
+            });
+            $('.overlay.fullscreen.modal')
+                .modal('show')
+            ;
+
+        }
 
     </script>
 
