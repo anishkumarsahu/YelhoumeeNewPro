@@ -1,0 +1,382 @@
+{% load static %}
+{% load pwa %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0,  user-scalable=0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    {% block title %}
+        <title>Yelhoumee</title>
+    {% endblock %}
+
+    {% progressive_web_app_meta %}
+
+    <link rel="icon" href="{% static 'sw/images/favicon.ico' %}" sizes="any">
+    <link rel="apple-touch-icon" href="{% static 'sw/images/apple-touch-icon.png' %}">
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.8/dist/semantic.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.8/dist/semantic.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.4/css/dataTables.semanticui.min.css">
+    <script src="{% static 'sw/app.js' %}"></script>
+
+    {% block css %}
+
+    {% endblock %}
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        .sidenav {
+            height: 100%;
+            width: 200px;
+            position: fixed;
+            z-index: 1;
+            top: 40px;
+            left: 0;
+            background-color: #000000;
+            overflow-x: hidden;
+            padding-top: 10px;
+        }
+
+        .sidenav a {
+            padding: 15px 12px 15px 16px;
+            text-decoration: none;
+            font-size: 18px;
+            color: #818181;
+            display: block;
+        }
+
+        .sidenav a:hover {
+            color: #f1f1f1;
+        }
+
+        .preloader {
+            align-items: center;
+            background: rgb(23, 22, 22);
+            display: flex;
+            height: 100vh;
+            justify-content: center;
+            left: 0;
+            position: fixed;
+            top: 0;
+            transition: opacity 0.3s linear;
+            width: 100%;
+            z-index: 9999;
+        }
+
+        body ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .ui.vertical.menu.sidebar-menu {
+            margin-top: 40px !important;
+            max-height: calc(100% - 40px) !important;
+            height: calc(100% - 40px) !important;
+        }
+
+        .ui.vertical.menu.sidebar-menu .item i.icon {
+            float: left;
+            margin: 0em 0.5em 0em 0em;
+        }
+
+        .main-content {
+            margin-top: 40px;
+        }
+
+        @media (min-width: 768px) {
+            .ui.vertical.menu.sidebar-menu {
+                visibility: visible;
+                -webkit-transform: translate3d(0, 0, 0);
+                transform: translate3d(0, 0, 0);
+                width: 15rem !important;
+            }
+
+            .main-content {
+                margin-left: 15rem;
+            }
+
+            .sidebar-menu-toggler {
+                display: none !important;
+            }
+        }
+
+        .custom_search {
+            width: 100%;
+            -webkit-transition: width 0.4s ease-in-out;
+            transition: width 0.4s ease-in-out;
+        }
+
+        .custom_search:focus {
+            width: 100%;
+        }
+
+        .bgColor {
+            background-color: #232f3e !important;
+        }
+
+        .logoImg {
+            width: 30px;
+            height: 30px;
+            margin: 5px;
+            position: relative;
+            left: 10px;
+        }
+    </style>
+
+</head>
+
+<body>
+<!-- sidebar -->
+<div class="ui sidebar inverted bgColor vertical menu sidebar-menu" id="sidebar">
+    <div class="item">
+        <div class="header">General</div>
+        <div class="menu">
+            <a class="item" href="{% url 'homeApp:collection_home' %}">
+                <div>
+                    <i class="tachometer alternate icon"></i>
+                    Dashboard
+                </div>
+            </a>
+        </div>
+    </div>
+    <div class="item">
+        <div class="header">
+            Sales
+        </div>
+        <div class="menu">
+            <a class="item" href="{% url 'homeApp:customer_list' %}">
+                <div><i class="users icon"></i>Customer List</div>
+            </a>
+            <a class="item" href="#">
+                <div><i class="cart arrow down icon"></i>Sales List</div>
+            </a>
+            <a class="item" href="#">
+                <div><i class="hand holding usd icon"></i>Installment List</div>
+            </a>
+        </div>
+    </div>
+
+    <div class="item">
+        <div class="header">
+            Profile
+        </div>
+        <div class="menu">
+            <a class="item" href="#">
+                <div><i class="user icon"></i>My Profile</div>
+            </a>
+            <a class="item" href="{% url 'homeApp:logout' %}">
+                <div><i class="sign out alternate icon"></i>Logout</div>
+            </a>
+        </div>
+    </div>
+
+    <div class="ui segment bgColor inverted">
+        <div class="ui tiny olive inverted progress">
+            <div class="bar" style="width: 54%"></div>
+            <div class="label">Developed By Ziva Infotech</div>
+        </div>
+
+        <div class="ui tiny teal inverted progress">
+            <div class="bar" style="width:78%"></div>
+            <div class="label">v 0.9.5</div>
+        </div>
+    </div>
+</div>
+
+<!-- sidebar -->
+<!-- top nav -->
+
+<nav class="ui top fixed inverted bgColor menu">
+    <div class="left menu">
+        <a href="#" class="sidebar-menu-toggler item" data-target="#sidebar">
+            <i class="sidebar icon"></i>
+        </a>
+        <img class="logo logoImg" src="{% static 'sw/images/icon-192.png' %}">
+        <a href="#" class="header item">
+
+            Yelhoumee
+        </a>
+    </div>
+
+    <div class="right menu">
+        <div class="ui dropdown item">
+            <i class="user cirlce icon"></i>
+            <div class="menu">
+                <a href="#" class="item">
+                    <i class="info circle icon"></i> Profile</a
+                >
+                <a href="#" class="item">
+                    <i class="wrench icon"></i>
+                    Settings</a
+                >
+                <a href="{% url 'homeApp:logout' %}" class="item">
+                    <i class="sign out alternate icon"></i>
+                    Logout
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- top nav -->
+
+<div class="pusher">
+
+    <div class="main-content">
+        {% block body %}
+            <div class="ui segment">
+                <div class="ui breadcrumb">
+                    <div class="active section">Dashboard</div>
+                </div>
+            </div>
+            <div class="ui grid stackable padded">
+                <div class="four wide computer eight wide tablet sixteen wide mobile column">
+                    <div class="ui fluid card">
+                        <div class="content">
+                            <div class="ui right floated header red">
+                                <i class="icon shopping cart"></i>
+                            </div>
+                            <div class="header">
+                                <div class="ui red header">
+                                    3958
+                                </div>
+                            </div>
+                            <div class="meta">
+                                orders
+                            </div>
+                            <div class="description">
+                                Elliot requested permission to view your contact details
+                            </div>
+                        </div>
+                        <div class="extra content">
+                            <div class="ui two buttons">
+                                <div class="ui red button">More Info</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="four wide computer eight wide tablet sixteen wide mobile column">
+                    <div class="ui fluid card">
+                        <div class="content">
+                            <div class="ui right floated header green">
+                                <i class="icon clock"></i>
+                            </div>
+                            <div class="header">
+                                <div class="ui header green">57.6%</div>
+                            </div>
+                            <div class="meta">
+                                Time
+                            </div>
+                            <div class="description">
+                                Elliot requested permission to view your contact details
+                            </div>
+                        </div>
+                        <div class="extra content">
+                            <div class="ui two buttons">
+                                <div class="ui green button">More Info</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="four wide computer eight wide tablet sixteen wide mobile column">
+                    <div class="ui fluid card">
+                        <div class="content">
+                            <div class="ui right floated header teal">
+                                <i class="icon briefcase"></i>
+                            </div>
+                            <div class="header">
+                                <div class="ui teal header">3112</div>
+                            </div>
+                            <div class="meta">
+                                Saves
+                            </div>
+                            <div class="description">
+                                Elliot requested permission to view your contact details
+                            </div>
+                        </div>
+                        <div class="extra content">
+                            <div class="ui two buttons">
+                                <div class="ui teal button">More Info</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="four wide computer eight wide tablet sixteen wide mobile column">
+                    <div class="ui fluid card">
+                        <div class="content">
+                            <div class="ui right floated header purple">
+                                <i class="icon trophy"></i>
+                            </div>
+                            <div class="header">
+                                <div class="ui purple header">9805</div>
+                            </div>
+                            <div class="meta">
+                                Views
+                            </div>
+                            <div class="description">
+                                Elliot requested permission to view your contact details
+                            </div>
+                        </div>
+                        <div class="extra content">
+                            <div class="ui two buttons">
+                                <div class="ui purple button">More Info</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        {% endblock %}
+    </div>
+
+
+</div>
+<div class="preloader">
+    <div class="ui active dimmer">
+        <div class="ui medium text loader">Loading</div>
+    </div>
+</div>
+
+
+<script src="https://frontendfunn.github.io/semantic-ui-admin-dashboard-template/js/script.js"></script>
+
+<script>
+    $('.menu .item').tab();
+    $(window).on("load", function () {
+        $(".preloader").fadeOut(50);
+    });
+
+    function showLoading() {
+        $('#saveBtn').css('display', 'none');
+        $('#saveBtnLoad').css('display', '');
+
+    }
+
+    function hideLoading() {
+        $('#saveBtn').css('display', '');
+        $('#saveBtnLoad').css('display', 'none');
+
+    }
+
+</script>
+<script src="https://cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.4/js/dataTables.semanticui.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.semanticui.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.print.min.js"></script>
+
+{% block js %}
+    <script>
+
+    </script>
+
+{% endblock %}
+</body>
+</html>

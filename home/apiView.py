@@ -617,3 +617,41 @@ def delete_purchase(request):
             product.stock = product.stock - pro.quantity
             product.save()
         return JsonResponse({'message': 'success'}, safe=False)
+
+
+# ---------------------------------customer------------------------------------
+
+@transaction.atomic
+@csrf_exempt
+def add_customer_api(request):
+    if request.method == 'POST':
+        try:
+            name = request.POST.get("name")
+            phone = request.POST.get("phone")
+            district = request.POST.get("district")
+            address = request.POST.get("address")
+            lat = request.POST.get("lat")
+            lng = request.POST.get("lng")
+            photo = request.FILES["photo"]
+            idf = request.FILES["idf"]
+            idb = request.FILES["idb"]
+
+            obj = Customer()
+            obj.latitude = lat
+            obj.longitude = lng
+            obj.name = name
+            obj.phoneNumber = phone
+            obj.district = district
+            obj.address = address
+            obj.photo = photo
+            obj.idProofFront = idf
+            obj.idProofBack = idb
+            user = StaffUser.objects.get(user_ID_id=request.user.pk)
+            obj.addedBy_id = user.pk
+            obj.save()
+            obj.customerCode = str(obj.pk).zfill(5)
+            obj.save()
+
+            return JsonResponse({'message': 'success'}, safe=False)
+        except:
+            return JsonResponse({'message': 'error'}, safe=False)

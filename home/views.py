@@ -31,7 +31,12 @@ def loginPage(request):
 
 @check_group('Admin')
 def admin_home(request):
-    return render(request, 'home/admin/adminHome.html')
+    return render(request, 'home/admin/index.html')
+
+
+@check_group('Collection')
+def collection_home(request):
+    return render(request, 'home/collection/indexCollection.html')
 
 
 def user_list(request):
@@ -73,6 +78,20 @@ def supplier_add(request):
     return render(request, 'home/supplierList.html')
 
 
+def customer_list(request):
+    return render(request, 'home/collection/customerListByStaff.html')
+
+
+def customer_add(request):
+    suppliers = Supplier.objects.filter(isDeleted__exact=False).order_by('name')
+    products = Product.objects.filter(isDeleted__exact=False).order_by('name')
+    context = {
+        'suppliers': suppliers,
+        'products': products
+    }
+    return render(request, 'home/customerAdd.html', context)
+
+
 def user_logout(request):
     logout(request)
     return redirect("homeApp:loginPage")
@@ -88,25 +107,25 @@ def postLogin(request):
 
         if user is not None:
             login(request, user)
-            if 'Admin' in request.user.groups.values_list('name', flat=True):
-                return JsonResponse({'message': 'success', 'data': '/admin_home/'}, safe=False)
-            elif 'Collection' in request.user.groups.values_list('name', flat=True):
-                return JsonResponse({'message': 'success', 'data': '/ecom/home/'}, safe=False)
-            else:
-                return JsonResponse({'message': 'fail'}, safe=False)
-
-
+            # if 'Admin' in request.user.groups.values_list('name', flat=True):
+            return JsonResponse({'message': 'success', 'data': '/home/'}, safe=False)
+            # elif 'Collection' in request.user.groups.values_list('name', flat=True):
+            #     return JsonResponse({'message': 'success', 'data': '/collection/'}, safe=False)
         else:
             return JsonResponse({'message': 'fail'}, safe=False)
+
+        # else:
+        #     return JsonResponse({'message': 'fail'}, safe=False)
     else:
         return JsonResponse({'message': 'fail'}, safe=False)
 
 
 def homepage(request):
     if request.user.is_authenticated:
-        if 'Executive' in request.user.groups.values_list('name', flat=True):
-            return redirect('/ecom/home/')
-
+        if 'Admin' in request.user.groups.values_list('name', flat=True):
+            return redirect('/admin_home/')
+        elif 'Collection' in request.user.groups.values_list('name', flat=True):
+            return redirect('/collection_home/')
         else:
             try:
                 val = Validity.objects.last()

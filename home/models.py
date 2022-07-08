@@ -166,3 +166,39 @@ class PurchaseProduct(models.Model):
 
     class Meta:
         verbose_name_plural = 'i) Purchase Product List'
+
+
+class Customer(models.Model):
+    name = models.CharField(max_length=200, blank=True, null=True)
+    customerCode = models.CharField(max_length=100, blank=True, null=True)
+    district = models.CharField(max_length=100, blank=True, null=True)
+    address = models.CharField(max_length=300, blank=True, null=True)
+    phoneNumber = models.CharField(max_length=100, blank=True, null=True)
+    photo = StdImageField(upload_to='customer/img', blank=True, variations={
+        'large': (600, 400),
+        'thumbnail': (50, 50, True),
+        'medium': (300, 200),
+    }, delete_orphans=True)
+    idProofFront = StdImageField(upload_to='customer/img', blank=True, variations={
+        'large': (600, 400),
+        'thumbnail': (50, 50, True),
+        'medium': (300, 200),
+    }, delete_orphans=True)
+    idProofBack = StdImageField(upload_to='customer/img', blank=True, variations={
+        'large': (600, 400),
+        'thumbnail': (50, 50, True),
+        'medium': (300, 200),
+    }, delete_orphans=True)
+    addedBy = models.ForeignKey(StaffUser, blank=True, null=True, on_delete=models.CASCADE)
+    latitude = models.CharField(max_length=200, default='0.0')
+    longitude = models.CharField(max_length=200, default='0.0')
+    remark = models.CharField(max_length=500, blank=True, null=True)
+    datetime = models.DateTimeField(auto_now_add=True, auto_now=False)
+    lastUpdatedOn = models.DateTimeField(auto_now_add=False, auto_now=True)
+    isDeleted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = 'j).Customer List'

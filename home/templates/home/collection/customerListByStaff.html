@@ -1,7 +1,7 @@
-{% extends 'home/admin/index.html' %}
+{% extends 'home/collection/indexCollection.html' %}
 {% load static %}
 {% block title %}
-    <title>Staff Users</title>
+    <title>Customer|Collection</title>
 {% endblock %}
 {% block css %}
 {% endblock %}
@@ -98,23 +98,74 @@
         <div class="sixteen wide column">
             <div class="ui  pointing secondary menu">
                 <div style="cursor: pointer;" class="item active" data-tab="user"
-                >Staff Users
+                >Customers
                 </div>
                 <div style=" position: absolute;right: 1.5rem;top: 18px;">
-                    <button class="ui green mini plus button right" onclick="showUserModal()">
+                    <a href="{% url 'homeApp:customer_add' %}" class="ui green mini plus button right">
                         <i class="plus square outline icon"></i>
-                        Add User
-                    </button>
+                        Add Customer
+                    </a>
                 </div>
             </div>
+
             <div class="ui tab " data-tab="user">
 
                 <div class="row" style="padding-left: 5px; padding-right: 5px">
                     <div class="wide">
                         <h5 class="ui horizontal left aligned divider header">
                             <i class="left align icon"></i>
-                            User List
+                            Customer List
                         </h5>
+                        <div class="ui internally grid">
+
+                            <div class="sixteen left aligned wide column">
+                                <div class="ui form">
+                                    <form class="ui tiny form">
+
+                                        <div class="field">
+
+
+                                            <label><i class="calendar alternate icon"></i>Filter By Date Range</label>
+
+                                            <div class="three fields">
+                                                <div class="four wide mobile field">
+                                                    <div class="ui calendar" id="rangestart">
+                                                        <div class="ui input left icon">
+                                                            <input class="" type="text" placeholder="Start Date"
+                                                                   style="width:100%;"
+                                                                   id="startDateF">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="four wide mobile field">
+                                                    <div class="ui calendar" id="rangeend">
+                                                        <div class="ui input left icon">
+                                                            <input class="" type="text" placeholder="End Date"
+                                                                   style="width:100%;"
+                                                                   id="endDateF">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="eight wide field">
+                                                    <div class="ui calendar" id="rangeend">
+                                                        <div class="ui input left icon">
+                                                            <button class="ui tiny active button" type="button"
+                                                                    onclick="filterDetails()">
+                                                                <i class="funnel dollar icon"></i>
+                                                                Search
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+
+                            </div>
+
+                        </div>
+
                         <table class="ui unstackable  sortable celled very nowrap very compact table" id="UserTable"
                                style="margin-top: 5px;width: 100%">
                             <thead>
@@ -397,23 +448,40 @@
 {% block js %}
     <script>
 
-        var userTab;
-
-        function readURLPhoto(input) {
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
-                reader.onload = function (e) {
-                    $('#cImg').css('background-image', 'url(' + e.target.result + ')');
-                    $('#cImg').hide();
-                    $('#cImg').fadeIn(650);
+        var today = new Date();
+        $('#rangestart').calendar({
+            initialDate: today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear(),
+            monthFirst: false,
+            type: 'date',
+            endCalendar: $('#rangeend'),
+            formatter: {
+                date: function (date, settings) {
+                    if (!date) return '';
+                    var day = date.getDate();
+                    var month = date.getMonth() + 1;
+                    var year = date.getFullYear();
+                    return day + '/' + month + '/' + year;
                 }
-                reader.readAsDataURL(input.files[0]);
             }
-        }
-
-        $("#imageUpload").change(function () {
-            readURLPhoto(this);
         });
+        $('#rangeend').calendar({
+            initialDate: today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear(),
+            monthFirst: false,
+            type: 'date',
+            startCalendar: $('#rangestart'),
+            formatter: {
+                date: function (date, settings) {
+                    if (!date) return '';
+                    var day = date.getDate();
+                    var month = date.getMonth() + 1;
+                    var year = date.getFullYear();
+                    return day + '/' + month + '/' + year;
+                }
+            }
+        });
+
+
+        var userTab;
 
 
         function showUserModal() {
@@ -588,33 +656,33 @@
                     if (response.message === 'success') {
                         $('body')
                             .toast({
-                                    class: 'success',
-                                    message: 'User Detail Deleted Successfully.'
-                                })
-                            ;
+                                class: 'success',
+                                message: 'User Detail Deleted Successfully.'
+                            })
+                        ;
 
 
-                            userTab.ajax.reload();
-                        } else {
-                            $('body')
-                                .toast({
-                                    class: 'error',
-                                    message: 'An error occurred !'
-                                })
-                            ;
-
-                        }
-
-                        return response;
-                    },
-                    error: function () {
+                        userTab.ajax.reload();
+                    } else {
                         $('body')
                             .toast({
                                 class: 'error',
                                 message: 'An error occurred !'
                             })
                         ;
+
                     }
+
+                    return response;
+                },
+                error: function () {
+                    $('body')
+                        .toast({
+                            class: 'error',
+                            message: 'An error occurred !'
+                        })
+                    ;
+                }
             });
 
         }

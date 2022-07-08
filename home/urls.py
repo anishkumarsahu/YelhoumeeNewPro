@@ -8,6 +8,12 @@ urlpatterns = [
     path('', loginPage, name='loginPage'),
     path('logout/', user_logout, name='logout'),
     path('postLogin/', postLogin, name='UserLogin'),
+
+    # collection
+    path('collection_home/', collection_home, name='collection_home'),
+    path('customer_list/', customer_list, name='customer_list'),
+    path('customer_add/', customer_add, name='customer_add'),
+
     # admin
     path('admin_home/', admin_home, name='admin_home'),
     path('user_list/', user_list, name='user_list'),
@@ -15,6 +21,7 @@ urlpatterns = [
     path('purchase_list/', purchase_list, name='purchase_list'),
     path('purchase_add/', purchase_add, name='purchase_add'),
     path('supplier_add/', supplier_add, name='supplier_add'),
+
 
     # api Staff
     path('api/add_staff_api/', add_staff_api, name='add_staff_api'),
@@ -43,4 +50,6 @@ urlpatterns = [
     path('api/get_purchase_detail/<int:id>/', get_purchase_detail, name='get_purchase_detail'),
     path('api/PurchaseListJson/', PurchaseListJson.as_view(), name='PurchaseListJson'),
 
+    # api
+    path('api/add_customer_api/', add_customer_api, name='add_customer_api'),
 ]
