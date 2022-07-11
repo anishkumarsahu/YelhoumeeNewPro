@@ -655,3 +655,55 @@ def add_customer_api(request):
             return JsonResponse({'message': 'success'}, safe=False)
         except:
             return JsonResponse({'message': 'error'}, safe=False)
+
+
+class CustomerListByUserJson(BaseDatatableView):
+    order_columns = ['photo', 'name', 'customerCode', 'phoneNumber', 'district', 'address',
+                     'idProofFront', 'idProofBack', 'datetime']
+
+    def get_initial_queryset(self):
+        try:
+            startDateV = self.request.GET.get("startDate")
+            endDateV = self.request.GET.get("endDate")
+            sDate = datetime.strptime(startDateV, '%d/%m/%Y')
+            eDate = datetime.strptime(endDateV, '%d/%m/%Y')
+
+            return Customer.objects.filter(isDeleted__exact=False, addedBy__user_ID_id__exact=self.request.user.pk,
+                                           datetime__range=(sDate.date(), eDate.date() + timedelta(days=1)))
+
+        except:
+
+            return Customer.objects.filter(isDeleted__exact=False, addedBy__user_ID_id__exact=self.request.user.pk)
+
+    def filter_queryset(self, qs):
+
+        search = self.request.GET.get('search[value]', None)
+        if search:
+            qs = qs.filter(
+                Q(name__icontains=search)
+                | Q(customerCode__icontains=search) | Q(district__icontains=search) | Q(address__icontains=search)
+                | Q(phoneNumber__icontains=search)
+                | Q(datetime__icontains=search)
+            )
+
+        return qs
+
+    def prepare_results(self, qs):
+        json_data = []
+
+        for item in qs:
+            photo = '<img onclick="showImgModal()" class="ui avatar image" src="{}">'.format(item.photo.thumbnail.url)
+            idProofFront = '<img class="ui avatar image" src="{}">'.format(item.idProofFront.thumbnail.url)
+            idProofBack = '<img class="ui avatar image" src="{}">'.format(item.idProofBack.thumbnail.url)
+            json_data.append([
+                photo,  # escape HTML for security reasons
+                escape(item.name),
+                escape(item.customerCode),
+                escape(item.phoneNumber),
+                escape(item.district),
+                escape(item.address),
+                idProofFront,
+                idProofBack,
+                escape(item.datetime.strftime('%d-%m-%Y %I:%M %p')),
+            ])
+        return json_data

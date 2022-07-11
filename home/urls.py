@@ -50,6 +50,7 @@ urlpatterns = [
     path('api/get_purchase_detail/<int:id>/', get_purchase_detail, name='get_purchase_detail'),
     path('api/PurchaseListJson/', PurchaseListJson.as_view(), name='PurchaseListJson'),
 
-    # api
+    # api Customer
     path('api/add_customer_api/', add_customer_api, name='add_customer_api'),
+    path('api/CustomerListByUserJson/', CustomerListByUserJson.as_view(), name='CustomerListByUserJson'),
 ]
