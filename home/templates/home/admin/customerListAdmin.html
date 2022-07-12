@@ -1,4 +1,4 @@
-{% extends 'home/collection/indexCollection.html' %}
+{% extends 'home/admin/index.html' %}
 {% load static %}
 {% block title %}
     <title>Customer|Collection</title>
@@ -300,7 +300,7 @@
             "pageLength": 8,
             "processing": true,
             "serverSide": true,
-            "ajax": "{% url 'homeApp:CustomerListByUserJson' %}"
+            "ajax": "{% url 'homeApp:CustomerListJson' %}"
         });
 
 
@@ -493,7 +493,7 @@
         function filterDetails() {
             var startDate = $('#startDateF').val();
             var endDate = $('#endDateF').val();
-            userTab.ajax.url('{% url 'homeApp:CustomerListByUserJson' %}?startDate=' + startDate + '&endDate=' + endDate).load();
+            userTab.ajax.url('{% url 'homeApp:CustomerListJson' %}?startDate=' + startDate + '&endDate=' + endDate).load();
 
         }
 

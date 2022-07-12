@@ -82,6 +82,10 @@ def customer_list(request):
     return render(request, 'home/collection/customerListByStaff.html')
 
 
+def customer_list_admin(request):
+    return render(request, 'home/admin/customerListAdmin.html')
+
+
 def customer_add(request):
     suppliers = Supplier.objects.filter(isDeleted__exact=False).order_by('name')
     products = Product.objects.filter(isDeleted__exact=False).order_by('name')

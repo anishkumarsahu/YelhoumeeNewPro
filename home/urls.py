@@ -11,6 +11,7 @@ urlpatterns = [
 
     # collection
     path('collection_home/', collection_home, name='collection_home'),
+    path('customer_list_admin/', customer_list_admin, name='customer_list_admin'),
     path('customer_list/', customer_list, name='customer_list'),
     path('customer_add/', customer_add, name='customer_add'),
 
@@ -53,4 +54,5 @@ urlpatterns = [
     # api Customer
     path('api/add_customer_api/', add_customer_api, name='add_customer_api'),
     path('api/CustomerListByUserJson/', CustomerListByUserJson.as_view(), name='CustomerListByUserJson'),
+    path('api/CustomerListJson/', CustomerListJson.as_view(), name='CustomerListJson'),
 ]
