@@ -96,6 +96,10 @@ def customer_add(request):
     return render(request, 'home/customerAdd.html', context)
 
 
+def sales_add(request):
+    return render(request, 'home/collection/saleAdd.html')
+
+
 def user_logout(request):
     logout(request)
     return redirect("homeApp:loginPage")

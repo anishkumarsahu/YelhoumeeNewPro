@@ -202,3 +202,34 @@ class Customer(models.Model):
 
     class Meta:
         verbose_name_plural = 'j).Customer List'
+
+
+class Sale(models.Model):
+    customerID = models.ForeignKey(Customer, blank=True, null=True, on_delete=models.CASCADE)
+    productID = models.ForeignKey(Product, blank=True, null=True, on_delete=models.CASCADE)
+    customerName = models.CharField(max_length=200, blank=True, null=True)
+    productName = models.CharField(max_length=200, blank=True, null=True)
+    quantity = models.IntegerField(default=0)
+    unit = models.CharField(max_length=200, blank=True, null=True)
+    rate = models.FloatField(default=0.0)
+    advancePaid = models.FloatField(default=0.0)
+    tenureInMonth = models.FloatField(default=0.0)
+    emiAmount = models.FloatField(default=0.0)
+    totalAmount = models.FloatField(default=0.0)
+    amountPaid = models.FloatField(default=0.0)
+    latitude = models.CharField(max_length=200, default='0.0')
+    longitude = models.CharField(max_length=200, default='0.0')
+    remark = models.CharField(max_length=500, blank=True, null=True)
+    installmentStartDate = models.DateField(blank=True, null=True)
+    addedBy = models.ForeignKey(StaffUser, blank=True, null=True, on_delete=models.CASCADE, related_name='AddedBy')
+    assignedTo = models.ForeignKey(StaffUser, blank=True, null=True, on_delete=models.CASCADE,
+                                   related_name='AssignedTo')
+    datetime = models.DateTimeField(auto_now_add=True, auto_now=False)
+    lastUpdatedOn = models.DateTimeField(auto_now_add=False, auto_now=True)
+    isDeleted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.customerName
+
+    class Meta:
+        verbose_name_plural = 'k) Sales List'

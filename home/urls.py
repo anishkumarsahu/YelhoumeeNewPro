@@ -14,6 +14,7 @@ urlpatterns = [
     path('customer_list_admin/', customer_list_admin, name='customer_list_admin'),
     path('customer_list/', customer_list, name='customer_list'),
     path('customer_add/', customer_add, name='customer_add'),
+    path('sales_add/', sales_add, name='sales_add'),
 
     # admin
     path('admin_home/', admin_home, name='admin_home'),

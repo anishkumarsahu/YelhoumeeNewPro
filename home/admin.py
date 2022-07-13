@@ -69,3 +69,12 @@ class PurchaseAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Purchase, PurchaseAdmin)
+
+
+class CustomerAdmin(admin.ModelAdmin):
+    search_fields = ['name', 'customerCode', 'phoneNumber', 'district', 'address']
+    list_display = ['name', 'customerCode', 'phoneNumber', 'district', 'address', 'addedBy', 'latitude', 'longitude',
+                    'isDeleted', 'datetime', 'lastUpdatedOn']
+
+
+admin.site.register(Customer, CustomerAdmin)

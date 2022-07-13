@@ -144,15 +144,36 @@
     </div>
     <div class="item">
         <div class="header">
+            Customer
+        </div>
+        <div class="menu">
+            <a class="item" href="{% url 'homeApp:customer_add' %}">
+                <div><i class="user icon"></i>Add Customer</div>
+
+            </a> <a class="item" href="{% url 'homeApp:customer_list' %}">
+            <div><i class="users icon"></i>Customer List</div>
+        </a>
+        </div>
+    </div>
+
+    <div class="item">
+        <div class="header">
             Sales
         </div>
         <div class="menu">
-            <a class="item" href="{% url 'homeApp:customer_list' %}">
-                <div><i class="users icon"></i>Customer List</div>
+            <a class="item" href="{% url 'homeApp:sales_add' %}">
+                <div><i class="receipt icon"></i>New Sale</div>
             </a>
             <a class="item" href="#">
                 <div><i class="cart arrow down icon"></i>Sales List</div>
             </a>
+        </div>
+    </div>
+    <div class="item">
+        <div class="header">
+            Installments
+        </div>
+        <div class="menu">
             <a class="item" href="#">
                 <div><i class="hand holding usd icon"></i>Installment List</div>
             </a>
@@ -165,7 +186,7 @@
         </div>
         <div class="menu">
             <a class="item" href="#">
-                <div><i class="user icon"></i>My Profile</div>
+                <div><i class="user circle icon"></i>My Profile</div>
             </a>
             <a class="item" href="{% url 'homeApp:logout' %}">
                 <div><i class="sign out alternate icon"></i>Logout</div>

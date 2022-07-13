@@ -765,3 +765,43 @@ class CustomerListJson(BaseDatatableView):
                 escape(item.datetime.strftime('%d-%m-%Y %I:%M %p')),
             ])
         return json_data
+
+
+# customer and product API list
+def list_customer_api(request):
+    try:
+        obj_list = Customer.objects.filter(isDeleted__exact=False).order_by('name')
+
+        for obj in obj_list:
+            obj_dic = {
+                'ID': obj.pk,
+                'Name': obj.name,
+                'District': obj.district,
+                'Address': obj.address,
+                'Phone': obj.phoneNumber,
+                'Detail': obj.name + ' - ' + obj.address + ' @ ' + obj.pk
+            }
+            obj_list.append(obj_dic)
+
+        return JsonResponse({'message': 'success', 'data': obj_list}, safe=False)
+    except:
+        return JsonResponse({'message': 'error'}, safe=False)
+
+
+def list_product_api(request):
+    try:
+        obj_list = Product.objects.filter(isDeleted__exact=False).order_by('name')
+
+        for obj in obj_list:
+            obj_dic = {
+                'ID': obj.pk,
+                'Name': obj.productName,
+                'Category': obj.category,
+                'NetTotal': obj.net,
+                'Detail': obj.name + ' - ' + obj.address + ' @ ' + obj.pk
+            }
+            obj_list.append(obj_dic)
+
+        return JsonResponse({'message': 'success', 'data': obj_list}, safe=False)
+    except:
+        return JsonResponse({'message': 'error'}, safe=False)
