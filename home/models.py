@@ -221,6 +221,11 @@ class Sale(models.Model):
     longitude = models.CharField(max_length=200, default='0.0')
     remark = models.CharField(max_length=500, blank=True, null=True)
     installmentStartDate = models.DateField(blank=True, null=True)
+    deliveryPhoto = StdImageField(upload_to='deliveryPhoto', blank=True, variations={
+        'large': (600, 400),
+        'thumbnail': (50, 50, True),
+        'medium': (300, 200),
+    }, delete_orphans=True)
     addedBy = models.ForeignKey(StaffUser, blank=True, null=True, on_delete=models.CASCADE, related_name='AddedBy')
     assignedTo = models.ForeignKey(StaffUser, blank=True, null=True, on_delete=models.CASCADE,
                                    related_name='AssignedTo')
@@ -233,3 +238,26 @@ class Sale(models.Model):
 
     class Meta:
         verbose_name_plural = 'k) Sales List'
+
+
+class Installment(models.Model):
+    saleID = models.ForeignKey(Sale, blank=True, null=True, on_delete=models.CASCADE)
+    installmentDate = models.DateField(blank=True, null=True)
+    amountPaid = models.FloatField(default=0.0)
+    finePaid = models.FloatField(default=0.0)
+    remark = models.CharField(max_length=500, blank=True, null=True)
+    isPaid = models.BooleanField(default=False)
+    isReassigned = models.BooleanField(default=False)
+    assignedTo = models.ForeignKey(StaffUser, blank=True, null=True, on_delete=models.CASCADE,
+                                   related_name='AssignedToInstallment')
+    collectedBy = models.ForeignKey(StaffUser, blank=True, null=True, on_delete=models.CASCADE,
+                                    related_name='CollectedBy')
+    datetime = models.DateTimeField(auto_now_add=True, auto_now=False)
+    lastUpdatedOn = models.DateTimeField(auto_now_add=False, auto_now=True)
+    isDeleted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return str(self.installmentDate)
+
+    class Meta:
+        verbose_name_plural = 'L) Installment Date List'

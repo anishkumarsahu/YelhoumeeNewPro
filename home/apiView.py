@@ -771,7 +771,7 @@ class CustomerListJson(BaseDatatableView):
 def list_customer_api(request):
     try:
         obj_list = Customer.objects.filter(isDeleted__exact=False).order_by('name')
-
+        o_list = []
         for obj in obj_list:
             obj_dic = {
                 'ID': obj.pk,
@@ -779,11 +779,12 @@ def list_customer_api(request):
                 'District': obj.district,
                 'Address': obj.address,
                 'Phone': obj.phoneNumber,
-                'Detail': obj.name + ' - ' + obj.address + ' @ ' + obj.pk
+                'Detail': obj.name + ' - ' + obj.address + ' @ ' + str(obj.pk),
+                'DisplayDetail': obj.name + ' - ' + obj.address
             }
-            obj_list.append(obj_dic)
+            o_list.append(obj_dic)
 
-        return JsonResponse({'message': 'success', 'data': obj_list}, safe=False)
+        return JsonResponse({'message': 'success', 'data': o_list}, safe=False)
     except:
         return JsonResponse({'message': 'error'}, safe=False)
 
@@ -792,16 +793,75 @@ def list_product_api(request):
     try:
         obj_list = Product.objects.filter(isDeleted__exact=False).order_by('name')
 
+        o_list = []
         for obj in obj_list:
             obj_dic = {
                 'ID': obj.pk,
-                'Name': obj.productName,
-                'Category': obj.category,
-                'NetTotal': obj.net,
-                'Detail': obj.name + ' - ' + obj.address + ' @ ' + obj.pk
+                'Name': obj.name,
+                'Category': obj.categoryID,
+                'NetTotal': obj.sp,
+                'Detail': obj.name + ' - ' + obj.categoryID + ' @' + str(obj.pk),
+                'DisplayDetail': obj.name + ' - ' + obj.categoryID + ' - ' + obj.brandID + ' (₹ {})'.format(obj.sp)
             }
-            obj_list.append(obj_dic)
+            o_list.append(obj_dic)
 
-        return JsonResponse({'message': 'success', 'data': obj_list}, safe=False)
+        return JsonResponse({'message': 'success', 'data': o_list}, safe=False)
     except:
         return JsonResponse({'message': 'error'}, safe=False)
+
+
+# -----------------------------------sales-----------------------------------------
+@transaction.atomic
+@csrf_exempt
+def add_sales_api(request):
+    if request.method == 'POST':
+        # try:
+        photo = request.FILES["photo"]
+        customer = request.POST.get("customer")
+        product = request.POST.get("product")
+        emi = request.POST.get("emi")
+        advance = request.POST.get("advance")
+        tenure = request.POST.get("tenure")
+        totalAmount = request.POST.get("totalAmount")
+        lat = request.POST.get("lat")
+        lng = request.POST.get("lng")
+        remark = request.POST.get("remark")
+        idate = request.POST.get("idate")
+        c = str(customer).split('@')
+        cus = Customer.objects.get(pk=int(c[1]))
+        p = str(product).split('@')
+        pro = Product.objects.get(pk=int(p[1]))
+        obj = Sale()
+        obj.latitude = lat
+        obj.longitude = lng
+        obj.customerName = cus.name
+        obj.customerID_id = cus.pk
+        obj.productName = pro.name
+        obj.productID_id = pro.pk
+        obj.unit = pro.unitID
+        obj.quantity = 1
+        obj.rate = pro.sp
+        obj.advancePaid = float(advance)
+        obj.amountPaid = float(advance)
+        obj.tenureInMonth = float(tenure)
+        obj.emiAmount = float(emi)
+        obj.totalAmount = float(totalAmount)
+        obj.remark = remark
+        obj.deliveryPhoto = photo
+        user = StaffUser.objects.get(user_ID_id=request.user.pk)
+        obj.addedBy_id = user.pk
+        obj.assignedTo_id = user.pk
+        obj.installmentStartDate = datetime.strptime(idate, '%d/%m/%Y')
+        obj.save()
+        pro.stock = pro.stock - 1
+        pro.save()
+        for i in range(0, int(tenure)):
+            inst = Installment()
+            inst.saleID_id = obj.pk
+            inst.assignedTo_id = user.pk
+            inst.installmentDate = obj.installmentStartDate + timedelta(days=(i + 1) * 30)
+            inst.save()
+
+        return JsonResponse({'message': 'success'}, safe=False)
+    # except:
+    #     return JsonResponse({'message': 'error'}, safe=False)

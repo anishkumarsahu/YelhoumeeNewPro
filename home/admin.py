@@ -78,3 +78,18 @@ class CustomerAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Customer, CustomerAdmin)
+
+
+class InstallmentsListAdmin(admin.TabularInline):
+    model = Installment
+    extra = 0
+
+
+class SalesAdmin(admin.ModelAdmin):
+    list_display = ['customerName', 'productName', 'advancePaid', 'tenureInMonth', 'emiAmount', 'totalAmount',
+                    'amountPaid', 'addedBy', 'isDeleted', 'datetime', 'lastUpdatedOn']
+
+    inlines = (InstallmentsListAdmin,)
+
+
+admin.site.register(Sale, SalesAdmin)
