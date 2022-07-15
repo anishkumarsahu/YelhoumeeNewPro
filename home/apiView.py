@@ -815,53 +815,246 @@ def list_product_api(request):
 @csrf_exempt
 def add_sales_api(request):
     if request.method == 'POST':
-        # try:
-        photo = request.FILES["photo"]
-        customer = request.POST.get("customer")
-        product = request.POST.get("product")
-        emi = request.POST.get("emi")
-        advance = request.POST.get("advance")
-        tenure = request.POST.get("tenure")
-        totalAmount = request.POST.get("totalAmount")
-        lat = request.POST.get("lat")
-        lng = request.POST.get("lng")
-        remark = request.POST.get("remark")
-        idate = request.POST.get("idate")
-        c = str(customer).split('@')
-        cus = Customer.objects.get(pk=int(c[1]))
-        p = str(product).split('@')
-        pro = Product.objects.get(pk=int(p[1]))
-        obj = Sale()
-        obj.latitude = lat
-        obj.longitude = lng
-        obj.customerName = cus.name
-        obj.customerID_id = cus.pk
-        obj.productName = pro.name
-        obj.productID_id = pro.pk
-        obj.unit = pro.unitID
-        obj.quantity = 1
-        obj.rate = pro.sp
-        obj.advancePaid = float(advance)
-        obj.amountPaid = float(advance)
-        obj.tenureInMonth = float(tenure)
-        obj.emiAmount = float(emi)
-        obj.totalAmount = float(totalAmount)
-        obj.remark = remark
-        obj.deliveryPhoto = photo
-        user = StaffUser.objects.get(user_ID_id=request.user.pk)
-        obj.addedBy_id = user.pk
-        obj.assignedTo_id = user.pk
-        obj.installmentStartDate = datetime.strptime(idate, '%d/%m/%Y')
-        obj.save()
-        pro.stock = pro.stock - 1
-        pro.save()
-        for i in range(0, int(tenure)):
-            inst = Installment()
-            inst.saleID_id = obj.pk
-            inst.assignedTo_id = user.pk
-            inst.installmentDate = obj.installmentStartDate + timedelta(days=(i + 1) * 30)
-            inst.save()
+        try:
+            photo = request.FILES["photo"]
+            customer = request.POST.get("customer")
+            product = request.POST.get("product")
+            emi = request.POST.get("emi")
+            advance = request.POST.get("advance")
+            tenure = request.POST.get("tenure")
+            totalAmount = request.POST.get("totalAmount")
+            lat = request.POST.get("lat")
+            lng = request.POST.get("lng")
+            remark = request.POST.get("remark")
+            idate = request.POST.get("idate")
+            c = str(customer).split('@')
+            cus = Customer.objects.get(pk=int(c[1]))
+            p = str(product).split('@')
+            pro = Product.objects.get(pk=int(p[1]))
+            obj = Sale()
+            obj.latitude = lat
+            obj.longitude = lng
+            obj.customerName = cus.name
+            obj.customerID_id = cus.pk
+            obj.productName = pro.name
+            obj.productID_id = pro.pk
+            obj.unit = pro.unitID
+            obj.quantity = 1
+            obj.rate = pro.sp
+            obj.advancePaid = float(advance)
+            obj.amountPaid = float(advance)
+            obj.tenureInMonth = float(tenure)
+            obj.emiAmount = float(emi)
+            obj.totalAmount = float(totalAmount)
+            obj.remark = remark
+            obj.deliveryPhoto = photo
+            user = StaffUser.objects.get(user_ID_id=request.user.pk)
+            obj.addedBy_id = user.pk
+            obj.assignedTo_id = user.pk
+            obj.installmentStartDate = datetime.strptime(idate, '%d/%m/%Y')
+            obj.save()
+            pro.stock = pro.stock - 1
+            pro.save()
+            for i in range(0, int(tenure)):
+                inst = Installment()
+                inst.saleID_id = obj.pk
+                inst.assignedTo_id = user.pk
+                inst.installmentDate = obj.installmentStartDate + timedelta(days=(i + 1) * 30)
+                inst.save()
 
-        return JsonResponse({'message': 'success'}, safe=False)
-    # except:
-    #     return JsonResponse({'message': 'error'}, safe=False)
+            return JsonResponse({'message': 'success'}, safe=False)
+        except:
+            return JsonResponse({'message': 'error'}, safe=False)
+
+
+class SalesListByUserJson(BaseDatatableView):
+    order_columns = ['deliveryPhoto', 'customerName', 'productName', 'advancePaid', 'tenureInMonth', 'emiAmount',
+                     'totalAmount',
+                     'amountPaid', 'installmentStartDate', 'datetime']
+
+    def get_initial_queryset(self):
+        try:
+            startDateV = self.request.GET.get("startDate")
+            endDateV = self.request.GET.get("endDate")
+            sDate = datetime.strptime(startDateV, '%d/%m/%Y')
+            eDate = datetime.strptime(endDateV, '%d/%m/%Y')
+
+            return Sale.objects.filter(isDeleted__exact=False, addedBy__user_ID_id__exact=self.request.user.pk,
+                                       datetime__range=(sDate.date(), eDate.date() + timedelta(days=1)))
+
+        except:
+
+            return Sale.objects.filter(isDeleted__exact=False, addedBy__user_ID_id__exact=self.request.user.pk)
+
+    def filter_queryset(self, qs):
+
+        search = self.request.GET.get('search[value]', None)
+        if search:
+            qs = qs.filter(
+                Q(customerName__icontains=search) | Q(customerID_customerCode__icontains=search)
+                | Q(productName__icontains=search) | Q(advancePaid__icontains=search) | Q(
+                    tenureInMonth__icontains=search)
+                | Q(emiAmount__icontains=search) | Q(totalAmount__icontains=search) | Q(amountPaid__icontains=search)
+                | Q(datetime__icontains=search) | Q(remark__icontains=search) | Q(
+                    installmentStartDate__icontains=search)
+            )
+
+        return qs
+
+    def prepare_results(self, qs):
+        json_data = []
+        for item in qs:
+            photo = '''<img style="cursor:pointer" onclick="showImgModal('{}')" class="ui avatar image" src="{}">'''.format(
+                item.deliveryPhoto.large.url, item.deliveryPhoto.thumbnail.url)
+            action = '''<button style="font-size:10px;" onclick = "GetPurchaseDetail('{}')" class="ui circular facebook icon button green">
+                    <i class="receipt icon"></i>
+                  </button>
+                 </td>'''.format(item.pk),
+            json_data.append([
+                photo,  # escape HTML for security reasons
+                escape(item.customerName),
+                escape(item.productName),
+                escape(item.advancePaid),
+                escape(item.tenureInMonth),
+                escape(item.emiAmount),
+                escape(item.totalAmount),
+                escape(item.amountPaid),
+                escape(item.installmentStartDate.strftime('%d-%m-%Y')),
+                escape(item.datetime.strftime('%d-%m-%Y %I:%M %p')),
+                action
+            ])
+        return json_data
+
+
+class SalesListAdminJson(BaseDatatableView):
+    order_columns = ['deliveryPhoto', 'customerName', 'productName', 'advancePaid', 'tenureInMonth', 'emiAmount',
+                     'totalAmount',
+                     'amountPaid', 'installmentStartDate', 'datetime']
+
+    def get_initial_queryset(self):
+        try:
+            startDateV = self.request.GET.get("startDate")
+            endDateV = self.request.GET.get("endDate")
+            sDate = datetime.strptime(startDateV, '%d/%m/%Y')
+            eDate = datetime.strptime(endDateV, '%d/%m/%Y')
+
+            return Sale.objects.filter(isDeleted__exact=False,
+                                       datetime__range=(sDate.date(), eDate.date() + timedelta(days=1)))
+
+        except:
+
+            return Sale.objects.filter(isDeleted__exact=False)
+
+    def filter_queryset(self, qs):
+
+        search = self.request.GET.get('search[value]', None)
+        if search:
+            qs = qs.filter(
+                Q(customerName__icontains=search) | Q(customerID_customerCode__icontains=search)
+                | Q(productName__icontains=search) | Q(advancePaid__icontains=search) | Q(
+                    tenureInMonth__icontains=search)
+                | Q(emiAmount__icontains=search) | Q(totalAmount__icontains=search) | Q(amountPaid__icontains=search)
+                | Q(datetime__icontains=search) | Q(remark__icontains=search) | Q(
+                    installmentStartDate__icontains=search)
+            )
+
+        return qs
+
+    def prepare_results(self, qs):
+        json_data = []
+        for item in qs:
+            photo = '''<img style="cursor:pointer" onclick="showImgModal('{}')" class="ui avatar image" src="{}">'''.format(
+                item.deliveryPhoto.large.url, item.deliveryPhoto.thumbnail.url)
+            action = '''<button style="font-size:10px;" onclick = "GetPurchaseDetail('{}')" class="ui circular facebook icon button green">
+                    <i class="receipt icon"></i>
+                  </button>
+                  <button style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
+                    <i class="trash alternate icon"></i>
+                  </button></td>'''.format(item.pk, item.pk),
+            json_data.append([
+                photo,  # escape HTML for security reasons
+                escape(item.customerName),
+                escape(item.productName),
+                escape(item.advancePaid),
+                escape(item.tenureInMonth),
+                escape(item.emiAmount),
+                escape(item.totalAmount),
+                escape(item.amountPaid),
+                escape(item.installmentStartDate.strftime('%d-%m-%Y')),
+                escape(item.datetime.strftime('%d-%m-%Y %I:%M %p')),
+                action
+            ])
+        return json_data
+
+
+# ------------------------------------Installments-----------------------------------
+
+class InstallmentListByUserJson(BaseDatatableView):
+    order_columns = ['saleID.customerName', 'saleID.emiAmount', 'installmentDate', 'amountPaid', 'isPaid',
+                     'isReassigned'
+        , 'remark', 'paymentReceivedOn']
+
+    def get_initial_queryset(self):
+        try:
+            startDateV = self.request.GET.get("startDate")
+            endDateV = self.request.GET.get("endDate")
+            sDate = datetime.strptime(startDateV, '%d/%m/%Y')
+            eDate = datetime.strptime(endDateV, '%d/%m/%Y')
+
+            return Installment.objects.filter(isDeleted__exact=False,
+                                              assignedTo__user_ID_id__exact=self.request.user.pk,
+                                              installmentDate__range=(sDate.date(), eDate.date() + timedelta(days=1)),
+                                              saleID__isClosed__exact=False
+                                              )
+        except:
+
+            return Installment.objects.filter(isDeleted__exact=False,
+                                              assignedTo__user_ID_id__exact=self.request.user.pk,
+                                              installmentDate__exact=datetime.today().date(),
+                                              saleID__isClosed__exact=False
+                                              )
+
+    def filter_queryset(self, qs):
+
+        search = self.request.GET.get('search[value]', None)
+        if search:
+            qs = qs.filter(
+                Q(saleID__customerName__icontains=search) | Q(saleID__productName__icontains=search)
+                | Q(installmentDate__icontains=search) | Q(remark__icontains=search) | Q(amountPaid__icontains=search)
+            )
+
+        return qs
+
+    def prepare_results(self, qs):
+        json_data = []
+        for item in qs:
+            action = '''<button style="font-size:10px;" onclick = "GetPurchaseDetail('{}')" class="ui circular facebook icon button orange">
+                    <i class="hand holding usd icon"></i>
+                  </button>
+                  <button style="font-size:10px;" onclick = "GetPurchaseDetail('{}')" class="ui circular facebook icon button green">
+                    <i class="receipt icon"></i>
+                  </button>
+                 '''.format(item.pk, item.pk),
+            if item.isPaid == True:
+                paid = '<button class="ui tiny active green button" type="button" >  Yes </button>'
+                r_time = escape(item.paymentReceivedOn.strftime('%d-%m-%Y %I:%M %p')),
+            else:
+                paid = '<button class="ui tiny active red button" type="button" >  No </button>'
+                r_time = '-'
+
+            if item.isReassigned == True:
+                isReassigned = '<button class="ui tiny active green button" type="button" >  Yes </button>'
+            else:
+                isReassigned = '<button class="ui tiny active red button" type="button" >  No </button>'
+            json_data.append([
+                escape(item.saleID.customerName),
+                escape(item.saleID.emiAmount),
+                escape(item.installmentDate.strftime('%d-%m-%Y')),
+                escape(item.amountPaid),
+                paid,
+                isReassigned,
+                escape(item.remark),
+                r_time,
+                action
+            ])
+        return json_data

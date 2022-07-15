@@ -112,15 +112,22 @@
         .custom_search:focus {
             width: 100%;
         }
-        .bgColor{
-            background-color: #232f3e!important;
+
+        .bgColor {
+            background-color: #232f3e !important;
         }
-        .logoImg{
-                width: 30px;
-                height: 30px;
-                margin: 5px;
-                position: relative;
+
+        .logoImg {
+            width: 30px;
+            height: 30px;
+            margin: 5px;
+            position: relative;
             left: 10px;
+        }
+
+        .ui.inverted.menu .active.item {
+            background: #3d3e3f;
+            color: #4cebb8 !important;
         }
     </style>
 
@@ -148,7 +155,7 @@
             <a class="item" href="{% url 'homeApp:customer_list_admin' %}">
                 <div><i class="users icon"></i>Customer List</div>
             </a>
-            <a class="item" href="#">
+            <a class="item" href="{% url 'homeApp:sales_list_admin' %}">
                 <div><i class="cart arrow down icon"></i>Sales List</div>
             </a>
             <a class="item" href="#">
@@ -387,6 +394,16 @@
 
     }
 
+    $(function () {
+        var current = location.pathname;
+        $('.sidebar  a').each(function () {
+            var $this = $(this);
+            // if the current path is like this link, make it active
+            if ($this.attr('href').indexOf(current) !== -1) {
+                $this.addClass('active');
+            }
+        })
+    })
 </script>
 <script src="https://cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.4/js/dataTables.semanticui.min.js"></script>
@@ -397,6 +414,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.print.min.js"></script>
+
+
+
+
 
 {% block js %}
     <script>

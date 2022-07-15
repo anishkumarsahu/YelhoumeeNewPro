@@ -100,9 +100,21 @@ def sales_add(request):
     return render(request, 'home/collection/saleAdd.html')
 
 
+def sales_list(request):
+    return render(request, 'home/collection/salesListByStaff.html')
+
+
+def sales_list_admin(request):
+    return render(request, 'home/admin/salesListByAdmin.html')
+
+
 def user_logout(request):
     logout(request)
     return redirect("homeApp:loginPage")
+
+
+def installment_list(request):
+    return render(request, 'home/collection/installmentListByUser.html')
 
 
 @csrf_exempt

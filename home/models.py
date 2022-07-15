@@ -229,6 +229,7 @@ class Sale(models.Model):
     addedBy = models.ForeignKey(StaffUser, blank=True, null=True, on_delete=models.CASCADE, related_name='AddedBy')
     assignedTo = models.ForeignKey(StaffUser, blank=True, null=True, on_delete=models.CASCADE,
                                    related_name='AssignedTo')
+    isClosed = models.BooleanField(default=False)
     datetime = models.DateTimeField(auto_now_add=True, auto_now=False)
     lastUpdatedOn = models.DateTimeField(auto_now_add=False, auto_now=True)
     isDeleted = models.BooleanField(default=False)
@@ -252,6 +253,7 @@ class Installment(models.Model):
                                    related_name='AssignedToInstallment')
     collectedBy = models.ForeignKey(StaffUser, blank=True, null=True, on_delete=models.CASCADE,
                                     related_name='CollectedBy')
+    paymentReceivedOn = models.DateTimeField(blank=True, null=True)
     datetime = models.DateTimeField(auto_now_add=True, auto_now=False)
     lastUpdatedOn = models.DateTimeField(auto_now_add=False, auto_now=True)
     isDeleted = models.BooleanField(default=False)
