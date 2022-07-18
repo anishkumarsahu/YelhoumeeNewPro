@@ -3,7 +3,7 @@ from functools import wraps
 from activation.models import Validity, EcomValidity
 from django.contrib.auth import logout, authenticate, login
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import *
 # Create your views here.
 from django.views.decorators.csrf import csrf_exempt
@@ -106,6 +106,17 @@ def sales_list(request):
 
 def sales_list_admin(request):
     return render(request, 'home/admin/salesListByAdmin.html')
+
+
+def sales_detail(request, id=None):
+    instance = get_object_or_404(Sale, id=id)
+    installments = Installment.objects.filter(isDeleted__exact=False, saleID_id__exact=instance.pk).order_by(
+        'installmentDate')
+    context = {
+        'instance': instance,
+        'installments': installments
+    }
+    return render(request, 'home/salesDetail.html', context)
 
 
 def user_logout(request):

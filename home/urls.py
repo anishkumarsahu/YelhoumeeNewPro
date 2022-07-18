@@ -17,6 +17,8 @@ urlpatterns = [
     path('sales_add/', sales_add, name='sales_add'),
     path('sales_list/', sales_list, name='sales_list'),
     path('sales_list_admin/', sales_list_admin, name='sales_list_admin'),
+
+    path('sales_detail/<int:id>/', sales_detail, name='sales_detail'),
     path('installment_list/', installment_list, name='installment_list'),
 
     # admin
@@ -69,5 +71,6 @@ urlpatterns = [
 
     # installments
     path('api/InstallmentListByUserJson/', InstallmentListByUserJson.as_view(), name='InstallmentListByUserJson'),
+    path('api/get_installment_detail/', get_installment_detail, name='get_installment_detail'),
 
 ]

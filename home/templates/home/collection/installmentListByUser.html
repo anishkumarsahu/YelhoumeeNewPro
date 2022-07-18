@@ -122,39 +122,79 @@
                     </div>
                 </div>
 
-                <div class="ui basic modal custom" id="deleteUser">
-                    <div class="ui icon header">
-                        <i class="archive icon"></i>
-                        User Details will be Deleted
-                    </div>
-                    <div class="content">
-                        <p style="text-align: center">The User will be deleted, are you sure to delete this User?</p>
-                    </div>
-                    <div class="actions">
-                        <div class="ui red basic cancel inverted button">
-                            <i class="remove icon"></i>
-                            No
-                        </div>
-                        <input type="hidden" id="UserID">
-                        <div class="ui green ok inverted button" onclick="deleteUser()">
-                            <i class="checkmark icon"></i>
-                            Yes
-                        </div>
-                    </div>
-                </div>
-
 
             </div>
         </div>
     </div>
 
-    <div class="ui mini modal" id="imgModal">
+    <div class="ui modal" id="myModalUser">
         <i class="close icon"></i>
-        <div class="header">Image Viewer</div>
-        <div class="image content aligned center">
-            <img class="image" id="imageLoad">
-            <div class="description">
-                <p></p>
+        <div class="header">
+            Add Installment
+        </div>
+        <div class="content">
+
+            <form class="ui tiny form" id="addForm">{% csrf_token %}
+                <div class="two required fields">
+                    <div class="eight wide field">
+                        <label>Customer Name</label>
+                        <input type="text" readonly name="Name" placeholder="Customer Name" id="customerName">
+                    </div>
+                    <div class="eight wide field">
+                        <label>Installment Amount</label>
+                        <input type="number" readonly name="Name" placeholder="Installment Amount"
+                               id="installmentAmount">
+                    </div>
+
+                </div>
+
+                <div class="one fields">
+                    <div class="sixteen wide field required">
+                        <label>Action</label>
+                        <select class="ui  search dropdown" id="action" onchange="getAction()">
+                            <option value="">Choose Action</option>
+                            <option value="Paid">Paid</option>
+                            <option value="Reassign">Reassign</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="two required fields" id="showPaid" style="display: none">
+                    <div class="eight wide field">
+                        <label>Paid Amount</label>
+                        <input type="number" placeholder="Paid Amount" id="paidAmount">
+                    </div>
+                    <div class="eight wide field">
+                        <label>Fine Amount</label>
+                        <input type="number" placeholder="Fine Amount" id="fineAmount">
+                    </div>
+
+                </div>
+                <div class="one required fields" id="showReassign" style="display: none">
+                    <div class=" sixteen wide field required" id="reassign_calendar">
+                        <label>Reassign Date</label>
+                        <input type="text" name="rdate" id="rdate" placeholder="Reassign Date">
+                    </div>
+                </div>
+                <div class="one required fields">
+                    <div class="sixteen wide field">
+                        <label>Remark</label>
+                        <input type="text" placeholder="Remark" id="remark">
+                    </div>
+
+                </div>
+
+                <input type="hidden" id="ID">
+            </form>
+
+            <div class="actions" style="padding-top: 20px; padding-bottom: 20px ;float: right">
+                <div class="ui cancel button">Cancel</div>
+                <button id="saveBtn" class="ui right labeled icon button green" onclick="Save()">
+                    Submit
+                    <i class="checkmark icon"></i>
+                </button>
+                <button id="saveBtnLoad" style="display: none;" class="ui green double loading button">
+                    Saving ....
+                </button>
             </div>
         </div>
     </div>
@@ -195,6 +235,26 @@
             }
         });
 
+        $('#reassign_calendar')
+            .calendar({
+                    initialDate: today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear(),
+                    monthFirst: false,
+                    type: 'date',
+                    formatter: {
+                        date: function (date, settings) {
+                            if (!date) return '';
+                            var day = date.getDate();
+                            var month = date.getMonth() + 1;
+                            var year = date.getFullYear();
+                            return day + '/' + month + '/' + year;
+                        }
+                    },
+                    popupOptions: {
+                        observeChanges: false
+                    }
+
+                }
+            );
 
         var userTab;
 
@@ -239,60 +299,6 @@
         });
 
 
-        function delUser(id) {
-            $('#deleteUser')
-                .modal('show')
-            ;
-            $('#UserID').val(id)
-        }
-
-        function deleteUser() {
-            var id = $('#UserID').val();
-            var formdata = new FormData();
-            formdata.append('userID', id);
-
-            $.ajax({
-                url: "{% url 'homeApp:delete_staff_user' %}",
-                type: "post",
-                data: formdata,
-                contentType: false,
-                cache: false,
-                processData: false,
-
-                success: function (response) {
-                    if (response.message === 'success') {
-                        $('body')
-                            .toast({
-                                class: 'success',
-                                message: 'User Detail Deleted Successfully.'
-                            })
-                        ;
-
-
-                        userTab.ajax.reload();
-                    } else {
-                        $('body')
-                            .toast({
-                                class: 'error',
-                                message: 'An error occurred !'
-                            })
-                        ;
-
-                    }
-
-                    return response;
-                },
-                error: function () {
-                    $('body')
-                        .toast({
-                            class: 'error',
-                            message: 'An error occurred !'
-                        })
-                    ;
-                }
-            });
-
-        }
 
         function filterDetails() {
             var startDate = $('#startDateF').val();
@@ -305,6 +311,119 @@
             $('#imgModal').modal('show')
             $("#imageLoad").attr({"src": "" + img});
         }
+
+        function GetDetail(id) {
+            $('#myModalUser').modal('show');
+            $.ajax({
+                type: 'get',
+                url: '{% url "homeApp:get_installment_detail"%}?id=' + id,
+
+                success: function (response) {
+                    $('#ID').val(response.data['ID']);
+                    $('#customerName').val(response.data['Name']);
+                    $('#installmentAmount').val(response.data['Amount']);
+
+
+                },
+                error: function () {
+                    $('body')
+                        .toast({
+                            class: 'error',
+                            message: 'An error occurred !'
+                        })
+                    ;
+                }
+            });
+        }
+
+        function getAction() {
+            let action = $('#action').val();
+            if (action === 'Paid') {
+                $('#showPaid').css('display', '')
+                $('#showReassign').css('display', 'none')
+            } else if (action === 'Reassign') {
+                $('#showPaid').css('display', 'none')
+                $('#showReassign').css('display', '')
+            } else {
+                $('#showPaid').css('display', '')
+                $('#showReassign').css('display', '')
+            }
+
+        }
+
+
+        function Save() {
+            showLoading();
+
+            var supplierNameID = $('#supplierNameID').val();
+            var invoice = $('#invoice').val();
+            var idate = $('#idate').val();
+
+            if (taxable === '' || totalGst === '' || otherCharges === '' || roundOff === '') {
+                $('body')
+                    .toast({
+                        class: 'orange',
+                        message: '* fields are required !'
+                    })
+                ;
+                hideLoading();
+            } else {
+                data = new FormData();
+                data.append('taxable', taxable);
+                data.append('totalGst', totalGst);
+                data.append('otherCharges', otherCharges);
+
+
+                $.ajax({
+                    type: 'post',
+                    url: '{% url "homeApp:add_purchase_api" %}',
+                    data: data,
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+
+
+                    success: function (response) {
+                        if (response.message === 'success') {
+                            $('body')
+                                .toast({
+                                    class: 'success',
+                                    message: 'New purchase created Successfully.'
+                                });
+
+                            hideLoading();
+
+                            location.href = "{% url 'homeApp:purchase_list' %}"
+
+                        } else {
+                            $('body')
+                                .toast({
+                                    class: 'error',
+                                    message: 'An error occurred !'
+                                })
+                            ;
+                            hideLoading();
+                        }
+
+                        return response;
+                    },
+                    error: function () {
+                        $('body')
+                            .toast({
+                                class: 'error',
+                                message: 'An error occurred !'
+                            })
+                        ;
+                        hideLoading();
+                    }
+
+                });
+
+
+            }
+
+        }
+
 
     </script>
 

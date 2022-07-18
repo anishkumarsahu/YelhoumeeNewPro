@@ -449,10 +449,23 @@
     </div>
 </div>
 
-
-<script src="https://frontendfunn.github.io/semantic-ui-admin-dashboard-template/js/script.js"></script>
+{##}
+{#<script src="https://frontendfunn.github.io/semantic-ui-admin-dashboard-template/js/script.js"></script>#}
 
 <script>
+    $(document).ready(function () {
+        $('.ui.dropdown').dropdown();
+        $('.sidebar-menu-toggler').on('click', function () {
+            var target = $(this).data('target');
+            $(target)
+                .sidebar({
+                    dinPage: true,
+                    transition: 'overlay',
+                    mobileTransition: 'overlay'
+                })
+                .sidebar('toggle');
+        });
+    });
     $('.menu .item').tab();
     $(window).on("load", function () {
         $(".preloader").fadeOut(50);

@@ -906,9 +906,9 @@ class SalesListByUserJson(BaseDatatableView):
         for item in qs:
             photo = '''<img style="cursor:pointer" onclick="showImgModal('{}')" class="ui avatar image" src="{}">'''.format(
                 item.deliveryPhoto.large.url, item.deliveryPhoto.thumbnail.url)
-            action = '''<button style="font-size:10px;" onclick = "GetPurchaseDetail('{}')" class="ui circular facebook icon button green">
+            action = '''<a style="font-size:10px;" href="/sales_detail/{}/" class="ui circular facebook icon button green">
                     <i class="receipt icon"></i>
-                  </button>
+                  </a>
                  </td>'''.format(item.pk),
             json_data.append([
                 photo,  # escape HTML for security reasons
@@ -1028,13 +1028,13 @@ class InstallmentListByUserJson(BaseDatatableView):
     def prepare_results(self, qs):
         json_data = []
         for item in qs:
-            action = '''<button style="font-size:10px;" onclick = "GetPurchaseDetail('{}')" class="ui circular facebook icon button orange">
+            action = '''<button style="font-size:10px;" onclick = "GetDetail('{}')" class="ui circular facebook icon button orange">
                     <i class="hand holding usd icon"></i>
                   </button>
-                  <button style="font-size:10px;" onclick = "GetPurchaseDetail('{}')" class="ui circular facebook icon button green">
+                  <a style="font-size:10px;" href="/sales_detail/{}/" class="ui circular facebook icon button green">
                     <i class="receipt icon"></i>
-                  </button>
-                 '''.format(item.pk, item.pk),
+                  </a>
+                 '''.format(item.pk, item.saleID.pk),
             if item.isPaid == True:
                 paid = '<button class="ui tiny active green button" type="button" >  Yes </button>'
                 r_time = escape(item.paymentReceivedOn.strftime('%d-%m-%Y %I:%M %p')),
@@ -1058,3 +1058,15 @@ class InstallmentListByUserJson(BaseDatatableView):
                 action
             ])
         return json_data
+
+
+def get_installment_detail(request):
+    id = request.GET.get('id')
+    instance = get_object_or_404(Installment, id=id)
+
+    data = {
+        'ID': instance.pk,
+        'Name': instance.saleID.customerName,
+        'Amount': instance.saleID.emiAmount
+    }
+    return JsonResponse({'data': data}, safe=False)
