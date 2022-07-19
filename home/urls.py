@@ -20,15 +20,18 @@ urlpatterns = [
 
     path('sales_detail/<int:id>/', sales_detail, name='sales_detail'),
     path('installment_list/', installment_list, name='installment_list'),
+    path('my_profile/', my_profile, name='my_profile'),
 
     # admin
+    path('my_profile_admin/', my_profile_admin, name='my_profile_admin'),
     path('admin_home/', admin_home, name='admin_home'),
     path('user_list/', user_list, name='user_list'),
     path('product_list/', product_list, name='product_list'),
     path('purchase_list/', purchase_list, name='purchase_list'),
     path('purchase_add/', purchase_add, name='purchase_add'),
     path('supplier_add/', supplier_add, name='supplier_add'),
-
+    path('installment_list_admin/', installment_list_admin, name='installment_list_admin'),
+    path('sales_detail_admin/<int:id>/', sales_detail_admin, name='sales_detail_admin'),
 
     # api Staff
     path('api/add_staff_api/', add_staff_api, name='add_staff_api'),
@@ -70,7 +73,14 @@ urlpatterns = [
     path('api/SalesListAdminJson/', SalesListAdminJson.as_view(), name='SalesListAdminJson'),
 
     # installments
+    path('api/InstallmentListByAdminJson/', InstallmentListByAdminJson.as_view(), name='InstallmentListByAdminJson'),
     path('api/InstallmentListByUserJson/', InstallmentListByUserJson.as_view(), name='InstallmentListByUserJson'),
     path('api/get_installment_detail/', get_installment_detail, name='get_installment_detail'),
+    path('api/add_installment_api/', add_installment_api, name='add_installment_api'),
+
+    # report dashboard
+    path('api/get_collection_user_report_api/', get_collection_user_report_api, name='get_collection_user_report_api'),
+
+    path('api/get_admin_report_api/', get_admin_report_api, name='get_admin_report_api'),
 
 ]

@@ -1,7 +1,7 @@
-{% extends 'home/collection/indexCollection.html' %}
+{% extends 'home/admin/index.html' %}
 {% load static %}
 {% block title %}
-    <title>InstallmentList|Collection</title>
+    <title>InstallmentList|Admin</title>
 {% endblock %}
 {% block css %}
 {% endblock %}
@@ -289,14 +289,14 @@
             "pageLength": 8,
             "processing": true,
             "serverSide": true,
-            "ajax": "{% url 'homeApp:InstallmentListByUserJson' %}"
+            "ajax": "{% url 'homeApp:InstallmentListByAdminJson' %}"
         });
 
 
         function filterDetails() {
             var startDate = $('#startDateF').val();
             var endDate = $('#endDateF').val();
-            userTab.ajax.url('{% url 'homeApp:InstallmentListByUserJson' %}?startDate=' + startDate + '&endDate=' + endDate).load();
+            userTab.ajax.url('{% url 'homeApp:InstallmentListByAdminJson' %}?startDate=' + startDate + '&endDate=' + endDate).load();
 
         }
 

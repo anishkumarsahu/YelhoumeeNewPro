@@ -158,7 +158,7 @@
             <a class="item" href="{% url 'homeApp:sales_list_admin' %}">
                 <div><i class="cart arrow down icon"></i>Sales List</div>
             </a>
-            <a class="item" href="#">
+            <a class="item" href="{% url 'homeApp:installment_list_admin' %}">
                 <div><i class="hand holding usd icon"></i>Installment List</div>
             </a>
         </div>
@@ -197,7 +197,7 @@
             Profile
         </div>
         <div class="menu">
-            <a class="item" href="#">
+            <a class="item" href="{% url 'homeApp:my_profile_admin' %}">
                 <div><i class="user icon"></i>My Profile</div>
             </a>
             <a class="item" href="{% url 'homeApp:logout' %}">
@@ -238,13 +238,13 @@
         <div class="ui dropdown item">
             <i class="user cirlce icon"></i>
             <div class="menu">
-                <a href="#" class="item">
+                <a href="{% url 'homeApp:my_profile_admin' %}" class="item">
                     <i class="info circle icon"></i> Profile</a
                 >
-                <a href="#" class="item">
+                {% comment %}  <a href="#" class="item">
                     <i class="wrench icon"></i>
                     Settings</a
-                >
+                >{% endcomment %}
                 <a href="{% url 'homeApp:logout' %}" class="item">
                     <i class="sign out alternate icon"></i>
                     Logout
@@ -270,23 +270,23 @@
                     <div class="ui fluid card">
                         <div class="content">
                             <div class="ui right floated header red">
-                                <i class="icon shopping cart"></i>
+                                <i class="users icon"></i>
                             </div>
                             <div class="header">
-                                <div class="ui red header">
-                                    3958
+                                <div class="ui red header" id="customerCount">
+                                    0
                                 </div>
                             </div>
                             <div class="meta">
-                                orders
+                                Customers Added
                             </div>
                             <div class="description">
-                                Elliot requested permission to view your contact details
+                                Total number of customers added by user.
                             </div>
                         </div>
                         <div class="extra content">
                             <div class="ui two buttons">
-                                <div class="ui red button">More Info</div>
+                                <a class="ui red button" href="{% url 'homeApp:customer_list' %}">More Info</a>
                             </div>
                         </div>
                     </div>
@@ -295,21 +295,23 @@
                     <div class="ui fluid card">
                         <div class="content">
                             <div class="ui right floated header green">
-                                <i class="icon clock"></i>
+                                <i class="cart plus icon"></i>
                             </div>
                             <div class="header">
-                                <div class="ui header green">57.6%</div>
+                                <div class="ui header green" id="salesCount">
+                                    0
+                                </div>
                             </div>
                             <div class="meta">
-                                Time
+                                Sales Created
                             </div>
                             <div class="description">
-                                Elliot requested permission to view your contact details
+                                Total number of sales created by user.
                             </div>
                         </div>
                         <div class="extra content">
                             <div class="ui two buttons">
-                                <div class="ui green button">More Info</div>
+                                <a class="ui green button" href="{% url 'homeApp:sales_list' %}">More Info</a>
                             </div>
                         </div>
                     </div>
@@ -318,21 +320,21 @@
                     <div class="ui fluid card">
                         <div class="content">
                             <div class="ui right floated header teal">
-                                <i class="icon briefcase"></i>
+                                <i class="calendar plus icon"></i>
                             </div>
                             <div class="header">
-                                <div class="ui teal header">3112</div>
+                                <div class="ui teal header" id="todayInstallmentCount">0</div>
                             </div>
                             <div class="meta">
-                                Saves
+                                Today's Installment
                             </div>
                             <div class="description">
-                                Elliot requested permission to view your contact details
+                                Number of installment collected by the user today.
                             </div>
                         </div>
                         <div class="extra content">
                             <div class="ui two buttons">
-                                <div class="ui teal button">More Info</div>
+                                <a class="ui teal button" href="{% url 'homeApp:installment_list' %}">More Info</a>
                             </div>
                         </div>
                     </div>
@@ -341,22 +343,84 @@
                     <div class="ui fluid card">
                         <div class="content">
                             <div class="ui right floated header purple">
-                                <i class="icon trophy"></i>
+                                <i class="hand holding usd icon"></i>
                             </div>
                             <div class="header">
-                                <div class="ui purple header">9805</div>
+                                <div class="ui purple header" id="collection">0</div>
                             </div>
                             <div class="meta">
-                                Views
+                                Today's Collection
                             </div>
                             <div class="description">
-                                Elliot requested permission to view your contact details
+                                Total amount collected on installments collections.
                             </div>
                         </div>
                         <div class="extra content">
                             <div class="ui two buttons">
-                                <div class="ui purple button">More Info</div>
+                                <a class="ui purple button" href="{% url 'homeApp:installment_list' %}">More Info</a>
                             </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="sixteen wide tablet four wide computer column">
+
+                        <div class="ui segment left aligned">
+
+                            <div class="ui  statistic">
+                                <div class="value counter">3,952</div>
+                                <div class="label">
+                                    Total Purchase
+                                </div>
+                                <i class="icon ion-ios-cart teal statisticIcon"></i>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="sixteen wide tablet four wide computer column">
+
+                        <div class="ui segment left aligned">
+
+                            <div class="ui  statistic">
+                                <div class="value">
+                                    <span class="counter">57.6</span> %
+                                </div>
+                                <div class="label">
+                                    Total Sales
+                                </div>
+                                <i class="icon ion-ios-timer blue statisticIcon"></i>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="sixteen wide tablet four wide computer column">
+
+                        <div class="ui segment left aligned">
+
+                            <div class="ui  statistic">
+                                <div class="value counter">3,112</div>
+                                <div class="label">
+                                    Total Collection
+                                </div>
+                                <i class="icon ion-magnet purple statisticIcon"></i>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="sixteen wide tablet four wide computer column">
+
+                        <div class="ui segment left aligned">
+
+                            <div class="ui  statistic">
+
+                                <div class="value counter">9,582</div>
+                                <div class="label">
+                                    Total Due
+                                </div>
+                                <i class="icon ion-trophy red statisticIcon"></i>
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -421,6 +485,32 @@
 
 {% block js %}
     <script>
+        $(GetDetail());
+
+        function GetDetail() {
+            $.ajax({
+                type: 'get',
+                url: '{% url "homeApp:get_admin_report_api"%}',
+
+                success: function (response) {
+                    $('#customerCount').html(response.data['customerCount']);
+                    $('#salesCount').html(response.data['salesCount']);
+                    $('#todayInstallmentCount').html(response.data['todayInstallmentCount']);
+                    $('#collection').html(response.data['collection']);
+
+
+                },
+                error: function () {
+                    $('body')
+                        .toast({
+                            class: 'error',
+                            message: 'An error occurred !'
+                        })
+                    ;
+                }
+            });
+        }
+
 
     </script>
 

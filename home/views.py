@@ -119,6 +119,17 @@ def sales_detail(request, id=None):
     return render(request, 'home/salesDetail.html', context)
 
 
+def sales_detail_admin(request, id=None):
+    instance = get_object_or_404(Sale, id=id)
+    installments = Installment.objects.filter(isDeleted__exact=False, saleID_id__exact=instance.pk).order_by(
+        'installmentDate')
+    context = {
+        'instance': instance,
+        'installments': installments
+    }
+    return render(request, 'home/admin/salesDetailAdmin.html', context)
+
+
 def user_logout(request):
     logout(request)
     return redirect("homeApp:loginPage")
@@ -126,6 +137,26 @@ def user_logout(request):
 
 def installment_list(request):
     return render(request, 'home/collection/installmentListByUser.html')
+
+
+def installment_list_admin(request):
+    return render(request, 'home/admin/installmentListAdmin.html')
+
+
+def my_profile(request):
+    instance = get_object_or_404(StaffUser, user_ID_id=request.user.pk)
+    context = {
+        'instance': instance
+    }
+    return render(request, 'home/profile.html', context)
+
+
+def my_profile_admin(request):
+    instance = get_object_or_404(StaffUser, user_ID_id=request.user.pk)
+    context = {
+        'instance': instance
+    }
+    return render(request, 'home/admin/profileAdmin.html', context)
 
 
 @csrf_exempt

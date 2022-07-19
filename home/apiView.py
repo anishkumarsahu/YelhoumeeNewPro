@@ -965,12 +965,12 @@ class SalesListAdminJson(BaseDatatableView):
         for item in qs:
             photo = '''<img style="cursor:pointer" onclick="showImgModal('{}')" class="ui avatar image" src="{}">'''.format(
                 item.deliveryPhoto.large.url, item.deliveryPhoto.thumbnail.url)
-            action = '''<button style="font-size:10px;" onclick = "GetPurchaseDetail('{}')" class="ui circular facebook icon button green">
+            action = '''<a href="/sales_detail_admin/{}/" style="font-size:10px;" onclick = "GetPurchaseDetail('{}')" class="ui circular facebook icon button green">
                     <i class="receipt icon"></i>
-                  </button>
+                  </a>
                   <button style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
                     <i class="trash alternate icon"></i>
-                  </button></td>'''.format(item.pk, item.pk),
+                  </button></td>'''.format(item.pk, item.pk, item.pk),
             json_data.append([
                 photo,  # escape HTML for security reasons
                 escape(item.customerName),
@@ -988,6 +988,82 @@ class SalesListAdminJson(BaseDatatableView):
 
 
 # ------------------------------------Installments-----------------------------------
+
+class InstallmentListByAdminJson(BaseDatatableView):
+    order_columns = ['saleID.customerName', 'saleID.emiAmount', 'installmentDate', 'amountPaid', 'isPaid',
+                     'isReassigned'
+        , 'remark', 'paymentReceivedOn']
+
+    def get_initial_queryset(self):
+        try:
+            startDateV = self.request.GET.get("startDate")
+            endDateV = self.request.GET.get("endDate")
+            sDate = datetime.strptime(startDateV, '%d/%m/%Y')
+            eDate = datetime.strptime(endDateV, '%d/%m/%Y')
+
+            return Installment.objects.filter(isDeleted__exact=False,
+                                              installmentDate__range=(sDate.date(), eDate.date() + timedelta(days=1)),
+                                              saleID__isClosed__exact=False
+                                              )
+        except:
+
+            return Installment.objects.filter(isDeleted__exact=False,
+                                              installmentDate__exact=datetime.today().date(),
+                                              saleID__isClosed__exact=False
+                                              )
+
+    def filter_queryset(self, qs):
+
+        search = self.request.GET.get('search[value]', None)
+        if search:
+            qs = qs.filter(
+                Q(saleID__customerName__icontains=search) | Q(saleID__productName__icontains=search)
+                | Q(installmentDate__icontains=search) | Q(remark__icontains=search) | Q(amountPaid__icontains=search)
+            )
+
+        return qs
+
+    def prepare_results(self, qs):
+        json_data = []
+        for item in qs:
+            if item.isPaid == False and item.isReassigned == False:
+                action = '''<button style="font-size:10px;" onclick = "GetDetail('{}')" class="ui circular facebook icon button orange">
+                        <i class="hand holding usd icon"></i>
+                      </button>
+                      <a style="font-size:10px;" href="/sales_detail_admin/{}/" class="ui circular facebook icon button green">
+                        <i class="receipt icon"></i>
+                      </a>
+                     '''.format(item.pk, item.saleID.pk),
+            else:
+                action = '''<a style="font-size:10px;" href="/sales_detail_admin/{}/" class="ui circular facebook icon button green">
+                                        <i class="receipt icon"></i>
+                                      </a>
+                                     '''.format(item.saleID.pk),
+
+            if item.isPaid == True:
+                paid = '<button class="ui tiny active green button" type="button" >  Yes </button>'
+                r_time = escape(item.paymentReceivedOn.strftime('%d-%m-%Y %I:%M %p')),
+            else:
+                paid = '<button class="ui tiny active red button" type="button" >  No </button>'
+                r_time = '-'
+
+            if item.isReassigned == True:
+                isReassigned = '<button class="ui tiny active green button" type="button" >  Yes </button>'
+            else:
+                isReassigned = '<button class="ui tiny active red button" type="button" >  No </button>'
+            json_data.append([
+                escape(item.saleID.customerName),
+                escape(item.saleID.emiAmount),
+                escape(item.installmentDate.strftime('%d-%m-%Y')),
+                escape(item.amountPaid),
+                paid,
+                isReassigned,
+                escape(item.remark),
+                r_time,
+                action
+            ])
+        return json_data
+
 
 class InstallmentListByUserJson(BaseDatatableView):
     order_columns = ['saleID.customerName', 'saleID.emiAmount', 'installmentDate', 'amountPaid', 'isPaid',
@@ -1028,13 +1104,20 @@ class InstallmentListByUserJson(BaseDatatableView):
     def prepare_results(self, qs):
         json_data = []
         for item in qs:
-            action = '''<button style="font-size:10px;" onclick = "GetDetail('{}')" class="ui circular facebook icon button orange">
-                    <i class="hand holding usd icon"></i>
-                  </button>
-                  <a style="font-size:10px;" href="/sales_detail/{}/" class="ui circular facebook icon button green">
-                    <i class="receipt icon"></i>
-                  </a>
-                 '''.format(item.pk, item.saleID.pk),
+            if item.isPaid == False and item.isReassigned == False:
+                action = '''<button style="font-size:10px;" onclick = "GetDetail('{}')" class="ui circular facebook icon button orange">
+                        <i class="hand holding usd icon"></i>
+                      </button>
+                      <a style="font-size:10px;" href="/sales_detail/{}/" class="ui circular facebook icon button green">
+                        <i class="receipt icon"></i>
+                      </a>
+                     '''.format(item.pk, item.saleID.pk),
+            else:
+                action = '''<a style="font-size:10px;" href="/sales_detail/{}/" class="ui circular facebook icon button green">
+                                        <i class="receipt icon"></i>
+                                      </a>
+                                     '''.format(item.saleID.pk),
+
             if item.isPaid == True:
                 paid = '<button class="ui tiny active green button" type="button" >  Yes </button>'
                 r_time = escape(item.paymentReceivedOn.strftime('%d-%m-%Y %I:%M %p')),
@@ -1068,5 +1151,92 @@ def get_installment_detail(request):
         'ID': instance.pk,
         'Name': instance.saleID.customerName,
         'Amount': instance.saleID.emiAmount
+    }
+    return JsonResponse({'data': data}, safe=False)
+
+
+@transaction.atomic
+@csrf_exempt
+def add_installment_api(request):
+    if request.method == 'POST':
+        try:
+            ID = request.POST.get("ID")
+            action = request.POST.get("action")
+            paidAmount = request.POST.get("paidAmount")
+            fineAmount = request.POST.get("fineAmount")
+            rdate = request.POST.get("rdate")
+            remark = request.POST.get("remark")
+            ins = Installment.objects.get(pk=int(ID))
+            obj = Sale.objects.get(pk=ins.saleID.pk)
+            user = StaffUser.objects.get(user_ID_id=request.user.pk)
+            if action == 'Paid':
+                ins.amountPaid = float(paidAmount)
+                ins.isPaid = True
+                ins.remark = remark
+                ins.paymentReceivedOn = datetime.today().now()
+                ins.collectedBy_id = user.pk
+                ins.finePaid = float(fineAmount)
+                ins.save()
+                obj.amountPaid = (obj.amountPaid + float(paidAmount) + float(fineAmount))
+                obj.save()
+            if action == 'Reassign':
+                ins.remark = remark
+                ins.isReassigned = True
+                ins.collectedBy_id = user.pk
+                ins.save()
+
+                new_ins = Installment()
+                new_ins.saleID_id = obj.pk
+                new_ins.assignedTo_id = user.pk
+                new_ins.installmentDate = datetime.strptime(rdate, '%d/%m/%Y')
+                new_ins.save()
+
+            return JsonResponse({'message': 'success'}, safe=False)
+        except:
+            return JsonResponse({'message': 'error'}, safe=False)
+
+
+# -------------------------------------------- # collection Report-----------------------------------
+
+def get_collection_user_report_api(request):
+    user = StaffUser.objects.get(user_ID_id=request.user.pk)
+
+    customer_objs = Customer.objects.filter(isDeleted__exact=False, addedBy_id=user.pk)
+    sale_objs = Sale.objects.filter(isDeleted__exact=False, addedBy_id=user.pk)
+    today_inst = Installment.objects.filter(isDeleted__exact=False, assignedTo_id=user.pk,
+                                            installmentDate__icontains=datetime.today().date())
+    collection = Installment.objects.filter(isDeleted__exact=False, collectedBy_id=user.pk,
+                                            paymentReceivedOn__icontains=datetime.today().date(), isPaid__exact=True)
+
+    c_total = 0.0
+    for c in collection:
+        c_total = c_total + c.amountPaid + c.finePaid
+
+    data = {
+        'customerCount': customer_objs.count(),
+        'salesCount': sale_objs.count(),
+        'todayInstallmentCount': today_inst.count(),
+        'collection': c_total
+    }
+    return JsonResponse({'data': data}, safe=False)
+
+
+def get_admin_report_api(request):
+    customer_objs = Customer.objects.filter(isDeleted__exact=False)
+    sale_objs = Sale.objects.filter(isDeleted__exact=False)
+    today_inst = Installment.objects.filter(isDeleted__exact=False,
+                                            installmentDate__icontains=datetime.today().date())
+    collection = Installment.objects.filter(isDeleted__exact=False,
+                                            paymentReceivedOn__icontains=datetime.today().date(), isPaid__exact=True)
+
+    c_total = 0.0
+    for c in collection:
+        c_total = c_total + c.amountPaid + c.finePaid
+
+    data = {
+        'customerCount': customer_objs.count(),
+        'salesCount': sale_objs.count(),
+        'todayInstallmentCount': today_inst.count(),
+        'collection': c_total
     }
     return JsonResponse({'data': data}, safe=False)
