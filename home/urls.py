@@ -18,6 +18,7 @@ urlpatterns = [
     path('sales_list/', sales_list, name='sales_list'),
     path('sales_list_admin/', sales_list_admin, name='sales_list_admin'),
 
+    path('customer_detail/<int:id>/', customer_detail, name='customer_detail'),
     path('sales_detail/<int:id>/', sales_detail, name='sales_detail'),
     path('installment_list/', installment_list, name='installment_list'),
     path('my_profile/', my_profile, name='my_profile'),

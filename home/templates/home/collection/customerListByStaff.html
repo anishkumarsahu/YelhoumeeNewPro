@@ -33,7 +33,7 @@
         <div class="sixteen wide column">
             <div class="ui  pointing secondary menu">
                 <div style="cursor: pointer;" class="item active" data-tab="user"
-                >Customers
+                >Customers List
                 </div>
                 <div style=" position: absolute;right: 1.5rem;top: 18px;">
                     <a href="{% url 'homeApp:customer_add' %}" class="ui green mini plus button right">
@@ -47,10 +47,7 @@
 
                 <div class="row" style="padding-left: 5px; padding-right: 5px">
                     <div class="wide">
-                        <h5 class="ui horizontal left aligned divider header">
-                            <i class="left align icon"></i>
-                            Customer List
-                        </h5>
+
                         <div class="ui internally grid">
 
                             <div class="sixteen left aligned wide column">
@@ -101,7 +98,8 @@
 
                         </div>
 
-                        <table class="ui unstackable  sortable celled very nowrap very compact table" id="UserTable"
+                        <table class="ui unstackable  sortable celled very nowrap very small compact table"
+                               id="UserTable"
                                style="margin-top: 5px;width: 100%">
                             <thead>
                             <tr>
@@ -111,9 +109,11 @@
                                 <th>PhoneNo.</th>
                                 <th>District</th>
                                 <th>Address</th>
+                                <th>Landmark</th>
                                 <th>IDFront</th>
                                 <th>IDBack</th>
                                 <th>Added On</th>
+                                <th>Action</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -208,7 +208,7 @@
             buttons: [{
                 extend: 'excel',
                 exportOptions: {
-                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8]
+                    columns: [1, 2, 3, 4, 5, 6, 9]
                 }
             }
                 {% comment %}      , {
@@ -225,12 +225,14 @@
                 {"name": "phoneNumber", "targets": 3, "orderable": true},
                 {"name": "district", "targets": 4, "orderable": true},
                 {"name": "address", "targets": 5, "orderable": true},
-                {"name": "idProofFront", "targets": 6, "orderable": true},
-                {"name": "idProofBack", "targets": 7, "orderable": true},
-                {"name": "datetime", "targets": 8, "orderable": true},
+                {"name": "landmark", "targets": 6, "orderable": true},
+                {"name": "idProofFront", "targets": 7, "orderable": true},
+                {"name": "idProofBack", "targets": 8, "orderable": true},
+                {"name": "datetime", "targets": 9, "orderable": true},
+                {"name": "action", "targets": 9, "orderable": false},
 
             ],
-            aaSorting: [[8, 'desc']],
+            aaSorting: [[9, 'desc']],
             "lengthMenu": [[8, 25, 50, 100, -1], [8, 25, 50, 100, "All"]],
             "pageLength": 8,
             "processing": true,

@@ -172,7 +172,8 @@ class Customer(models.Model):
     name = models.CharField(max_length=200, blank=True, null=True)
     customerCode = models.CharField(max_length=100, blank=True, null=True)
     district = models.CharField(max_length=100, blank=True, null=True)
-    address = models.CharField(max_length=300, blank=True, null=True)
+    landmark = models.CharField(max_length=500, blank=True, null=True)
+    address = models.CharField(max_length=500, blank=True, null=True)
     phoneNumber = models.CharField(max_length=100, blank=True, null=True)
     photo = StdImageField(upload_to='customer/img', blank=True, variations={
         'large': (600, 400),
@@ -205,6 +206,7 @@ class Customer(models.Model):
 
 
 class Sale(models.Model):
+    saleNo = models.CharField(max_length=200, blank=True, null=True)
     customerID = models.ForeignKey(Customer, blank=True, null=True, on_delete=models.CASCADE)
     productID = models.ForeignKey(Product, blank=True, null=True, on_delete=models.CASCADE)
     customerName = models.CharField(max_length=200, blank=True, null=True)
@@ -220,6 +222,7 @@ class Sale(models.Model):
     latitude = models.CharField(max_length=200, default='0.0')
     longitude = models.CharField(max_length=200, default='0.0')
     remark = models.CharField(max_length=500, blank=True, null=True)
+    projectName = models.CharField(max_length=500, blank=True, null=True)
     installmentStartDate = models.DateField(blank=True, null=True)
     deliveryPhoto = StdImageField(upload_to='deliveryPhoto', blank=True, variations={
         'large': (600, 400),
@@ -244,16 +247,18 @@ class Sale(models.Model):
 class Installment(models.Model):
     saleID = models.ForeignKey(Sale, blank=True, null=True, on_delete=models.CASCADE)
     installmentDate = models.DateField(blank=True, null=True)
-    amountPaid = models.FloatField(default=0.0)
-    finePaid = models.FloatField(default=0.0)
+    paidAmount = models.FloatField(default=0.0)
+    dueAmount = models.FloatField(default=0.0)
+    NextDueDate = models.DateField(blank=True, null=True)
     remark = models.CharField(max_length=500, blank=True, null=True)
-    isPaid = models.BooleanField(default=False)
-    isReassigned = models.BooleanField(default=False)
     assignedTo = models.ForeignKey(StaffUser, blank=True, null=True, on_delete=models.CASCADE,
                                    related_name='AssignedToInstallment')
     collectedBy = models.ForeignKey(StaffUser, blank=True, null=True, on_delete=models.CASCADE,
                                     related_name='CollectedBy')
     paymentReceivedOn = models.DateTimeField(blank=True, null=True)
+    latitude = models.CharField(max_length=200, default='0.0')
+    longitude = models.CharField(max_length=200, default='0.0')
+    isPaid = models.BooleanField(default=False)
     datetime = models.DateTimeField(auto_now_add=True, auto_now=False)
     lastUpdatedOn = models.DateTimeField(auto_now_add=False, auto_now=True)
     isDeleted = models.BooleanField(default=False)
@@ -263,3 +268,35 @@ class Installment(models.Model):
 
     class Meta:
         verbose_name_plural = 'L) Installment Date List'
+
+
+class InstallmentRemark(models.Model):
+    installmentID = models.ForeignKey(Installment, blank=True, null=True, on_delete=models.CASCADE)
+    remark = models.CharField(max_length=500, blank=True, null=True)
+    latitude = models.CharField(max_length=200, default='0.0')
+    longitude = models.CharField(max_length=200, default='0.0')
+    addedBy = models.ForeignKey(StaffUser, blank=True, null=True, on_delete=models.CASCADE)
+    datetime = models.DateTimeField(auto_now_add=True, auto_now=False)
+    lastUpdatedOn = models.DateTimeField(auto_now_add=False, auto_now=True)
+    isDeleted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return str(self.remark)
+
+    class Meta:
+        verbose_name_plural = 'M) Installment Remark'
+
+
+class Document(models.Model):
+    title = models.CharField(max_length=500, blank=True, null=True)
+    uploadedFile = models.FileField(upload_to='Documents', blank=True, null=True)
+    addedBy = models.ForeignKey(StaffUser, blank=True, null=True, on_delete=models.CASCADE)
+    datetime = models.DateTimeField(auto_now_add=True, auto_now=False)
+    lastUpdatedOn = models.DateTimeField(auto_now_add=False, auto_now=True)
+    isDeleted = models.BooleanField(default=False)
+
+    def __str__(self):
+        return str(self.title)
+
+    class Meta:
+        verbose_name_plural = 'N) Documents'

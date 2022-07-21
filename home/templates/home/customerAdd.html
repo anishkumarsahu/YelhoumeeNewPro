@@ -83,8 +83,9 @@
             </div>
             <div class="ui tab " data-tab="user">
 
-                <div class="row" style="padding-left: 5px; padding-right: 5px">
+                <div class="ui row teal stacked segment padded">
                     <div class="content">
+
 
                         <form class="ui tiny form " id="addForm">{% csrf_token %}
                             <div class="three required fields">
@@ -173,11 +174,11 @@
                             </div>
                             <div class="two required fields ">
 
-                                <div class="ten wide field required">
+                                <div class="eight wide field required">
                                     <label>Customer Name</label>
                                     <input type="text" name="name" id="name" placeholder="Customer Name">
                                 </div>
-                                <div class="six wide field required">
+                                <div class="eight wide field required">
                                     <label>Phone Number</label>
                                     <input type="number" name="phone" id="phone" placeholder="Phone Number">
                                 </div>
@@ -185,7 +186,7 @@
 
                             </div>
 
-                            <div class="two fields">
+                            <div class="three fields">
                                 <div class=" field required">
                                     <label>District</label>
                                     <select class="ui clearable search dropdown" id="district">
@@ -209,75 +210,55 @@
                                     </select>
                                 </div>
                                 <div class="field required">
+                                    <label>Landmark</label>
+                                    <input type="text" name="landmark" id="landmark" placeholder="Landmark">
+                                </div>
+                                <div class="field required">
                                     <label>Address</label>
-                                    <input type="text" name="address" id="address" placeholder="address">
+                                    <input type="text" name="address" id="address" placeholder="Address">
                                 </div>
 
 
                             </div>
 
+                            <div class="ui label teal" data-variation="mini" data-inverted="" data-tooltip="Location"
+                                 data-position="bottom center">
+                                <i class="map marked alternate icon"></i>
+
+                                <a class="detail"><span id="htmlLat">0.0</span>,<span id="htmlLong">0.0</span> </a>
+                            </div>
 
                         </form>
                     </div>
-                </div>
-
-
-            </div>
-        </div>
-
-
-    </div>
-    <div class="ui  aligned basic  grid">
-        <div class="row" style="padding-left: 5px;padding-right: 5px">
-            <div class="16 wide column center aligned">
-                <button onclick="salesSave()" id="saveBtn" class="ui green  button">
-                    Submit Detail
-                </button>
-                <button id="saveBtnLoad" style="display: none;" class="ui green double loading button">
-                    Saving ....
-                </button>
-            </div>
-
-            {% comment %}     <div class="four wide computer sixteen wide mobile column" style="text-align: center;">
-
-
-                <div class="ui center aligned basic segment"
-                     style="padding-top: 0;padding-bottom: 0;">
-
-
-                    <div class="ui segment" style="padding-bottom: 0">
-                        <div id="saveBtn">
-                            <div class="ui  column very relaxed grid" style="padding-bottom: 0;">
-                                <div class="column">
-                                    <a onclick="salesSave()" style="cursor: pointer;">
-                                        <i class="save icon" style="font-size: 2rem"></i>
-                                        <p>Save Now</p>
-                                    </a>
-                                </div>
-
+                    <div class="ui  aligned basic  grid">
+                        <div class="row" style="padding-left: 5px;padding-right: 5px">
+                            <div class="16 wide column center aligned">
+                                <button onclick="salesSave()" id="saveBtn" class="ui green  button">
+                                    Submit Detail
+                                </button>
+                                <button id="saveBtnLoad" style="display: none;" class="ui green double loading button">
+                                    Saving ....
+                                </button>
                             </div>
                         </div>
-                          <button  onclick="salesSave()" id="saveBtn"  class="ui green double loading button">
-                            Submit Detail
-                        </button>
-                        <button id="saveBtnLoad" style="display: none;" class="ui green double loading button">
-                            Saving ....
-                        </button>
-
                     </div>
+
                 </div>
-            </div>{% endcomment %}
+
+
+            </div>
         </div>
+
+
     </div>
 
 
     <input type="hidden" id="lat" value="24.809611">
     <input type="hidden" id="lng" value="93.935577">
     <input type="hidden" id="loc" value="N/A">
-    {% comment %}
 
     <p id="demo"></p>
-{% endcomment %}
+
 
 {% endblock %}
 
@@ -343,9 +324,10 @@
             var address = $('#address').val();
             var lat = $('#lat').val();
             var lng = $('#lng').val();
+            var landmark = $('#landmark').val();
 
             if (photo === undefined || idf === undefined || idb === undefined || name === '' || phone === '' ||
-                district === '' || address === '') {
+                district === '' || address === '' || landmark === '') {
                 $('body')
                     .toast({
                         class: 'orange',
@@ -364,6 +346,7 @@
                 data.append('address', address);
                 data.append('lat', lat);
                 data.append('lng', lng);
+                data.append('landmark', landmark);
 
                 $.ajax({
                     type: 'post',
@@ -431,10 +414,12 @@
         }
 
         function showPosition(position) {
-            x.innerHTML = "Latitude: " + position.coords.latitude +
-                "<br>Longitude: " + position.coords.longitude;
+            {#x.innerHTML = "Latitude: " + position.coords.latitude +#}
+            {#    "<br>Longitude: " + position.coords.longitude;#}
             $('#lat').val(position.coords.latitude);
             $('#lng').val(position.coords.longitude);
+            $('#htmlLat').html(position.coords.latitude);
+            $('#htmlLong').html(position.coords.longitude);
             console.log(position)
 
 

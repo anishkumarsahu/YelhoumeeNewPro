@@ -632,6 +632,7 @@ def add_customer_api(request):
             address = request.POST.get("address")
             lat = request.POST.get("lat")
             lng = request.POST.get("lng")
+            landmark = request.POST.get("landmark")
             photo = request.FILES["photo"]
             idf = request.FILES["idf"]
             idb = request.FILES["idb"]
@@ -643,6 +644,7 @@ def add_customer_api(request):
             obj.phoneNumber = phone
             obj.district = district
             obj.address = address
+            obj.landmark = landmark
             obj.photo = photo
             obj.idProofFront = idf
             obj.idProofBack = idb
@@ -658,7 +660,7 @@ def add_customer_api(request):
 
 
 class CustomerListByUserJson(BaseDatatableView):
-    order_columns = ['photo', 'name', 'customerCode', 'phoneNumber', 'district', 'address',
+    order_columns = ['photo', 'name', 'customerCode', 'phoneNumber', 'district', 'address', 'Landmark',
                      'idProofFront', 'idProofBack', 'datetime']
 
     def get_initial_queryset(self):
@@ -698,6 +700,10 @@ class CustomerListByUserJson(BaseDatatableView):
                 item.idProofFront.large.url, item.idProofFront.thumbnail.url)
             idProofBack = '''<img style="cursor:pointer" onclick="showImgModal('{}')" class="ui avatar image" src="{}">'''.format(
                 item.idProofBack.large.url, item.idProofBack.thumbnail.url)
+            action = '''<a data-inverted="" data-tooltip="Customer Detail" data-position="bottom center" data-variation="mini" style="font-size:10px;" href="/customer_detail/{}/" class="ui circular facebook icon button green">
+                        <i class="receipt icon"></i>
+                      </a>
+                     </td>'''.format(item.pk),
             json_data.append([
                 photo,  # escape HTML for security reasons
                 escape(item.name),
@@ -705,9 +711,11 @@ class CustomerListByUserJson(BaseDatatableView):
                 escape(item.phoneNumber),
                 escape(item.district),
                 escape(item.address),
+                escape(item.landmark),
                 idProofFront,
                 idProofBack,
                 escape(item.datetime.strftime('%d-%m-%Y %I:%M %p')),
+                action
             ])
         return json_data
 
@@ -909,7 +917,7 @@ class SalesListByUserJson(BaseDatatableView):
             action = '''<a style="font-size:10px;" href="/sales_detail/{}/" class="ui circular facebook icon button green">
                     <i class="receipt icon"></i>
                   </a>
-                 </td>'''.format(item.pk),
+                 '''.format(item.pk),
             json_data.append([
                 photo,  # escape HTML for security reasons
                 escape(item.customerName),

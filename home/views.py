@@ -130,6 +130,17 @@ def sales_detail_admin(request, id=None):
     return render(request, 'home/admin/salesDetailAdmin.html', context)
 
 
+def customer_detail(request, id=None):
+    instance = get_object_or_404(Customer, id=id)
+    sales = Sale.objects.filter(isDeleted__exact=False, customerID_id=instance.pk).order_by(
+        '-pk')
+    context = {
+        'instance': instance,
+        'sales': sales
+    }
+    return render(request, 'home/collection/customerDetail.html', context)
+
+
 def user_logout(request):
     logout(request)
     return redirect("homeApp:loginPage")
