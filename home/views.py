@@ -116,7 +116,7 @@ def sales_detail(request, id=None):
         'instance': instance,
         'installments': installments
     }
-    return render(request, 'home/salesDetail.html', context)
+    return render(request, 'home/collection/salesDetail.html', context)
 
 
 def sales_detail_admin(request, id=None):

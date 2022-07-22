@@ -101,11 +101,13 @@
 
                         </div>
 
-                        <table class="ui unstackable  sortable celled very nowrap very compact table" id="UserTable"
+                        <table class="ui unstackable small  sortable celled very nowrap very compact table"
+                               id="UserTable"
                                style="margin-top: 5px;width: 100%">
                             <thead>
                             <tr>
                                 <th>Photo</th>
+                                <th>SaleID</th>
                                 <th>Customer Name</th>
                                 <th>Product Name</th>
                                 <th>Advance(₹)</th>
@@ -210,7 +212,7 @@
             buttons: [{
                 extend: 'excel',
                 exportOptions: {
-                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+                    columns: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
                 }
             }
                 {% comment %}      , {
@@ -222,19 +224,20 @@
             ],
             "columnDefs": [
                 {"name": "deliveryPhoto", "targets": 0, "orderable": false},
-                {"name": "customerName", "targets": 1, "orderable": true},
-                {"name": "productName", "targets": 2, "orderable": true},
-                {"name": "advancePaid", "targets": 3, "orderable": true},
-                {"name": "tenureInMonth", "targets": 4, "orderable": true},
-                {"name": "emiAmount", "targets": 5, "orderable": true},
-                {"name": "totalAmount", "targets": 6, "orderable": true},
-                {"name": "amountPaid", "targets": 7, "orderable": true},
-                {"name": "installmentStartDate", "targets": 8, "orderable": true},
-                {"name": "datetime", "targets": 9, "orderable": true},
-                {"name": "action", "targets": 10, "orderable": true},
+                {"name": "saleNo", "targets": 1, "orderable": true},
+                {"name": "customerName", "targets": 2, "orderable": true},
+                {"name": "productName", "targets": 3, "orderable": true},
+                {"name": "advancePaid", "targets": 4, "orderable": true},
+                {"name": "tenureInMonth", "targets": 5, "orderable": true},
+                {"name": "emiAmount", "targets": 6, "orderable": true},
+                {"name": "totalAmount", "targets": 7, "orderable": true},
+                {"name": "amountPaid", "targets": 8, "orderable": true},
+                {"name": "installmentStartDate", "targets": 9, "orderable": true},
+                {"name": "datetime", "targets": 10, "orderable": true},
+                {"name": "action", "targets": 11, "orderable": true},
 
             ],
-            aaSorting: [[9, 'desc']],
+            aaSorting: [[10, 'desc']],
             "lengthMenu": [[8, 25, 50, 100, -1], [8, 25, 50, 100, "All"]],
             "pageLength": 8,
             "processing": true,

@@ -861,13 +861,16 @@ def add_sales_api(request):
             obj.assignedTo_id = user.pk
             obj.installmentStartDate = datetime.strptime(idate, '%d/%m/%Y')
             obj.save()
+            obj.saleNo = str(obj.pk).zfill(7)
+            obj.save()
             pro.stock = pro.stock - 1
             pro.save()
             for i in range(0, int(tenure)):
                 inst = Installment()
                 inst.saleID_id = obj.pk
+                inst.emiAmount = obj.emiAmount
                 inst.assignedTo_id = user.pk
-                inst.installmentDate = obj.installmentStartDate + timedelta(days=(i + 1) * 30)
+                inst.installmentDate = obj.installmentStartDate + timedelta(days=(i) * 30)
                 inst.save()
 
             return JsonResponse({'message': 'success'}, safe=False)
@@ -876,7 +879,8 @@ def add_sales_api(request):
 
 
 class SalesListByUserJson(BaseDatatableView):
-    order_columns = ['deliveryPhoto', 'customerName', 'productName', 'advancePaid', 'tenureInMonth', 'emiAmount',
+    order_columns = ['deliveryPhoto', 'saleID', 'customerName', 'productName', 'advancePaid', 'tenureInMonth',
+                     'emiAmount',
                      'totalAmount',
                      'amountPaid', 'installmentStartDate', 'datetime']
 
@@ -899,7 +903,8 @@ class SalesListByUserJson(BaseDatatableView):
         search = self.request.GET.get('search[value]', None)
         if search:
             qs = qs.filter(
-                Q(customerName__icontains=search) | Q(customerID_customerCode__icontains=search)
+                Q(saleNo__icontains=search) | Q(customerName__icontains=search) | Q(
+                    customerID_customerCode__icontains=search)
                 | Q(productName__icontains=search) | Q(advancePaid__icontains=search) | Q(
                     tenureInMonth__icontains=search)
                 | Q(emiAmount__icontains=search) | Q(totalAmount__icontains=search) | Q(amountPaid__icontains=search)
@@ -920,6 +925,7 @@ class SalesListByUserJson(BaseDatatableView):
                  '''.format(item.pk),
             json_data.append([
                 photo,  # escape HTML for security reasons
+                escape(item.saleNo),
                 escape(item.customerName),
                 escape(item.productName),
                 escape(item.advancePaid),
@@ -1074,9 +1080,8 @@ class InstallmentListByAdminJson(BaseDatatableView):
 
 
 class InstallmentListByUserJson(BaseDatatableView):
-    order_columns = ['saleID.customerName', 'saleID.emiAmount', 'installmentDate', 'amountPaid', 'isPaid',
-                     'isReassigned'
-        , 'remark', 'paymentReceivedOn']
+    order_columns = ['saleNo', 'saleID.customerName', 'emiAmount', 'installmentDate', 'paidAmount', 'isPaid',
+                     'dueAmount', 'NextDueDate', 'remark', 'paymentReceivedOn']
 
     def get_initial_queryset(self):
         try:
@@ -1104,7 +1109,8 @@ class InstallmentListByUserJson(BaseDatatableView):
         if search:
             qs = qs.filter(
                 Q(saleID__customerName__icontains=search) | Q(saleID__productName__icontains=search)
-                | Q(installmentDate__icontains=search) | Q(remark__icontains=search) | Q(amountPaid__icontains=search)
+                | Q(installmentDate__icontains=search) | Q(remark__icontains=search)
+                | Q(paidAmount__icontains=search) | Q(NextDueDate__icontains=search) | Q(dueAmount__icontains=search)
             )
 
         return qs
@@ -1112,40 +1118,47 @@ class InstallmentListByUserJson(BaseDatatableView):
     def prepare_results(self, qs):
         json_data = []
         for item in qs:
-            if item.isPaid == False and item.isReassigned == False:
-                action = '''<button style="font-size:10px;" onclick = "GetDetail('{}')" class="ui circular facebook icon button orange">
+            if item.isPaid == False:
+                action = '''<button style="font-size:10px;" onclick = "GetRemark('{}')" class="ui circular facebook icon button blue">
+                      <i class="clipboard outline icon"></i>
+                      </button>
+                      <button style="font-size:10px;" onclick = "GetDetail('{}')" class="ui circular facebook icon button orange">
                         <i class="hand holding usd icon"></i>
                       </button>
                       <a style="font-size:10px;" href="/sales_detail/{}/" class="ui circular facebook icon button green">
                         <i class="receipt icon"></i>
                       </a>
-                     '''.format(item.pk, item.saleID.pk),
+                     '''.format(item.pk, item.pk, item.saleID.pk),
             else:
-                action = '''<a style="font-size:10px;" href="/sales_detail/{}/" class="ui circular facebook icon button green">
+                action = ''' <button style="font-size:10px;" onclick = "GetRemark('{}')" class="ui circular facebook icon button blue">
+                      <i class="clipboard outline icon"></i>
+                      </button>
+                <a style="font-size:10px;" href="/sales_detail/{}/" class="ui circular facebook icon button green">
                                         <i class="receipt icon"></i>
                                       </a>
-                                     '''.format(item.saleID.pk),
+                                     '''.format(item.pk, item.saleID.pk),
 
             if item.isPaid == True:
                 paid = '<button class="ui tiny active green button" type="button" >  Yes </button>'
                 r_time = escape(item.paymentReceivedOn.strftime('%d-%m-%Y %I:%M %p')),
+                nextDueDate = escape(item.NextDueDate.strftime('%d-%m-%Y %I:%M %p')),
             else:
                 paid = '<button class="ui tiny active red button" type="button" >  No </button>'
                 r_time = '-'
+                nextDueDate = '-'
 
-            if item.isReassigned == True:
-                isReassigned = '<button class="ui tiny active green button" type="button" >  Yes </button>'
-            else:
-                isReassigned = '<button class="ui tiny active red button" type="button" >  No </button>'
             json_data.append([
+                escape(item.saleID.saleNo),
                 escape(item.saleID.customerName),
-                escape(item.saleID.emiAmount),
+                escape(item.emiAmount),
                 escape(item.installmentDate.strftime('%d-%m-%Y')),
-                escape(item.amountPaid),
+                escape(item.paidAmount),
                 paid,
-                isReassigned,
+                escape(item.dueAmount),
+                nextDueDate,
                 escape(item.remark),
                 r_time,
+
                 action
             ])
         return json_data
@@ -1154,11 +1167,27 @@ class InstallmentListByUserJson(BaseDatatableView):
 def get_installment_detail(request):
     id = request.GET.get('id')
     instance = get_object_or_404(Installment, id=id)
+    remarks = InstallmentRemark.objects.filter(installmentID_id=instance.pk, isDeleted__exact=False).order_by(
+        '-datetime')
+    r_list = []
+    for r in remarks:
+        r_dic = {
+            'ID': r.pk,
+            'Remark': r.remark,
+            'Latitude': r.latitude,
+            'Longitude': r.longitude,
+            'AddedBy': r.addedBy.name,
+            'Photo': r.addedBy.photo.thumbnail.url,
+            'AddedOn': r.datetime.strftime('%d-%m-%Y %I:%M %p')
+        }
+        r_list.append(r_dic)
 
     data = {
         'ID': instance.pk,
+        'SaleID': instance.saleID.saleNo,
         'Name': instance.saleID.customerName,
-        'Amount': instance.saleID.emiAmount
+        'Amount': instance.saleID.emiAmount,
+        'Remarks': r_list
     }
     return JsonResponse({'data': data}, safe=False)
 
@@ -1175,6 +1204,45 @@ def add_installment_api(request):
             rdate = request.POST.get("rdate")
             remark = request.POST.get("remark")
             ins = Installment.objects.get(pk=int(ID))
+            obj = Sale.objects.get(pk=ins.saleID.pk)
+            user = StaffUser.objects.get(user_ID_id=request.user.pk)
+            if action == 'Paid':
+                ins.amountPaid = float(paidAmount)
+                ins.isPaid = True
+                ins.remark = remark
+                ins.paymentReceivedOn = datetime.today().now()
+                ins.collectedBy_id = user.pk
+                ins.finePaid = float(fineAmount)
+                ins.save()
+                obj.amountPaid = (obj.amountPaid + float(paidAmount) + float(fineAmount))
+                obj.save()
+            if action == 'Reassign':
+                ins.remark = remark
+                ins.isReassigned = True
+                ins.collectedBy_id = user.pk
+                ins.save()
+
+                new_ins = Installment()
+                new_ins.saleID_id = obj.pk
+                new_ins.assignedTo_id = user.pk
+                new_ins.installmentDate = datetime.strptime(rdate, '%d/%m/%Y')
+                new_ins.save()
+
+            return JsonResponse({'message': 'success'}, safe=False)
+        except:
+            return JsonResponse({'message': 'error'}, safe=False)
+
+
+@transaction.atomic
+@csrf_exempt
+def add_installment_remark_api(request):
+    if request.method == 'POST':
+        try:
+            idRemark = request.POST.get("idRemark")
+            addRemark = request.POST.get("addRemark")
+
+            ins = InstallmentRemark.objects.get(pk=int(idRemark))
+
             obj = Sale.objects.get(pk=ins.saleID.pk)
             user = StaffUser.objects.get(user_ID_id=request.user.pk)
             if action == 'Paid':

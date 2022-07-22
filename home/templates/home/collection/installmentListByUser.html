@@ -95,16 +95,19 @@
 
                         </div>
 
-                        <table class="ui unstackable  sortable celled very nowrap very compact table" id="UserTable"
+                        <table class="ui unstackable small  sortable celled very nowrap very compact table"
+                               id="UserTable"
                                style="margin-top: 5px;width: 100%">
                             <thead>
                             <tr>
+                                <th>SaleID</th>
                                 <th>Customer Name</th>
                                 <th>EMI Amount(₹)</th>
                                 <th>Installment Date</th>
                                 <th>Paid(₹)</th>
                                 <th>Is Paid?</th>
-                                <th>Is Reassigned</th>
+                                <th>Due(₹)</th>
+                                <th>DueDate</th>
                                 <th>Remark</th>
                                 <th>Received On</th>
                                 <th>Action</th>
@@ -120,7 +123,12 @@
             </div>
         </div>
     </div>
+    <div class="ui label teal" data-variation="mini" data-inverted="" data-tooltip="Location"
+         data-position="bottom center">
+        <i class="map marked alternate icon"></i>
 
+        <a class="detail"><span id="htmlLat">0.0</span>,<span id="htmlLong">0.0</span> </a>
+    </div>
     <div class="ui modal" id="myModalUser">
         <i class="close icon"></i>
         <div class="header">
@@ -192,6 +200,53 @@
             </div>
         </div>
     </div>
+    <div class="ui modal" id="myModalRemark">
+        <i class="close icon"></i>
+        <div class="header">
+            Add Remark - <span class="ui text green" id="saleNo"></span>
+        </div>
+        <div class="content">
+            <div class="ui threaded comments">
+                <div class="comment">
+                    <a class="avatar">
+                        <img src="/images/avatar/small/matt.jpg">
+                    </a>
+                    <div class="content">
+                        <a class="author">Matt</a>
+                        <div class="metadata">
+                            <span class="date">Today at 5:42PM</span>
+                        </div>
+                        <div class="text">
+                            How artistic!
+                        </div>
+                        <div class="actions">
+                            <a class="reply">Reply</a>
+                        </div>
+                    </div>
+                </div>
+                <form class="ui reply form">
+                    <div class="field">
+                        <input type="hidden" id="idRemark">
+                        <textarea id="addRemark" placeholder="Add remark here."></textarea>
+                    </div>
+                    <button type="button" id="saveBtnR" class="ui right labeled icon button green"
+                            onclick="saveRemark()">
+                        Submit
+                        <i class="checkmark icon"></i>
+                    </button>
+                    <button type="button" id="saveBtnLoadR" style="display: none;"
+                            class="ui green double loading button">
+                        Saving ....
+                    </button>
+                </form>
+            </div>
+
+            <div class="actions" style="padding-top: 20px; padding-bottom: 20px ;float: right">
+                <div class="ui cancel button">Close</div>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}
 
 {% block js %}
@@ -262,7 +317,7 @@
             buttons: [{
                 extend: 'excel',
                 exportOptions: {
-                    columns: [0, 1, 2, 3, 4, 5, 6, 7]
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
                 }
             }
                 {% comment %}      , {
@@ -273,18 +328,20 @@
                       }{% endcomment %}
             ],
             "columnDefs": [
-                {"name": "saleID.customerName", "targets": 0, "orderable": false},
-                {"name": "saleID.emiAmount", "targets": 1, "orderable": true},
-                {"name": "installmentDate", "targets": 2, "orderable": true},
-                {"name": "amountPaid", "targets": 3, "orderable": true},
-                {"name": "isPaid", "targets": 4, "orderable": true},
-                {"name": "isReassigned", "targets": 5, "orderable": true},
-                {"name": "remark", "targets": 6, "orderable": true},
-                {"name": "paymentReceivedOn", "targets": 7, "orderable": true},
-                {"name": "action", "targets": 8, "orderable": true},
+                {"name": "saleNo", "targets": 0, "orderable": true},
+                {"name": "saleID.customerName", "targets": 1, "orderable": true},
+                {"name": "emiAmount", "targets": 2, "orderable": true},
+                {"name": "installmentDate", "targets": 3, "orderable": true},
+                {"name": "paidAmount", "targets": 4, "orderable": true},
+                {"name": "isPaid", "targets": 5, "orderable": true},
+                {"name": "dueAmount", "targets": 6, "orderable": true},
+                {"name": "NextDueDate", "targets": 7, "orderable": true},
+                {"name": "remark", "targets": 8, "orderable": true},
+                {"name": "paymentReceivedOn", "targets": 9, "orderable": true},
+                {"name": "action", "targets": 10, "orderable": false},
 
             ],
-            aaSorting: [[7, 'desc']],
+            aaSorting: [[3, 'asc']],
             "lengthMenu": [[8, 25, 50, 100, -1], [8, 25, 50, 100, "All"]],
             "pageLength": 8,
             "processing": true,
@@ -504,6 +561,165 @@
 
         }
 
+        function GetRemark(id) {
+            $('#myModalRemark').modal('show');
+            $.ajax({
+                type: 'get',
+                url: '{% url "homeApp:get_installment_detail"%}?id=' + id,
+
+                success: function (response) {
+                    $('#idRemark').val(response.data['ID']);
+                    $('#saleNo').html(response.data['SaleID']);
+                },
+                error: function () {
+                    $('body')
+                        .toast({
+                            class: 'error',
+                            message: 'An error occurred !'
+                        })
+                    ;
+                }
+            });
+        }
+
+        var x = document.getElementById("demo");
+        var options = {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+        };
+
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition, showError);
+            } else {
+                x.innerHTML = "Geolocation is not supported by this browser.";
+            }
+        }
+
+        function showPosition(position) {
+            $('#lat').val(position.coords.latitude);
+            $('#lng').val(position.coords.longitude);
+            $('#htmlLat').html(position.coords.latitude);
+            $('#htmlLong').html(position.coords.longitude);
+            console.log(position)
+
+
+        }
+
+        function showError(error) {
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                    x.innerHTML = "User denied the request for Geolocation."
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    x.innerHTML = "Location information is unavailable."
+                    break;
+                case error.TIMEOUT:
+                    x.innerHTML = "The request to get user location timed out."
+                    break;
+                case error.UNKNOWN_ERROR:
+                    x.innerHTML = "An unknown error occurred."
+                    break;
+            }
+        }
+
+        $(getLocation());
+        navigator.permissions.query({name: 'geolocation'}).then(function (result) {
+            console.log(result);
+            if (result.state === 'granted') {
+                $('#save1').prop('disabled', false);
+                $('#save2').prop('disabled', false);
+            } else {
+                $('#save1').prop('disabled', true);
+                $('#save2').prop('disabled', true);
+            }
+            // Don't do anything if the permission was denied.
+        });
+
+        function showLoadingR() {
+            $('#saveBtnR').css('display', 'none');
+            $('#saveBtnLoadR').css('display', '');
+
+        }
+
+        function hideLoadingR() {
+            $('#saveBtnR').css('display', '');
+            $('#saveBtnLoadR').css('display', 'none');
+
+        }
+
+        function saveRemark() {
+            showLoadingR();
+            var idRemark = $('#idRemark').val();
+            var addRemark = $('#addRemark').val();
+
+
+            if (idRemark === '' || addRemark === '') {
+                $('body')
+                    .toast({
+                        class: 'orange',
+                        message: 'Please add remark.'
+                    })
+                ;
+                hideLoadingR();
+            } else {
+
+
+                data = new FormData();
+                data.append('idRemark', idRemark);
+                data.append('addRemark', addRemark);
+
+                $.ajax({
+                    type: 'post',
+                    url: '{% url "homeApp:add_installment_api" %}',
+                    data: data,
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+
+
+                    success: function (response) {
+                        if (response.message === 'success') {
+                            $('body')
+                                .toast({
+                                    class: 'success',
+                                    message: 'Installment remark added successfully.'
+                                });
+
+                            hideLoading();
+
+
+                            userTab.ajax.reload();
+                            $('#addForm').trigger('reset');
+                            $('#myModalUser').modal('toggle');
+                        } else {
+                            $('body')
+                                .toast({
+                                    class: 'error',
+                                    message: 'An error occurred !'
+                                })
+                            ;
+                            hideLoadingR();
+                        }
+
+                        return response;
+                    },
+                    error: function () {
+                        $('body')
+                            .toast({
+                                class: 'error',
+                                message: 'An error occurred !'
+                            })
+                        ;
+                        hideLoadingR();
+                    }
+
+                });
+            }
+
+
+        }
 
     </script>
 

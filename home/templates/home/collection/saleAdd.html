@@ -83,7 +83,7 @@
             </div>
             <div class="ui tab " data-tab="user">
 
-                <div class="row" style="padding-left: 5px; padding-right: 5px">
+                <div class="ui row teal stacked segment padded">
                     <div class="content">
 
                         <form class="ui  small form " id="addForm">{% csrf_token %}
@@ -177,9 +177,29 @@
 
                             </div>
 
+                            <div class="ui label teal" data-variation="mini" data-inverted="" data-tooltip="Location"
+                                 data-position="bottom center">
+                                <i class="map marked alternate icon"></i>
+
+                                <a class="detail"><span id="htmlLat">0.0</span>,<span id="htmlLong">0.0</span> </a>
+                            </div>
 
                         </form>
                     </div>
+                    <div class="ui  aligned basic  grid">
+                        <div class="row" style="padding-left: 5px;padding-right: 5px">
+                            <div class="16 wide column center aligned">
+                                <button onclick="salesSave()" id="saveBtn" class="ui green  button">
+                                    Submit Detail
+                                </button>
+                                <button id="saveBtnLoad" style="display: none;" class="ui teal double loading button">
+                                    Saving ....
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+
                 </div>
 
 
@@ -188,19 +208,6 @@
 
 
     </div>
-    <div class="ui  aligned basic  grid">
-        <div class="row" style="padding-left: 5px;padding-right: 5px">
-            <div class="16 wide column center aligned">
-                <button onclick="salesSave()" id="saveBtn" class="ui green  button">
-                    Submit Detail
-                </button>
-                <button id="saveBtnLoad" style="display: none;" class="ui teal double loading button">
-                    Saving ....
-                </button>
-            </div>
-        </div>
-    </div>
-
 
     <input type="hidden" id="lat" value="24.809611">
     <input type="hidden" id="lng" value="93.935577">
@@ -359,10 +366,10 @@
         }
 
         function showPosition(position) {
-            x.innerHTML = "Latitude: " + position.coords.latitude +
-                "<br>Longitude: " + position.coords.longitude;
             $('#lat').val(position.coords.latitude);
             $('#lng').val(position.coords.longitude);
+            $('#htmlLat').html(position.coords.latitude);
+            $('#htmlLong').html(position.coords.longitude);
             console.log(position)
 
 

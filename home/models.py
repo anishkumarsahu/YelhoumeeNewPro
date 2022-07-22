@@ -247,6 +247,7 @@ class Sale(models.Model):
 class Installment(models.Model):
     saleID = models.ForeignKey(Sale, blank=True, null=True, on_delete=models.CASCADE)
     installmentDate = models.DateField(blank=True, null=True)
+    emiAmount = models.FloatField(default=0.0)
     paidAmount = models.FloatField(default=0.0)
     dueAmount = models.FloatField(default=0.0)
     NextDueDate = models.DateField(blank=True, null=True)

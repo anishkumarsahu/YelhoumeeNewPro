@@ -43,8 +43,8 @@
                     <i class="left align icon"></i>
                     Customer Detail
                 </h5>
-                <div class="ui horizontal cards">
-                    <div class="card" style="width: 100%; text-align: left">
+                <div class="ui horizontal segment cards">
+                    <div class="teal card" style="width: 100%; text-align: left">
                         <div class="image">
                             <img src="{{ instance.customerID.photo.medium.url }}">
                         </div>
@@ -55,12 +55,23 @@
                                 <a style="color: teal">{{ instance.customerID.phoneNumber }}</a>
                             </div>
                             <div class="description">
-                                {{ instance.customerID.address|capfirst }} , {{ instance.customerID.district }}
+                                {{ instance.customerID.address|capfirst }}
+                                , {{ instance.customerID.district }}, {{ instance.customerID.landmark }}
                             </div>
                             <div class="meta">
-                                <a> Added On: {{ instance.customerID.datetime }}</a>
+                                <a> Added On: {{ instance.customerID.datetime }}
+                                    by {{ instance.customerID.addedBy.name }}</a>
                             </div>
+
                         </div>
+
+                    </div>
+                    <div class="ui label teal" data-variation="mini" data-inverted="" data-tooltip="Location"
+                         data-position="bottom center">
+                        <i class="map marked alternate icon"></i>
+
+                        <a class="detail"><span id="htmlLat">{{ instance.customerID.latitude }}</span>,<span
+                                id="htmlLong">{{ instance.customerID.longitude }}</span> </a>
                     </div>
 
                 </div>
@@ -68,13 +79,16 @@
                     <i class="left align icon"></i>
                     Sales Detail
                 </h5>
-                <div class="ui horizontal cards">
-                    <div class="card" style="width: 100%; text-align: left">
+                <div class="ui horizontal segment cards">
+                    <div class="card teal" style="width: 100%; text-align: left">
                         <div class="image">
                             <img src="{{ instance.deliveryPhoto.medium.url }}">
                         </div>
                         <div class="content aligned left">
-                            <div class="header">{{ instance.productName|capfirst }}</div>
+                            <div class="header">{{ instance.productName|capfirst }}  </div>
+                            <div class="meta">
+                                <span class="ui text green">  {{ instance.saleNo }}</span>
+                            </div>
                             <div class="meta">
                                 <button style="color: Green;margin: 2px;" class="ui mini button"> Total Amount:
                                     ₹ {{ instance.totalAmount }}</button>
@@ -93,21 +107,33 @@
                                 Installment Start Date: {{ instance.installmentStartDate }}
                             </div>
                             <div class="description">
-                                <p>Status:
+                                <span>Status:
                                     {% if instance.isClosed == False %}
 
-                                        <span class="ui text red"> Open </span>
+                                        <div class="ui mini red label">
+                                                  Open
+                                                </div>
                                     {% else %}
-                                        <span class="ui text green"> Closed </span>
+                                        <div class="ui mini green label">
+                                                  Closed
+                                                </div>
                                     {% endif %}
 
-                                </p>
+                                </span>
                             </div>
                             <div class="meta">
                                 <a> Added By: {{ instance.addedBy.name|capfirst }} On {{ instance.datetime }}</a> <br>
                                 <a> Assigned To: {{ instance.assignedTo.name|capfirst }} </a>
                             </div>
+
                         </div>
+                    </div>
+                    <div class="ui label teal" data-variation="mini" data-inverted="" data-tooltip="Location"
+                         data-position="bottom center">
+                        <i class="map marked alternate icon"></i>
+
+                        <a class="detail"><span id="htmlLat">{{ instance.latitude }}</span>,<span
+                                id="htmlLong">{{ instance.longitude }}</span> </a>
                     </div>
 
                 </div>
@@ -115,7 +141,10 @@
                     <i class="left align icon"></i>
                     Installment List
                 </h5>
-                <div style="width: 100%; overflow-x: scroll">
+                <a class="ui primary label"> Advance Payment: Rs. {{ instance.advancePaid }}</a>
+
+                <div class="ui segment" style="width: 100%; overflow-x: scroll">
+
                     <table class="ui unstackable purple table">
                         <thead>
                         <tr>
