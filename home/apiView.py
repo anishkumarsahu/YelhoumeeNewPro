@@ -720,8 +720,8 @@ class CustomerListByUserJson(BaseDatatableView):
         return json_data
 
 
-class CustomerListJson(BaseDatatableView):
-    order_columns = ['photo', 'name', 'customerCode', 'phoneNumber', 'district', 'address',
+class CustomerListAdminJson(BaseDatatableView):
+    order_columns = ['photo', 'name', 'customerCode', 'phoneNumber', 'district', 'address', 'landmark',
                      'idProofFront', 'idProofBack', 'datetime']
 
     def get_initial_queryset(self):
@@ -745,7 +745,7 @@ class CustomerListJson(BaseDatatableView):
             qs = qs.filter(
                 Q(name__icontains=search)
                 | Q(customerCode__icontains=search) | Q(district__icontains=search) | Q(address__icontains=search)
-                | Q(phoneNumber__icontains=search)
+                | Q(landmark__icontains=search) | Q(phoneNumber__icontains=search)
                 | Q(datetime__icontains=search)
             )
 
@@ -761,6 +761,10 @@ class CustomerListJson(BaseDatatableView):
                 item.idProofFront.large.url, item.idProofFront.thumbnail.url)
             idProofBack = '''<img style="cursor:pointer" onclick="showImgModal('{}')" class="ui avatar image" src="{}">'''.format(
                 item.idProofBack.large.url, item.idProofBack.thumbnail.url)
+            action = '''<a data-inverted="" data-tooltip="Customer Detail" data-position="bottom center" data-variation="mini" style="font-size:10px;" href="/customer_detail_admin/{}/" class="ui circular facebook icon button green">
+                                <i class="receipt icon"></i>
+                              </a>
+                             </td>'''.format(item.pk),
             json_data.append([
                 photo,  # escape HTML for security reasons
                 escape(item.name),
@@ -768,9 +772,11 @@ class CustomerListJson(BaseDatatableView):
                 escape(item.phoneNumber),
                 escape(item.district),
                 escape(item.address),
+                escape(item.landmark),
                 idProofFront,
                 idProofBack,
                 escape(item.datetime.strftime('%d-%m-%Y %I:%M %p')),
+                action
             ])
         return json_data
 
@@ -919,7 +925,7 @@ class SalesListByUserJson(BaseDatatableView):
         for item in qs:
             photo = '''<img style="cursor:pointer" onclick="showImgModal('{}')" class="ui avatar image" src="{}">'''.format(
                 item.deliveryPhoto.large.url, item.deliveryPhoto.thumbnail.url)
-            action = '''<a style="font-size:10px;" href="/sales_detail/{}/" class="ui circular facebook icon button green">
+            action = '''<a data-inverted="" data-tooltip="Sales Detail" data-position="bottom center" data-variation="mini" style="font-size:10px;" href="/sales_detail/{}/" class="ui circular facebook icon button green">
                     <i class="receipt icon"></i>
                   </a>
                  '''.format(item.pk),
@@ -1119,34 +1125,36 @@ class InstallmentListByUserJson(BaseDatatableView):
         json_data = []
         for item in qs:
             if item.isPaid == False:
-                action = '''<button style="font-size:10px;" onclick = "GetRemark('{}')" class="ui circular facebook icon button blue">
+                action = '''<button data-inverted="" data-tooltip="Add Remark" data-position="bottom center" data-variation="mini" style="font-size:10px;" onclick = "GetRemark('{}')" class="ui circular facebook icon button blue">
                       <i class="clipboard outline icon"></i>
                       </button>
-                      <button style="font-size:10px;" onclick = "GetDetail('{}')" class="ui circular facebook icon button orange">
+                      <button data-inverted="" data-tooltip="Take Installment" data-position="bottom center" data-variation="mini" style="font-size:10px;" onclick = "GetDetail('{}')" class="ui circular facebook icon button orange">
                         <i class="hand holding usd icon"></i>
                       </button>
-                      <a style="font-size:10px;" href="/sales_detail/{}/" class="ui circular facebook icon button green">
+                      <a data-inverted="" data-tooltip="Sales Detail" data-position="bottom center" data-variation="mini" style="font-size:10px;" href="/sales_detail/{}/" class="ui circular facebook icon button green">
                         <i class="receipt icon"></i>
                       </a>
                      '''.format(item.pk, item.pk, item.saleID.pk),
             else:
-                action = ''' <button style="font-size:10px;" onclick = "GetRemark('{}')" class="ui circular facebook icon button blue">
+                action = ''' <button data-inverted="" data-tooltip="Add Remark" data-position="bottom center" data-variation="mini" style="font-size:10px;" onclick = "GetRemark('{}')" class="ui circular facebook icon button blue">
                       <i class="clipboard outline icon"></i>
                       </button>
-                <a style="font-size:10px;" href="/sales_detail/{}/" class="ui circular facebook icon button green">
+                <a data-inverted="" data-tooltip="Sales Detail" data-position="bottom center" data-variation="mini" style="font-size:10px;" href="/sales_detail/{}/" class="ui circular facebook icon button green">
                                         <i class="receipt icon"></i>
                                       </a>
                                      '''.format(item.pk, item.saleID.pk),
 
             if item.isPaid == True:
-                paid = '<button class="ui tiny active green button" type="button" >  Yes </button>'
+                paid = '<div class="ui mini green label"> Yes </div>'
                 r_time = escape(item.paymentReceivedOn.strftime('%d-%m-%Y %I:%M %p')),
-                nextDueDate = escape(item.NextDueDate.strftime('%d-%m-%Y %I:%M %p')),
             else:
-                paid = '<button class="ui tiny active red button" type="button" >  No </button>'
+                paid = '<div class="ui mini label red"> No </div>'
                 r_time = '-'
-                nextDueDate = '-'
 
+            try:
+                nextDueDate = escape(item.NextDueDate.strftime('%d-%m-%Y %I:%M %p')),
+            except:
+                nextDueDate = '-'
             json_data.append([
                 escape(item.saleID.saleNo),
                 escape(item.saleID.customerName),
@@ -1168,7 +1176,7 @@ def get_installment_detail(request):
     id = request.GET.get('id')
     instance = get_object_or_404(Installment, id=id)
     remarks = InstallmentRemark.objects.filter(installmentID_id=instance.pk, isDeleted__exact=False).order_by(
-        '-datetime')
+        'datetime')
     r_list = []
     for r in remarks:
         r_dic = {
@@ -1186,7 +1194,7 @@ def get_installment_detail(request):
         'ID': instance.pk,
         'SaleID': instance.saleID.saleNo,
         'Name': instance.saleID.customerName,
-        'Amount': instance.saleID.emiAmount,
+        'Amount': instance.emiAmount,
         'Remarks': r_list
     }
     return JsonResponse({'data': data}, safe=False)
@@ -1198,35 +1206,51 @@ def add_installment_api(request):
     if request.method == 'POST':
         try:
             ID = request.POST.get("ID")
-            action = request.POST.get("action")
             paidAmount = request.POST.get("paidAmount")
-            fineAmount = request.POST.get("fineAmount")
+            dueAmount = request.POST.get("dueAmount")
             rdate = request.POST.get("rdate")
             remark = request.POST.get("remark")
+            htmlLat = request.POST.get("htmlLat")
+            htmlLong = request.POST.get("htmlLong")
             ins = Installment.objects.get(pk=int(ID))
             obj = Sale.objects.get(pk=ins.saleID.pk)
             user = StaffUser.objects.get(user_ID_id=request.user.pk)
-            if action == 'Paid':
-                ins.amountPaid = float(paidAmount)
-                ins.isPaid = True
-                ins.remark = remark
-                ins.paymentReceivedOn = datetime.today().now()
-                ins.collectedBy_id = user.pk
-                ins.finePaid = float(fineAmount)
-                ins.save()
-                obj.amountPaid = (obj.amountPaid + float(paidAmount) + float(fineAmount))
-                obj.save()
-            if action == 'Reassign':
-                ins.remark = remark
-                ins.isReassigned = True
-                ins.collectedBy_id = user.pk
-                ins.save()
+            ins.paidAmount = float(paidAmount)
+            ins.isPaid = True
+            ins.remark = remark
+            ins.paymentReceivedOn = datetime.today().now()
+            ins.collectedBy_id = user.pk
+            ins.dueAmount = float(dueAmount)
+            ins.latitude = htmlLat
+            ins.longitude = htmlLong
+            try:
+                ins.NextDueDate = datetime.strptime(rdate, '%d/%m/%Y')
+            except:
+                pass
+            ins.save()
+            obj.amountPaid = (obj.amountPaid + float(paidAmount))
+            obj.save()
+            rem = InstallmentRemark()
+            rem.installmentID_id = ins.pk
+            rem.remark = remark
+            rem.latitude = htmlLat
+            rem.longitude = htmlLong
+            rem.addedBy_id = user.pk
+            rem.save()
+            try:
+                if float(dueAmount) > 0:
+                    new_ins = Installment()
+                    new_ins.saleID_id = obj.pk
+                    new_ins.assignedTo_id = user.pk
+                    if float(dueAmount) > 0:
+                        new_ins.emiAmount = float(dueAmount)
+                    else:
+                        new_ins.emiAmount = float(obj.emiAmount)
+                    new_ins.installmentDate = datetime.strptime(rdate, '%d/%m/%Y')
+                    new_ins.save()
 
-                new_ins = Installment()
-                new_ins.saleID_id = obj.pk
-                new_ins.assignedTo_id = user.pk
-                new_ins.installmentDate = datetime.strptime(rdate, '%d/%m/%Y')
-                new_ins.save()
+            except:
+                pass
 
             return JsonResponse({'message': 'success'}, safe=False)
         except:
@@ -1240,33 +1264,17 @@ def add_installment_remark_api(request):
         try:
             idRemark = request.POST.get("idRemark")
             addRemark = request.POST.get("addRemark")
-
-            ins = InstallmentRemark.objects.get(pk=int(idRemark))
-
-            obj = Sale.objects.get(pk=ins.saleID.pk)
+            htmlLat = request.POST.get("htmlLat")
+            htmlLong = request.POST.get("htmlLong")
+            ins = Installment.objects.get(pk=int(idRemark))
             user = StaffUser.objects.get(user_ID_id=request.user.pk)
-            if action == 'Paid':
-                ins.amountPaid = float(paidAmount)
-                ins.isPaid = True
-                ins.remark = remark
-                ins.paymentReceivedOn = datetime.today().now()
-                ins.collectedBy_id = user.pk
-                ins.finePaid = float(fineAmount)
-                ins.save()
-                obj.amountPaid = (obj.amountPaid + float(paidAmount) + float(fineAmount))
-                obj.save()
-            if action == 'Reassign':
-                ins.remark = remark
-                ins.isReassigned = True
-                ins.collectedBy_id = user.pk
-                ins.save()
-
-                new_ins = Installment()
-                new_ins.saleID_id = obj.pk
-                new_ins.assignedTo_id = user.pk
-                new_ins.installmentDate = datetime.strptime(rdate, '%d/%m/%Y')
-                new_ins.save()
-
+            rem = InstallmentRemark()
+            rem.installmentID_id = ins.pk
+            rem.remark = addRemark
+            rem.latitude = htmlLat
+            rem.longitude = htmlLong
+            rem.addedBy_id = user.pk
+            rem.save()
             return JsonResponse({'message': 'success'}, safe=False)
         except:
             return JsonResponse({'message': 'error'}, safe=False)
@@ -1286,7 +1294,7 @@ def get_collection_user_report_api(request):
 
     c_total = 0.0
     for c in collection:
-        c_total = c_total + c.amountPaid + c.finePaid
+        c_total = c_total + c.paidAmount
 
     data = {
         'customerCount': customer_objs.count(),

@@ -19,6 +19,7 @@ urlpatterns = [
     path('sales_list_admin/', sales_list_admin, name='sales_list_admin'),
 
     path('customer_detail/<int:id>/', customer_detail, name='customer_detail'),
+    path('customer_detail_admin/<int:id>/', customer_detail_admin, name='customer_detail_admin'),
     path('sales_detail/<int:id>/', sales_detail, name='sales_detail'),
     path('installment_list/', installment_list, name='installment_list'),
     path('my_profile/', my_profile, name='my_profile'),
@@ -66,7 +67,7 @@ urlpatterns = [
     path('api/list_customer_api/', list_customer_api, name='list_customer_api'),
     path('api/add_customer_api/', add_customer_api, name='add_customer_api'),
     path('api/CustomerListByUserJson/', CustomerListByUserJson.as_view(), name='CustomerListByUserJson'),
-    path('api/CustomerListJson/', CustomerListJson.as_view(), name='CustomerListJson'),
+    path('api/CustomerListAdminJson/', CustomerListAdminJson.as_view(), name='CustomerListAdminJson'),
 
     # sales
     path('api/add_sales_api/', add_sales_api, name='add_sales_api'),
@@ -78,6 +79,7 @@ urlpatterns = [
     path('api/InstallmentListByUserJson/', InstallmentListByUserJson.as_view(), name='InstallmentListByUserJson'),
     path('api/get_installment_detail/', get_installment_detail, name='get_installment_detail'),
     path('api/add_installment_api/', add_installment_api, name='add_installment_api'),
+    path('api/add_installment_remark_api/', add_installment_remark_api, name='add_installment_remark_api'),
 
     # report dashboard
     path('api/get_collection_user_report_api/', get_collection_user_report_api, name='get_collection_user_report_api'),

@@ -77,7 +77,7 @@ def purchase_add(request):
 def supplier_add(request):
     return render(request, 'home/supplierList.html')
 
-
+@check_group('Collection')
 def customer_list(request):
     return render(request, 'home/collection/customerListByStaff.html')
 
@@ -86,6 +86,7 @@ def customer_list_admin(request):
     return render(request, 'home/admin/customerListAdmin.html')
 
 
+@check_group('Collection')
 def customer_add(request):
     suppliers = Supplier.objects.filter(isDeleted__exact=False).order_by('name')
     products = Product.objects.filter(isDeleted__exact=False).order_by('name')
@@ -96,10 +97,12 @@ def customer_add(request):
     return render(request, 'home/customerAdd.html', context)
 
 
+@check_group('Collection')
 def sales_add(request):
     return render(request, 'home/collection/saleAdd.html')
 
 
+@check_group('Collection')
 def sales_list(request):
     return render(request, 'home/collection/salesListByStaff.html')
 
@@ -108,6 +111,7 @@ def sales_list_admin(request):
     return render(request, 'home/admin/salesListByAdmin.html')
 
 
+@check_group('Collection')
 def sales_detail(request, id=None):
     instance = get_object_or_404(Sale, id=id)
     installments = Installment.objects.filter(isDeleted__exact=False, saleID_id__exact=instance.pk).order_by(
@@ -130,6 +134,7 @@ def sales_detail_admin(request, id=None):
     return render(request, 'home/admin/salesDetailAdmin.html', context)
 
 
+@check_group('Collection')
 def customer_detail(request, id=None):
     instance = get_object_or_404(Customer, id=id)
     sales = Sale.objects.filter(isDeleted__exact=False, customerID_id=instance.pk).order_by(
@@ -141,11 +146,23 @@ def customer_detail(request, id=None):
     return render(request, 'home/collection/customerDetail.html', context)
 
 
+def customer_detail_admin(request, id=None):
+    instance = get_object_or_404(Customer, id=id)
+    sales = Sale.objects.filter(isDeleted__exact=False, customerID_id=instance.pk).order_by(
+        '-pk')
+    context = {
+        'instance': instance,
+        'sales': sales
+    }
+    return render(request, 'home/admin/customerDetailAdmin.html', context)
+
+
 def user_logout(request):
     logout(request)
     return redirect("homeApp:loginPage")
 
 
+@check_group('Collection')
 def installment_list(request):
     return render(request, 'home/collection/installmentListByUser.html')
 
@@ -154,6 +171,7 @@ def installment_list_admin(request):
     return render(request, 'home/admin/installmentListAdmin.html')
 
 
+@check_group('Collection')
 def my_profile(request):
     instance = get_object_or_404(StaffUser, user_ID_id=request.user.pk)
     context = {

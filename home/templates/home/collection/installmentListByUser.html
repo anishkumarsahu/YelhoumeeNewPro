@@ -132,7 +132,7 @@
     <div class="ui modal" id="myModalUser">
         <i class="close icon"></i>
         <div class="header">
-            Add Installment
+            Add Installment - <span class="ui text green" id="insSaleID"></span>
         </div>
         <div class="content">
 
@@ -150,31 +150,21 @@
 
                 </div>
 
-                <div class="one fields">
-                    <div class="sixteen wide field required">
-                        <label>Action</label>
-                        <select class="ui  search dropdown" id="action" onchange="getAction()">
-                            <option value="">Choose Action</option>
-                            <option value="Paid">Paid</option>
-                            <option value="Reassign">Reassign</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="two required fields" id="showPaid" style="display: none">
+                <div class="two required fields" id="showPaid">
                     <div class="eight wide field">
                         <label>Paid Amount</label>
                         <input type="number" placeholder="Paid Amount" id="paidAmount">
                     </div>
                     <div class="eight wide field">
-                        <label>Fine Amount</label>
-                        <input type="number" placeholder="Fine Amount" id="fineAmount">
+                        <label>Due Amount</label>
+                        <input type="number" placeholder="Due Amount" id="dueAmount">
                     </div>
 
                 </div>
-                <div class="one required fields" id="showReassign" style="display: none">
+                <div class="one required fields" id="showReassign">
                     <div class=" sixteen wide field required" id="reassign_calendar">
-                        <label>Reassign Date</label>
-                        <input type="text" name="rdate" id="rdate" placeholder="Reassign Date">
+                        <label>Next Due Date</label>
+                        <input type="text" name="rdate" id="rdate" placeholder="Next Due Date">
                     </div>
                 </div>
                 <div class="one required fields">
@@ -205,29 +195,17 @@
         <div class="header">
             Add Remark - <span class="ui text green" id="saleNo"></span>
         </div>
-        <div class="content">
+        <div class="scrolling content">
             <div class="ui threaded comments">
-                <div class="comment">
-                    <a class="avatar">
-                        <img src="/images/avatar/small/matt.jpg">
-                    </a>
-                    <div class="content">
-                        <a class="author">Matt</a>
-                        <div class="metadata">
-                            <span class="date">Today at 5:42PM</span>
-                        </div>
-                        <div class="text">
-                            How artistic!
-                        </div>
-                        <div class="actions">
-                            <a class="reply">Reply</a>
-                        </div>
-                    </div>
+                <div id="remarkDiv">
+                    {% comment %}
+                <div class="comment"><a class="avatar"><img src=""></a><div class="content"><a class="author">Matt</a><div class="metadata"><span class="date">Today at 5:42PM</span></div><div class="text">How artistic!</div><div class="actions"><a class="reply"><div class="ui mini teal label"> <i class="thumbtack icon"></i> , </div></a></div></div></div>
+{% endcomment %}
                 </div>
-                <form class="ui reply form">
+                <form class="ui reply form" id="remarkForm">
                     <div class="field">
                         <input type="hidden" id="idRemark">
-                        <textarea id="addRemark" placeholder="Add remark here."></textarea>
+                        <textarea id="addRemark" placeholder="Add remark here." rows=""></textarea>
                     </div>
                     <button type="button" id="saveBtnR" class="ui right labeled icon button green"
                             onclick="saveRemark()">
@@ -241,9 +219,10 @@
                 </form>
             </div>
 
-            <div class="actions" style="padding-top: 20px; padding-bottom: 20px ;float: right">
-                <div class="ui cancel button">Close</div>
-            </div>
+
+        </div>
+        <div class="actions" style="padding-top: 20px; padding-bottom: 20px ;float: right">
+            <div class="ui cancel button">Close</div>
         </div>
     </div>
 
@@ -372,6 +351,7 @@
                     $('#ID').val(response.data['ID']);
                     $('#customerName').val(response.data['Name']);
                     $('#installmentAmount').val(response.data['Amount']);
+                    $('#insSaleID').html(response.data['SaleID']);
 
 
                 },
@@ -386,177 +366,81 @@
             });
         }
 
-        function getAction() {
-            let action = $('#action').val();
-            if (action === 'Paid') {
-                $('#showPaid').css('display', '')
-                $('#showReassign').css('display', 'none')
-            } else if (action === 'Reassign') {
-                $('#showPaid').css('display', 'none')
-                $('#showReassign').css('display', '')
-            } else {
-                $('#showPaid').css('display', '')
-                $('#showReassign').css('display', '')
-            }
-
-        }
-
-
         function Save() {
             showLoading();
 
             var ID = $('#ID').val();
-            var action = $('#action').val();
             var paidAmount = $('#paidAmount').val();
-            var fineAmount = $('#fineAmount').val();
+            var dueAmount = $('#dueAmount').val();
             var rdate = $('#rdate').val();
             var remark = $('#remark').val();
-
-            if (ID === '' || action === '') {
+            var htmlLong = $('#htmlLong').html();
+            var htmlLat = $('#htmlLat').html();
+            if (ID === '' || paidAmount === '' || dueAmount === '') {
                 $('body')
                     .toast({
                         class: 'orange',
-                        message: 'Please select an action.'
+                        message: 'Please Enter Paid Amount and Due Amount.'
                     })
                 ;
                 hideLoading();
             } else {
 
-                if (action === 'Paid') {
-                    if (paidAmount === '') {
+                data = new FormData();
+                data.append('ID', ID);
+                data.append('paidAmount', paidAmount);
+                data.append('dueAmount', dueAmount);
+                data.append('rdate', rdate);
+                data.append('remark', remark);
+                data.append('htmlLat', htmlLat);
+                data.append('htmlLong', htmlLong);
+
+
+                $.ajax({
+                    type: 'post',
+                    url: '{% url "homeApp:add_installment_api" %}',
+                    data: data,
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+
+
+                    success: function (response) {
+                        if (response.message === 'success') {
+                            $('body')
+                                .toast({
+                                    class: 'success',
+                                    message: 'Installment added successfully.'
+                                });
+
+                            hideLoading();
+
+                            userTab.ajax.reload();
+                            $('#addForm').trigger('reset');
+                            $('#myModalUser').modal('toggle');
+                        } else {
+                            $('body')
+                                .toast({
+                                    class: 'error',
+                                    message: 'An error occurred !'
+                                })
+                            ;
+                            hideLoading();
+                        }
+
+                        return response;
+                    },
+                    error: function () {
                         $('body')
                             .toast({
-                                class: 'orange',
-                                message: 'Please enter paid amount.'
+                                class: 'error',
+                                message: 'An error occurred !'
                             })
                         ;
                         hideLoading();
-                    } else {
-                        data = new FormData();
-                        data.append('ID', ID);
-                        data.append('action', action);
-                        data.append('paidAmount', paidAmount);
-                        data.append('fineAmount', fineAmount);
-                        data.append('rdate', rdate);
-                        data.append('remark', remark);
-
-
-                        $.ajax({
-                            type: 'post',
-                            url: '{% url "homeApp:add_installment_api" %}',
-                            data: data,
-                            contentType: false,
-                            cache: false,
-                            processData: false,
-
-
-                            success: function (response) {
-                                if (response.message === 'success') {
-                                    $('body')
-                                        .toast({
-                                            class: 'success',
-                                            message: 'Installment added successfully.'
-                                        });
-
-                                    hideLoading();
-
-
-                                    userTab.ajax.reload();
-                                    $('#addForm').trigger('reset');
-                                    $('#myModalUser').modal('toggle');
-                                } else {
-                                    $('body')
-                                        .toast({
-                                            class: 'error',
-                                            message: 'An error occurred !'
-                                        })
-                                    ;
-                                    hideLoading();
-                                }
-
-                                return response;
-                            },
-                            error: function () {
-                                $('body')
-                                    .toast({
-                                        class: 'error',
-                                        message: 'An error occurred !'
-                                    })
-                                ;
-                                hideLoading();
-                            }
-
-                        });
                     }
-                }
-                if (action === 'Reassign') {
-                    if (rdate === '') {
-                        $('body')
-                            .toast({
-                                class: 'orange',
-                                message: 'Please enter reassign date.'
-                            })
-                        ;
-                        hideLoading();
-                    } else {
-                        data = new FormData();
-                        data.append('ID', ID);
-                        data.append('action', action);
-                        data.append('paidAmount', paidAmount);
-                        data.append('fineAmount', fineAmount);
-                        data.append('rdate', rdate);
-                        data.append('remark', remark);
 
-
-                        $.ajax({
-                            type: 'post',
-                            url: '{% url "homeApp:add_installment_api" %}',
-                            data: data,
-                            contentType: false,
-                            cache: false,
-                            processData: false,
-
-
-                            success: function (response) {
-                                if (response.message === 'success') {
-                                    $('body')
-                                        .toast({
-                                            class: 'success',
-                                            message: 'Installment added successfully.'
-                                        });
-
-                                    hideLoading();
-
-                                    userTab.ajax.reload();
-                                    $('#addForm').trigger('reset');
-                                    $('#myModalUser').modal('toggle');
-                                } else {
-                                    $('body')
-                                        .toast({
-                                            class: 'error',
-                                            message: 'An error occurred !'
-                                        })
-                                    ;
-                                    hideLoading();
-                                }
-
-                                return response;
-                            },
-                            error: function () {
-                                $('body')
-                                    .toast({
-                                        class: 'error',
-                                        message: 'An error occurred !'
-                                    })
-                                ;
-                                hideLoading();
-                            }
-
-                        });
-                    }
-                }
-
-
+                });
             }
 
         }
@@ -568,8 +452,17 @@
                 url: '{% url "homeApp:get_installment_detail"%}?id=' + id,
 
                 success: function (response) {
+                    console.log(response);
                     $('#idRemark').val(response.data['ID']);
                     $('#saleNo').html(response.data['SaleID']);
+                    $('#remarkDiv').html('');
+                    var j;
+                    for (j = 0; j < response.data['Remarks'].length; j++) {
+                        $('#remarkDiv').append('<div class="comment"><a class="avatar"><img style="border-radius: 50%" src="' + response.data['Remarks'][j]['Photo'] + '"></a><div class="content"><a class="author">' + response.data['Remarks'][j]['AddedBy'] + '</a><div class="metadata"><span class="date">' + response.data['Remarks'][j]['AddedOn'] + '</span></div><div class="text">' + response.data['Remarks'][j]['Remark'] + '</div><div class="actions"><a class="reply"><div class="ui mini teal label"> <i class="thumbtack icon"></i> ' + response.data['Remarks'][j]['Latitude'] + ', ' + response.data['Remarks'][j]['Longitude'] + ' </div></a></div></div></div>');
+
+                    }
+
+
                 },
                 error: function () {
                     $('body')
@@ -653,6 +546,8 @@
             showLoadingR();
             var idRemark = $('#idRemark').val();
             var addRemark = $('#addRemark').val();
+            var htmlLong = $('#htmlLong').html();
+            var htmlLat = $('#htmlLat').html();
 
 
             if (idRemark === '' || addRemark === '') {
@@ -669,10 +564,12 @@
                 data = new FormData();
                 data.append('idRemark', idRemark);
                 data.append('addRemark', addRemark);
+                data.append('htmlLat', htmlLat);
+                data.append('htmlLong', htmlLong);
 
                 $.ajax({
                     type: 'post',
-                    url: '{% url "homeApp:add_installment_api" %}',
+                    url: '{% url "homeApp:add_installment_remark_api" %}',
                     data: data,
                     contentType: false,
                     cache: false,
@@ -687,12 +584,12 @@
                                     message: 'Installment remark added successfully.'
                                 });
 
-                            hideLoading();
+                            hideLoadingR();
 
 
                             userTab.ajax.reload();
-                            $('#addForm').trigger('reset');
-                            $('#myModalUser').modal('toggle');
+                            $('#remarkForm').trigger('reset');
+                            $('#myModalRemark').modal('toggle');
                         } else {
                             $('body')
                                 .toast({
