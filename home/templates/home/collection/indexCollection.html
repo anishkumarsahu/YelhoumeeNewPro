@@ -350,89 +350,33 @@
                         </div>
                     </div>
                 </div>
-                {% comment %}
-                <div class="row">
-                    <div class="sixteen wide tablet four wide computer column">
 
-                        <div class="ui segment left aligned">
+            </div>
+            <h5 class="ui top attached header">
+                Daily Trending's
+            </h5>
+            <div class="ui attached segment">
+                <table class="ui teal tiny unstackable table" style="text-align: center">
+                    <thead>
+                    <tr>
+                        <th id="date3">Date3</th>
+                        <th id="date2">Date2</th>
+                        <th id="date1">Date1</th>
+                        <th id="mtd">MTD</th>
 
-                            <div class="ui  statistic">
-                                <div class="value counter">3,952</div>
-                                <div class="label">
-                                    Orders
-                                </div>
-                                <i class="icon ion-ios-cart teal statisticIcon"></i>
-                            </div>
-                            <div id="flot-order" class="flotchart" style="padding: 0px; position: relative;">
-                                <canvas class="flot-base" width="396" height="100"
-                                        style="direction: ltr; position: absolute; left: 0px; top: 0px; width: 396px; height: 100px;"></canvas>
-                                <canvas class="flot-overlay" width="396" height="100"
-                                        style="direction: ltr; position: absolute; left: 0px; top: 0px; width: 396px; height: 100px;"></canvas>
-                            </div>
-                        </div>
-                    </div>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td id="amount3">0.0</td>
+                        <td id="amount2">0.0</td>
+                        <td id="amount1">0.0</td>
+                        <td id="mtdAmount">0.0</td>
 
-                    <div class="sixteen wide tablet four wide computer column">
+                    </tr>
 
-                        <div class="ui segment left aligned">
-
-                            <div class="ui  statistic">
-                                <div class="value">
-                                    <span class="counter">57.6</span> %
-                                </div>
-                                <div class="label">
-                                    Average Time
-                                </div>
-                                <i class="icon ion-ios-timer blue statisticIcon"></i>
-                            </div>
-                            <div id="flot-avarage" class="flotchart" style="padding: 0px; position: relative;">
-                                <canvas class="flot-base" width="396" height="100"
-                                        style="direction: ltr; position: absolute; left: 0px; top: 0px; width: 396px; height: 100px;"></canvas>
-                                <canvas class="flot-overlay" width="396" height="100"
-                                        style="direction: ltr; position: absolute; left: 0px; top: 0px; width: 396px; height: 100px;"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="sixteen wide tablet four wide computer column">
-
-                        <div class="ui segment left aligned">
-
-                            <div class="ui  statistic">
-                                <div class="value counter">3,112</div>
-                                <div class="label">
-                                    Saves
-                                </div>
-                                <i class="icon ion-magnet purple statisticIcon"></i>
-                            </div>
-                            <div id="flot-saves" class="flotchart" style="padding: 0px; position: relative;">
-                                <canvas class="flot-base" width="396" height="100"
-                                        style="direction: ltr; position: absolute; left: 0px; top: 0px; width: 396px; height: 100px;"></canvas>
-                                <canvas class="flot-overlay" width="396" height="100"
-                                        style="direction: ltr; position: absolute; left: 0px; top: 0px; width: 396px; height: 100px;"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="sixteen wide tablet four wide computer column">
-
-                        <div class="ui segment left aligned">
-
-                            <div class="ui  statistic">
-
-                                <div class="value counter">9,582</div>
-                                <div class="label">
-                                    Page Views
-                                </div>
-                                <i class="icon ion-trophy red statisticIcon"></i>
-                            </div>
-                            <div id="flot-view" class="flotchart" style="padding: 0px; position: relative;">
-                                <canvas class="flot-base" width="396" height="100"
-                                        style="direction: ltr; position: absolute; left: 0px; top: 0px; width: 396px; height: 100px;"></canvas>
-                                <canvas class="flot-overlay" width="396" height="100"
-                                        style="direction: ltr; position: absolute; left: 0px; top: 0px; width: 396px; height: 100px;"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>{% endcomment %}
+                    </tbody>
+                </table>
             </div>
 
         {% endblock %}
@@ -515,6 +459,36 @@
                     $('#salesCount').html(response.data['salesCount']);
                     $('#todayInstallmentCount').html(response.data['todayInstallmentCount']);
                     $('#collection').html(response.data['collection']);
+
+
+                },
+                error: function () {
+                    $('body')
+                        .toast({
+                            class: 'error',
+                            message: 'An error occurred !'
+                        })
+                    ;
+                }
+            });
+        }
+
+        $(GetLastThreeDaysCollectionDetail());
+
+        function GetLastThreeDaysCollectionDetail() {
+            $.ajax({
+                type: 'get',
+                url: '{% url "homeApp:get_last_three_days_collection_report_for_user_api"%}',
+
+                success: function (response) {
+                    console.log(response)
+                    $('#date3').html(response.data['last_third_date']);
+                    $('#date2').html(response.data['last_second_date']);
+                    $('#date1').html(response.data['last_first_date']);
+                    $('#amount3').html(response.data['third_collection']);
+                    $('#amount2').html(response.data['second_collection']);
+                    $('#amount1').html(response.data['first_collection']);
+                    $('#mtdAmount').html(response.data['month_collection']);
 
 
                 },

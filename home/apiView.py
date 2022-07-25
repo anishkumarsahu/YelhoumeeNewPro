@@ -3,6 +3,7 @@ from django.core import management
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db import transaction
 from django.db.models import Q, Sum, F
+from django.db.models.functions import Coalesce
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404, HttpResponse
 from django.template import loader
@@ -102,10 +103,10 @@ class StaffUserListJson(BaseDatatableView):
         for item in qs:
             images = '<img class="ui avatar image" src="{}">'.format(item.photo.thumbnail.url)
 
-            action = '''<button style="font-size:10px;" onclick = "GetUserDetails('{}')" class="ui circular facebook icon button green">
+            action = '''<button data-inverted="" data-tooltip="Edit Detail" data-position="bottom center" data-variation="mini" style="font-size:10px;" onclick = "GetUserDetails('{}')" class="ui circular facebook icon button green">
                     <i class="pen icon"></i>
                   </button>
-                  <button style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
+                  <button data-inverted="" data-tooltip="Delete" data-position="bottom center" data-variation="mini" style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
                     <i class="trash alternate icon"></i>
                   </button></td>'''.format(item.pk, item.pk),
 
@@ -268,10 +269,10 @@ class ProductListJson(BaseDatatableView):
     def prepare_results(self, qs):
         json_data = []
         for item in qs:
-            action = '''<button style="font-size:10px;" onclick = "GetUserDetails('{}')" class="ui circular facebook icon button green">
+            action = '''<button  data-inverted="" data-tooltip="Edit Detail" data-position="bottom center" data-variation="mini"  style="font-size:10px;" onclick = "GetUserDetails('{}')" class="ui circular facebook icon button green">
                     <i class="pen icon"></i>
                   </button>
-                  <button style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
+                  <button  data-inverted="" data-tooltip="Delete" data-position="bottom center" data-variation="mini" style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
                     <i class="trash alternate icon"></i>
                   </button></td>'''.format(item.pk, item.pk),
 
@@ -417,10 +418,10 @@ class SupplierListJson(BaseDatatableView):
     def prepare_results(self, qs):
         json_data = []
         for item in qs:
-            action = '''<button style="font-size:10px;" onclick = "GetUserDetails('{}')" class="ui circular facebook icon button green">
+            action = '''<button  data-inverted="" data-tooltip="Edit Detail" data-position="bottom center" data-variation="mini"  style="font-size:10px;" onclick = "GetUserDetails('{}')" class="ui circular facebook icon button green">
                     <i class="pen icon"></i>
                   </button>
-                  <button style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
+                  <button  data-inverted="" data-tooltip="Delete" data-position="bottom center" data-variation="mini"  style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
                     <i class="trash alternate icon"></i>
                   </button></td>'''.format(item.pk, item.pk),
 
@@ -547,10 +548,10 @@ class PurchaseListJson(BaseDatatableView):
     def prepare_results(self, qs):
         json_data = []
         for item in qs:
-            action = '''<button style="font-size:10px;" onclick = "GetPurchaseDetail('{}')" class="ui circular facebook icon button green">
+            action = '''<button  data-inverted="" data-tooltip="View Detail" data-position="bottom center" data-variation="mini"  style="font-size:10px;" onclick = "GetPurchaseDetail('{}')" class="ui circular facebook icon button green">
                     <i class="receipt icon"></i>
                   </button>
-                  <button style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
+                  <button  data-inverted="" data-tooltip="Delete" data-position="bottom center" data-variation="mini"  style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
                     <i class="trash alternate icon"></i>
                   </button></td>'''.format(item.pk, item.pk),
 
@@ -1010,9 +1011,8 @@ class SalesListAdminJson(BaseDatatableView):
 # ------------------------------------Installments-----------------------------------
 
 class InstallmentListByAdminJson(BaseDatatableView):
-    order_columns = ['saleID.customerName', 'saleID.emiAmount', 'installmentDate', 'amountPaid', 'isPaid',
-                     'isReassigned'
-        , 'remark', 'paymentReceivedOn']
+    order_columns = ['saleNo', 'saleID.customerName', 'emiAmount', 'installmentDate', 'paidAmount', 'isPaid',
+                     'dueAmount', 'NextDueDate', 'remark', 'paymentReceivedOn']
 
     def get_initial_queryset(self):
         try:
@@ -1038,7 +1038,8 @@ class InstallmentListByAdminJson(BaseDatatableView):
         if search:
             qs = qs.filter(
                 Q(saleID__customerName__icontains=search) | Q(saleID__productName__icontains=search)
-                | Q(installmentDate__icontains=search) | Q(remark__icontains=search) | Q(amountPaid__icontains=search)
+                | Q(installmentDate__icontains=search) | Q(remark__icontains=search)
+                | Q(paidAmount__icontains=search) | Q(NextDueDate__icontains=search) | Q(dueAmount__icontains=search)
             )
 
         return qs
@@ -1046,43 +1047,53 @@ class InstallmentListByAdminJson(BaseDatatableView):
     def prepare_results(self, qs):
         json_data = []
         for item in qs:
-            if item.isPaid == False and item.isReassigned == False:
-                action = '''<button style="font-size:10px;" onclick = "GetDetail('{}')" class="ui circular facebook icon button orange">
+            if item.isPaid == False:
+                action = '''<button data-inverted="" data-tooltip="Add Remark" data-position="bottom center" data-variation="mini" style="font-size:10px;" onclick = "GetRemark('{}')" class="ui circular facebook icon button blue">
+                      <i class="clipboard outline icon"></i>
+                      </button>
+                      <button data-inverted="" data-tooltip="Take Installment" data-position="bottom center" data-variation="mini" style="font-size:10px;" onclick = "GetDetail('{}')" class="ui circular facebook icon button orange">
                         <i class="hand holding usd icon"></i>
                       </button>
-                      <a style="font-size:10px;" href="/sales_detail_admin/{}/" class="ui circular facebook icon button green">
+                      <a data-inverted="" data-tooltip="Sales Detail" data-position="bottom center" data-variation="mini" style="font-size:10px;" href="/sales_detail_admin/{}/" class="ui circular facebook icon button green">
                         <i class="receipt icon"></i>
                       </a>
-                     '''.format(item.pk, item.saleID.pk),
+                     '''.format(item.pk, item.pk, item.saleID.pk),
             else:
-                action = '''<a style="font-size:10px;" href="/sales_detail_admin/{}/" class="ui circular facebook icon button green">
+                action = ''' <button data-inverted="" data-tooltip="Add Remark" data-position="bottom center" data-variation="mini" style="font-size:10px;" onclick = "GetRemark('{}')" class="ui circular facebook icon button blue">
+                      <i class="clipboard outline icon"></i>
+                      </button>
+                <a data-inverted="" data-tooltip="Sales Detail" data-position="bottom center" data-variation="mini" style="font-size:10px;" href="/sales_detail_admin/{}/" class="ui circular facebook icon button green">
                                         <i class="receipt icon"></i>
                                       </a>
-                                     '''.format(item.saleID.pk),
+                                     '''.format(item.pk, item.saleID.pk),
 
             if item.isPaid == True:
-                paid = '<button class="ui tiny active green button" type="button" >  Yes </button>'
+                paid = '<div class="ui mini green label"> Yes </div>'
                 r_time = escape(item.paymentReceivedOn.strftime('%d-%m-%Y %I:%M %p')),
             else:
-                paid = '<button class="ui tiny active red button" type="button" >  No </button>'
+                paid = '<div class="ui mini label red"> No </div>'
                 r_time = '-'
 
-            if item.isReassigned == True:
-                isReassigned = '<button class="ui tiny active green button" type="button" >  Yes </button>'
-            else:
-                isReassigned = '<button class="ui tiny active red button" type="button" >  No </button>'
+            try:
+                nextDueDate = escape(item.NextDueDate.strftime('%d-%m-%Y %I:%M %p')),
+            except:
+                nextDueDate = '-'
             json_data.append([
+                escape(item.saleID.saleNo),
                 escape(item.saleID.customerName),
-                escape(item.saleID.emiAmount),
+                escape(item.emiAmount),
                 escape(item.installmentDate.strftime('%d-%m-%Y')),
-                escape(item.amountPaid),
+                escape(item.paidAmount),
                 paid,
-                isReassigned,
+                escape(item.dueAmount),
+                nextDueDate,
                 escape(item.remark),
                 r_time,
+
                 action
             ])
         return json_data
+
 
 
 class InstallmentListByUserJson(BaseDatatableView):
@@ -1322,5 +1333,115 @@ def get_admin_report_api(request):
         'salesCount': sale_objs.count(),
         'todayInstallmentCount': today_inst.count(),
         'collection': c_total
+    }
+    return JsonResponse({'data': data}, safe=False)
+
+
+def get_last_three_days_collection_report_for_admin_api(request):
+    today = datetime.today().date()
+    last_first_date = datetime.today().date() - timedelta(days=1)
+    last_second_date = datetime.today().date() - timedelta(days=2)
+    last_third_date = datetime.today().date() - timedelta(days=3)
+
+    first_collection = Installment.objects.filter(isDeleted__exact=False,
+                                                  paymentReceivedOn__icontains=last_first_date,
+                                                  isPaid__exact=True).aggregate(Sum('paidAmount'))
+    second_collection = Installment.objects.filter(isDeleted__exact=False,
+                                                   paymentReceivedOn__icontains=last_second_date,
+                                                   isPaid__exact=True).aggregate(Sum('paidAmount', default=0))
+    third_collection = Installment.objects.filter(isDeleted__exact=False,
+                                                  paymentReceivedOn__icontains=last_third_date,
+                                                  isPaid__exact=True).aggregate(Sum('paidAmount', default=0))
+    month_collection = Installment.objects.filter(isDeleted__exact=False,
+                                                  paymentReceivedOn__year=today.year,
+                                                  paymentReceivedOn__month=today.month,
+                                                  isPaid__exact=True).aggregate(Sum('paidAmount', default=0))
+
+    if first_collection['paidAmount__sum'] == None:
+        f_c = 0.0
+    else:
+        f_c = first_collection['paidAmount__sum']
+
+    if second_collection['paidAmount__sum'] == None:
+        s_c = 0.0
+    else:
+        s_c = second_collection['paidAmount__sum']
+
+    if third_collection['paidAmount__sum'] == None:
+        t_c = 0.0
+    else:
+        t_c = third_collection['paidAmount__sum']
+
+    if month_collection['paidAmount__sum'] == None:
+        m_c = 0.0
+    else:
+        m_c = month_collection['paidAmount__sum']
+    data = {
+        'today': today,
+        'last_first_date': last_first_date,
+        'last_second_date': last_second_date,
+        'last_third_date': last_third_date,
+        'first_collection': f_c,
+        'second_collection': s_c,
+        'third_collection': t_c,
+        'month_collection': m_c,
+
+    }
+    return JsonResponse({'data': data}, safe=False)
+
+
+def get_last_three_days_collection_report_for_user_api(request):
+    today = datetime.today().date()
+    last_first_date = datetime.today().date() - timedelta(days=1)
+    last_second_date = datetime.today().date() - timedelta(days=2)
+    last_third_date = datetime.today().date() - timedelta(days=3)
+    user = StaffUser.objects.get(user_ID_id=request.user.pk)
+    first_collection = Installment.objects.filter(isDeleted__exact=False,
+                                                  paymentReceivedOn__icontains=last_first_date,
+                                                  isPaid__exact=True, collectedBy_id__exact=user.pk).aggregate(
+        Sum('paidAmount'))
+    second_collection = Installment.objects.filter(isDeleted__exact=False,
+                                                   paymentReceivedOn__icontains=last_second_date,
+                                                   isPaid__exact=True, collectedBy_id__exact=user.pk).aggregate(
+        Sum('paidAmount', default=0))
+    third_collection = Installment.objects.filter(isDeleted__exact=False,
+                                                  paymentReceivedOn__icontains=last_third_date,
+                                                  isPaid__exact=True, collectedBy_id__exact=user.pk).aggregate(
+        Sum('paidAmount', default=0))
+    month_collection = Installment.objects.filter(isDeleted__exact=False,
+                                                  paymentReceivedOn__year=today.year,
+                                                  paymentReceivedOn__month=today.month,
+                                                  isPaid__exact=True, collectedBy_id__exact=user.pk).aggregate(
+        Sum('paidAmount', default=0))
+
+    if first_collection['paidAmount__sum'] == None:
+        f_c = 0.0
+    else:
+        f_c = first_collection['paidAmount__sum']
+
+    if second_collection['paidAmount__sum'] == None:
+        s_c = 0.0
+    else:
+        s_c = second_collection['paidAmount__sum']
+
+    if third_collection['paidAmount__sum'] == None:
+        t_c = 0.0
+    else:
+        t_c = third_collection['paidAmount__sum']
+
+    if month_collection['paidAmount__sum'] == None:
+        m_c = 0.0
+    else:
+        m_c = month_collection['paidAmount__sum']
+    data = {
+        'today': today,
+        'last_first_date': last_first_date,
+        'last_second_date': last_second_date,
+        'last_third_date': last_third_date,
+        'first_collection': f_c,
+        'second_collection': s_c,
+        'third_collection': t_c,
+        'month_collection': m_c,
+
     }
     return JsonResponse({'data': data}, safe=False)

@@ -57,11 +57,11 @@ def product_list(request):
         'categories': categories,
         'brands': brands
     }
-    return render(request, 'home/productList.html', context)
+    return render(request, 'home/admin/productList.html', context)
 
 
 def purchase_list(request):
-    return render(request, 'home/purchaseList.html')
+    return render(request, 'home/admin/purchaseList.html')
 
 
 def purchase_add(request):
@@ -71,11 +71,11 @@ def purchase_add(request):
         'suppliers': suppliers,
         'products': products
     }
-    return render(request, 'home/purchaseAdd.html', context)
+    return render(request, 'home/admin/purchaseAdd.html', context)
 
 
 def supplier_add(request):
-    return render(request, 'home/supplierList.html')
+    return render(request, 'home/admin/supplierList.html')
 
 @check_group('Collection')
 def customer_list(request):

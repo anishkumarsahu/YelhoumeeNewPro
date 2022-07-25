@@ -83,7 +83,11 @@ urlpatterns = [
 
     # report dashboard
     path('api/get_collection_user_report_api/', get_collection_user_report_api, name='get_collection_user_report_api'),
-
     path('api/get_admin_report_api/', get_admin_report_api, name='get_admin_report_api'),
+    path('api/get_last_three_days_collection_report_for_admin_api/',
+         get_last_three_days_collection_report_for_admin_api,
+         name='get_last_three_days_collection_report_for_admin_api'),
+    path('api/get_last_three_days_collection_report_for_user_api/', get_last_three_days_collection_report_for_user_api,
+         name='get_last_three_days_collection_report_for_user_api'),
 
 ]
