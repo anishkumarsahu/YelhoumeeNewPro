@@ -89,5 +89,6 @@ urlpatterns = [
          name='get_last_three_days_collection_report_for_admin_api'),
     path('api/get_last_three_days_collection_report_for_user_api/', get_last_three_days_collection_report_for_user_api,
          name='get_last_three_days_collection_report_for_user_api'),
+    path('api/get_daily_collections_by_staff/', get_daily_collections_by_staff, name='get_daily_collections_by_staff'),
 
 ]

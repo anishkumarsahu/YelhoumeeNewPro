@@ -1095,7 +1095,6 @@ class InstallmentListByAdminJson(BaseDatatableView):
         return json_data
 
 
-
 class InstallmentListByUserJson(BaseDatatableView):
     order_columns = ['saleNo', 'saleID.customerName', 'emiAmount', 'installmentDate', 'paidAmount', 'isPaid',
                      'dueAmount', 'NextDueDate', 'remark', 'paymentReceivedOn']
@@ -1326,7 +1325,7 @@ def get_admin_report_api(request):
 
     c_total = 0.0
     for c in collection:
-        c_total = c_total + c.amountPaid + c.finePaid
+        c_total = c_total + c.paidAmount
 
     data = {
         'customerCount': customer_objs.count(),
@@ -1444,4 +1443,40 @@ def get_last_three_days_collection_report_for_user_api(request):
         'month_collection': m_c,
 
     }
+    return JsonResponse({'data': data}, safe=False)
+
+
+def get_daily_collections_by_staff(request):
+    users = StaffUser.objects.filter(isDeleted__exact=False, isActive__exact='Active').order_by('name')
+    data = []
+    for user in users:
+
+        user_collection = Installment.objects.filter(isDeleted__exact=False,
+                                                     paymentReceivedOn__icontains=datetime.today().date(),
+                                                     isPaid__exact=True, collectedBy_id__exact=user.pk).aggregate(
+            Sum('paidAmount'))
+        user_collectables = Installment.objects.filter(Q(installmentDate__icontains=datetime.today().date()) |
+                                                       Q(paymentReceivedOn__icontains=datetime.today().date()
+                                                         ), isDeleted__exact=False,
+                                                       assignedTo_id__exact=user.pk).aggregate(Sum('paidAmount'))
+        if user_collection['paidAmount__sum'] == None:
+            collection = 0.0
+        else:
+            collection = user_collection['paidAmount__sum']
+
+        if user_collectables['paidAmount__sum'] == None:
+            collectable = 0.0
+        else:
+            collectable = user_collectables['paidAmount__sum']
+        try:
+            pc = round(((collection / collectable) * 100), 2)
+        except:
+            pc = 0
+        data_dic = {
+            'Staff': user.name,
+            'Collection': collection,
+            'Collectable': collectable,
+            'Percent': pc
+        }
+        data.append(data_dic)
     return JsonResponse({'data': data}, safe=False)

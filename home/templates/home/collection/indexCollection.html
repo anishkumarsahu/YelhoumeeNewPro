@@ -356,7 +356,7 @@
                 Daily Trending's
             </h5>
             <div class="ui attached segment">
-                <table class="ui teal tiny unstackable table" style="text-align: center">
+                <table class="ui teal celled tiny unstackable table" style="text-align: center">
                     <thead>
                     <tr>
                         <th id="date3">Date3</th>
@@ -373,6 +373,31 @@
                         <td id="amount1">0.0</td>
                         <td id="mtdAmount">0.0</td>
 
+                    </tr>
+
+                    </tbody>
+                </table>
+            </div>
+            <h5 class="ui top attached header">
+                Today's Installments
+            </h5>
+            <div class="ui attached segment">
+                <table class="ui teal celled tiny unstackable table" style="text-align: center">
+                    <thead>
+                    <tr>
+                        <th>Staff Name</th>
+                        <th>Collection Amount</th>
+                        <th>Collectable Amount</th>
+                        <th>Performance (%)</th>
+
+                    </tr>
+                    </thead>
+                    <tbody id="staffCollection">
+                    <tr>
+                        <td>0.0</td>
+                        <td>0.0</td>
+                        <td>0.0</td>
+                        <td>0.0</td>
                     </tr>
 
                     </tbody>
@@ -491,6 +516,33 @@
                     $('#mtdAmount').html(response.data['month_collection']);
 
 
+                },
+                error: function () {
+                    $('body')
+                        .toast({
+                            class: 'error',
+                            message: 'An error occurred !'
+                        })
+                    ;
+                }
+            });
+        }
+
+
+        $(GetStaffDailyCollectionDetail());
+
+        function GetStaffDailyCollectionDetail() {
+            $.ajax({
+                type: 'get',
+                url: '{% url "homeApp:get_daily_collections_by_staff"%}',
+
+                success: function (response) {
+                    $('#staffCollection').html('');
+                    var j;
+                    for (j = 0; j < response.data.length; j++) {
+                        $('#staffCollection').append(' <tr><td >' + response.data[j]['Staff'] + '</td><td >' + response.data[j]['Collection'] + '</td><td >' + response.data[j]['Collectable'] + '</td><td >' + response.data[j]['Percent'] + '</td></tr>');
+
+                    }
                 },
                 error: function () {
                     $('body')

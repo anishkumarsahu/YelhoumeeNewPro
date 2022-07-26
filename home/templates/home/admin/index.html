@@ -286,7 +286,7 @@
                         </div>
                         <div class="extra content">
                             <div class="ui two buttons">
-                                <a class="ui red button" href="{% url 'homeApp:customer_list' %}">More Info</a>
+                                <a class="ui red button" href="{% url 'homeApp:customer_list_admin' %}">More Info</a>
                             </div>
                         </div>
                     </div>
@@ -311,7 +311,7 @@
                         </div>
                         <div class="extra content">
                             <div class="ui two buttons">
-                                <a class="ui green button" href="{% url 'homeApp:sales_list' %}">More Info</a>
+                                <a class="ui green button" href="{% url 'homeApp:sales_list_admin' %}">More Info</a>
                             </div>
                         </div>
                     </div>
@@ -334,7 +334,8 @@
                         </div>
                         <div class="extra content">
                             <div class="ui two buttons">
-                                <a class="ui teal button" href="{% url 'homeApp:installment_list' %}">More Info</a>
+                                <a class="ui teal button" href="{% url 'homeApp:installment_list_admin' %}">More
+                                    Info</a>
                             </div>
                         </div>
                     </div>
@@ -357,12 +358,13 @@
                         </div>
                         <div class="extra content">
                             <div class="ui two buttons">
-                                <a class="ui purple button" href="{% url 'homeApp:installment_list' %}">More Info</a>
+                                <a class="ui purple button" href="{% url 'homeApp:installment_list_admin' %}">More
+                                    Info</a>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="row">
+                {% comment %} <div class="row">
                     <div class="sixteen wide tablet four wide computer column">
 
                         <div class="ui segment left aligned">
@@ -423,13 +425,13 @@
 
                         </div>
                     </div>
-                </div>
+                </div>{% endcomment %}
             </div>
             <h5 class="ui top attached header">
                 Daily Trending's
             </h5>
             <div class="ui attached segment">
-                <table class="ui teal tiny unstackable table" style="text-align: center">
+                <table class="ui teal celled  tiny unstackable table" style="text-align: center">
                     <thead>
                     <tr>
                         <th id="date3">Date3</th>
@@ -446,6 +448,31 @@
                         <td id="amount1">0.0</td>
                         <td id="mtdAmount">0.0</td>
 
+                    </tr>
+
+                    </tbody>
+                </table>
+            </div>
+            <h5 class="ui top attached header">
+                Today's Installments
+            </h5>
+            <div class="ui attached segment">
+                <table class="ui teal celled tiny unstackable table" style="text-align: center">
+                    <thead>
+                    <tr>
+                        <th>Staff Name</th>
+                        <th>Collection Amount</th>
+                        <th>Collectable Amount</th>
+                        <th>Performance (%)</th>
+
+                    </tr>
+                    </thead>
+                    <tbody id="staffCollection">
+                    <tr>
+                        <td>0.0</td>
+                        <td>0.0</td>
+                        <td>0.0</td>
+                        <td>0.0</td>
                     </tr>
 
                     </tbody>
@@ -567,6 +594,32 @@
             });
         }
 
+
+        $(GetStaffDailyCollectionDetail());
+
+        function GetStaffDailyCollectionDetail() {
+            $.ajax({
+                type: 'get',
+                url: '{% url "homeApp:get_daily_collections_by_staff"%}',
+
+                success: function (response) {
+                    $('#staffCollection').html('');
+                    var j;
+                    for (j = 0; j < response.data.length; j++) {
+                        $('#staffCollection').append(' <tr><td >' + response.data[j]['Staff'] + '</td><td >' + response.data[j]['Collection'] + '</td><td >' + response.data[j]['Collectable'] + '</td><td >' + response.data[j]['Percent'] + '</td></tr>');
+
+                    }
+                },
+                error: function () {
+                    $('body')
+                        .toast({
+                            class: 'error',
+                            message: 'An error occurred !'
+                        })
+                    ;
+                }
+            });
+        }
 
     </script>
 
