@@ -14,11 +14,18 @@
 
     <link rel="icon" href="{% static 'sw/images/favicon.ico' %}" sizes="any">
     <link rel="apple-touch-icon" href="{% static 'sw/images/apple-touch-icon.png' %}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+            integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.8.8/semantic.min.css"
+          integrity="sha512-pbLYRiE96XJxmJgF8oWBfa9MdKwuXhlV7vgs2LLlapHLXceztfcta0bdeOgA4reIf0WH67ThWzA684JwkM3zfQ=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.8.8/semantic.min.js"
+            integrity="sha512-t5mAtfZZmR2gl5LK7WEkJoyHCfyzoy10MlerMGhxsXl3J7uSSNTAW6FK/wvGBC8ua9AFazwMaC0LxsMTMiM5gg=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="{% static 'sw/app.js' %}"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.8/dist/semantic.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.8/dist/semantic.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.4/css/dataTables.semanticui.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/dataTables.semanticui.min.css">
     <script src="{% static 'sw/app.js' %}"></script>
 
     {% block css %}
@@ -248,21 +255,28 @@
 
     <div class="main-content">
         {% block body %}
-            <div class="ui segment">
-                <div class="ui breadcrumb">
-                    <div class="active section">Dashboard</div>
+            {#            <div class="ui segment">#}
+            {#                <div class="ui breadcrumb">#}
+            {#                    <div class="active section">Dashboard</div>#}
+            {#                </div>#}
+            {#            </div>#}
+            <div class="ui  pointing secondary menu">
+                <div style="cursor: pointer;" class="item active" data-tab="user"
+                >Dashboard
                 </div>
+
             </div>
-            <div class="ui grid stackable padded">
-                <div class="four wide computer eight wide tablet sixteen wide mobile column">
-                    <div class="ui fluid card">
-                        <div class="content">
-                            <div class="ui right floated header red">
-                                <i class="users icon"></i>
-                            </div>
-                            <div class="header">
-                                <div class="ui red header" id="customerCount">
-                                    0
+            <div class="ui tab  " data-tab="user" style="padding: 5px;">
+                <div class="ui grid stackable padded">
+                    <div class="four wide computer eight wide tablet sixteen wide mobile column">
+                        <div class="ui fluid card">
+                            <div class="content">
+                                <div class="ui right floated header red">
+                                    <i class="users icon"></i>
+                                </div>
+                                <div class="header">
+                                    <div class="ui red header" id="customerCount">
+                                        0
                                 </div>
                             </div>
                             <div class="meta">
@@ -403,6 +417,7 @@
                     </tbody>
                 </table>
             </div>
+            </div>
 
         {% endblock %}
     </div>
@@ -460,8 +475,8 @@
         })
     })
 </script>
-<script src="https://cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.11.4/js/dataTables.semanticui.min.js"></script>
+<script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.12.1/js/dataTables.semanticui.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.semanticui.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>

@@ -101,7 +101,7 @@
                 >Customers
                 </div>
                 <div style=" position: absolute;right: 1.5rem;top: 18px;">
-                    <a href="{% url 'homeApp:customer_add' %}" class="ui green mini plus button right">
+                    <a href="{% url 'homeApp:customer_add_admin' %}" class="ui green mini plus button right">
                         <i class="plus square outline icon"></i>
                         Add Customer
                     </a>
@@ -296,7 +296,7 @@
                 {"name": "action", "targets": 10, "orderable": false},
 
             ],
-            aaSorting: [[8, 'desc']],
+            aaSorting: [[9, 'desc']],
             "lengthMenu": [[8, 25, 50, 100, -1], [8, 25, 50, 100, "All"]],
             "pageLength": 8,
             "processing": true,

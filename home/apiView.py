@@ -885,6 +885,66 @@ def add_sales_api(request):
             return JsonResponse({'message': 'error'}, safe=False)
 
 
+@transaction.atomic
+@csrf_exempt
+def add_sales_admin_api(request):
+    if request.method == 'POST':
+        try:
+            photo = request.FILES["photo"]
+            customer = request.POST.get("customer")
+            product = request.POST.get("product")
+            emi = request.POST.get("emi")
+            advance = request.POST.get("advance")
+            tenure = request.POST.get("tenure")
+            totalAmount = request.POST.get("totalAmount")
+            lat = request.POST.get("lat")
+            lng = request.POST.get("lng")
+            remark = request.POST.get("remark")
+            idate = request.POST.get("idate")
+            assignTo = request.POST.get("assignTo")
+            c = str(customer).split('@')
+            cus = Customer.objects.get(pk=int(c[1]))
+            p = str(product).split('@')
+            pro = Product.objects.get(pk=int(p[1]))
+            obj = Sale()
+            obj.latitude = lat
+            obj.longitude = lng
+            obj.customerName = cus.name
+            obj.customerID_id = cus.pk
+            obj.productName = pro.name
+            obj.productID_id = pro.pk
+            obj.unit = pro.unitID
+            obj.quantity = 1
+            obj.rate = pro.sp
+            obj.advancePaid = float(advance)
+            obj.amountPaid = float(advance)
+            obj.tenureInMonth = float(tenure)
+            obj.emiAmount = float(emi)
+            obj.totalAmount = float(totalAmount)
+            obj.remark = remark
+            obj.deliveryPhoto = photo
+            user = StaffUser.objects.get(user_ID_id=request.user.pk)
+            obj.addedBy_id = user.pk
+            obj.assignedTo_id = int(assignTo)
+            obj.installmentStartDate = datetime.strptime(idate, '%d/%m/%Y')
+            obj.save()
+            obj.saleNo = str(obj.pk).zfill(7)
+            obj.save()
+            pro.stock = pro.stock - 1
+            pro.save()
+            for i in range(0, int(tenure)):
+                inst = Installment()
+                inst.saleID_id = obj.pk
+                inst.emiAmount = obj.emiAmount
+                inst.assignedTo_id = int(assignTo)
+                inst.installmentDate = obj.installmentStartDate + timedelta(days=(i) * 30)
+                inst.save()
+
+            return JsonResponse({'message': 'success'}, safe=False)
+        except:
+            return JsonResponse({'message': 'error'}, safe=False)
+
+
 class SalesListByUserJson(BaseDatatableView):
     order_columns = ['deliveryPhoto', 'saleID', 'customerName', 'productName', 'advancePaid', 'tenureInMonth',
                      'emiAmount',
@@ -948,7 +1008,8 @@ class SalesListByUserJson(BaseDatatableView):
 
 
 class SalesListAdminJson(BaseDatatableView):
-    order_columns = ['deliveryPhoto', 'customerName', 'productName', 'advancePaid', 'tenureInMonth', 'emiAmount',
+    order_columns = ['deliveryPhoto', 'saleNo', 'customerName', 'productName', 'advancePaid', 'tenureInMonth',
+                     'emiAmount',
                      'totalAmount',
                      'amountPaid', 'installmentStartDate', 'datetime']
 
@@ -971,7 +1032,8 @@ class SalesListAdminJson(BaseDatatableView):
         search = self.request.GET.get('search[value]', None)
         if search:
             qs = qs.filter(
-                Q(customerName__icontains=search) | Q(customerID_customerCode__icontains=search)
+                Q(customerName__icontains=search) | Q(saleNo__icontains=search) | Q(
+                    customerID_customerCode__icontains=search)
                 | Q(productName__icontains=search) | Q(advancePaid__icontains=search) | Q(
                     tenureInMonth__icontains=search)
                 | Q(emiAmount__icontains=search) | Q(totalAmount__icontains=search) | Q(amountPaid__icontains=search)
@@ -986,14 +1048,15 @@ class SalesListAdminJson(BaseDatatableView):
         for item in qs:
             photo = '''<img style="cursor:pointer" onclick="showImgModal('{}')" class="ui avatar image" src="{}">'''.format(
                 item.deliveryPhoto.large.url, item.deliveryPhoto.thumbnail.url)
-            action = '''<a href="/sales_detail_admin/{}/" style="font-size:10px;" onclick = "GetPurchaseDetail('{}')" class="ui circular facebook icon button green">
+            action = '''<a data-inverted="" data-tooltip="Sales Detail" data-position="bottom center" data-variation="mini" href="/sales_detail_admin/{}/" style="font-size:10px;" onclick = "GetPurchaseDetail('{}')" class="ui circular facebook icon button green">
                     <i class="receipt icon"></i>
                   </a>
-                  <button style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
+                  <button data-inverted="" data-tooltip="Delete Detail" data-position="bottom center" data-variation="mini" style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
                     <i class="trash alternate icon"></i>
                   </button></td>'''.format(item.pk, item.pk, item.pk),
             json_data.append([
                 photo,  # escape HTML for security reasons
+                escape(item.saleNo),
                 escape(item.customerName),
                 escape(item.productName),
                 escape(item.advancePaid),
@@ -1459,6 +1522,7 @@ def get_daily_collections_by_staff(request):
                                                        Q(paymentReceivedOn__icontains=datetime.today().date()
                                                          ), isDeleted__exact=False,
                                                        assignedTo_id__exact=user.pk).aggregate(Sum('paidAmount'))
+
         if user_collection['paidAmount__sum'] == None:
             collection = 0.0
         else:
@@ -1480,3 +1544,114 @@ def get_daily_collections_by_staff(request):
         }
         data.append(data_dic)
     return JsonResponse({'data': data}, safe=False)
+
+
+# ------------------------------------Documents------------------------------------------
+
+@transaction.atomic
+@csrf_exempt
+def add_document_api(request):
+    if request.method == 'POST':
+        try:
+            title = request.POST.get("title")
+            doc = request.FILES["doc"]
+            obj = Document()
+            obj.title = title
+            obj.uploadedFile = doc
+            user = StaffUser.objects.get(user_ID_id=request.user.pk)
+            obj.addedBy_id = user.pk
+            obj.save()
+
+            return JsonResponse({'message': 'success'}, safe=False)
+        except:
+            return JsonResponse({'message': 'error'}, safe=False)
+
+
+class DocumentListAdminJson(BaseDatatableView):
+    order_columns = ['title', 'uploadedFile', 'addedBy', 'datetime']
+
+    def get_initial_queryset(self):
+        # if 'Admin' in self.request.user.groups.values_list('name', flat=True):
+        return Document.objects.filter(isDeleted__exact=False)
+
+    def filter_queryset(self, qs):
+
+        search = self.request.GET.get('search[value]', None)
+        if search:
+            qs = qs.filter(
+                Q(title__icontains=search) | Q(datetime__icontains=search)
+            )
+
+        return qs
+
+    def prepare_results(self, qs):
+        json_data = []
+        for item in qs:
+            action = '''<button  data-inverted="" data-tooltip="Edit Detail" data-position="bottom center" data-variation="mini"  style="font-size:10px;" onclick = "GetUserDetails('{}')" class="ui circular facebook icon button green">
+                    <i class="pen icon"></i>
+                  </button>
+                  <button  data-inverted="" data-tooltip="Delete" data-position="bottom center" data-variation="mini"  style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
+                    <i class="trash alternate icon"></i>
+                  </button></td>'''.format(item.pk, item.pk),
+            docFile = '''<a href="{}" target="_blank" class="ui mini teal label">Preview</a>'''.format(
+                item.uploadedFile.url)
+            json_data.append([
+                escape(item.title),
+                docFile,
+                escape(item.addedBy.name),
+                escape(item.datetime.strftime('%d-%m-%Y %I:%M %p')),
+                action,
+
+            ])
+
+        return json_data
+
+
+@transaction.atomic
+@csrf_exempt
+def delete_document(request):
+    if request.method == 'POST':
+        try:
+            id = request.POST.get("userID")
+            obj = Document.objects.get(pk=int(id))
+            obj.isDeleted = True
+            obj.save()
+            return JsonResponse({'message': 'success'}, safe=False)
+        except:
+            return JsonResponse({'message': 'error'}, safe=False)
+
+
+def get_document_detail(request):
+    id = request.GET.get('id')
+    instance = get_object_or_404(Document, id=id)
+
+    data = {
+        'ID': instance.pk,
+        'Title': instance.title,
+    }
+    return JsonResponse({'data': data}, safe=False)
+
+
+@transaction.atomic
+@csrf_exempt
+def edit_document_api(request):
+    if request.method == 'POST':
+        try:
+            Id = request.POST.get("EditUserId")
+            title = request.POST.get("title")
+
+            obj = Document.objects.get(id=int(Id))
+            obj.title = title
+            try:
+                doc = request.FILES["doc"]
+                obj.uploadedFile = doc
+            except:
+                pass
+
+            user = StaffUser.objects.get(user_ID_id=request.user.pk)
+            obj.addedBy_id = user.pk
+            obj.save()
+
+            return JsonResponse({'message': 'success'}, safe=False)
+        except:
+            return JsonResponse({'message': 'error'}, safe=False)

@@ -165,4 +165,4 @@ PWA_APP_ICONS = [
   ]
 
 
-PWA_SERVICE_WORKER_PATH = os.path.join(BASE_DIR, 'home', '../static/sw/sw.js')
+PWA_SERVICE_WORKER_PATH = os.path.join(BASE_DIR, 'home', '../static/sw/serviceworker.js')

@@ -88,18 +88,35 @@ def customer_list_admin(request):
 
 @check_group('Collection')
 def customer_add(request):
-    suppliers = Supplier.objects.filter(isDeleted__exact=False).order_by('name')
-    products = Product.objects.filter(isDeleted__exact=False).order_by('name')
+    # suppliers = Supplier.objects.filter(isDeleted__exact=False).order_by('name')
+    # products = Product.objects.filter(isDeleted__exact=False).order_by('name')
     context = {
-        'suppliers': suppliers,
-        'products': products
+        # 'suppliers': suppliers,
+        # 'products': products
     }
-    return render(request, 'home/customerAdd.html', context)
+    return render(request, 'home/collection/customerAdd.html', context)
+
+
+@check_group('Admin')
+def customer_add_admin(request):
+    context = {
+    }
+    return render(request, 'home/admin/customerAddAdmin.html', context)
 
 
 @check_group('Collection')
 def sales_add(request):
     return render(request, 'home/collection/saleAdd.html')
+
+
+@check_group('Admin')
+def sales_add_admin(request):
+    users = StaffUser.objects.filter(isActive__exact='Active', isDeleted__exact=False,
+                                     group__exact='Collection').order_by('name')
+    context = {
+        'users': users
+    }
+    return render(request, 'home/admin/saleAddAdmin.html', context)
 
 
 @check_group('Collection')
@@ -109,6 +126,10 @@ def sales_list(request):
 
 def sales_list_admin(request):
     return render(request, 'home/admin/salesListByAdmin.html')
+
+
+def document_list_admin(request):
+    return render(request, 'home/admin/documentList.html')
 
 
 @check_group('Collection')
@@ -177,7 +198,7 @@ def my_profile(request):
     context = {
         'instance': instance
     }
-    return render(request, 'home/profile.html', context)
+    return render(request, 'home/collection/profile.html', context)
 
 
 def my_profile_admin(request):

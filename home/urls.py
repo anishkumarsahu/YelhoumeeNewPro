@@ -14,9 +14,12 @@ urlpatterns = [
     path('customer_list_admin/', customer_list_admin, name='customer_list_admin'),
     path('customer_list/', customer_list, name='customer_list'),
     path('customer_add/', customer_add, name='customer_add'),
+    path('customer_add_admin/', customer_add_admin, name='customer_add_admin'),
     path('sales_add/', sales_add, name='sales_add'),
+    path('sales_add_admin/', sales_add_admin, name='sales_add_admin'),
     path('sales_list/', sales_list, name='sales_list'),
     path('sales_list_admin/', sales_list_admin, name='sales_list_admin'),
+    path('document_list_admin/', document_list_admin, name='document_list_admin'),
 
     path('customer_detail/<int:id>/', customer_detail, name='customer_detail'),
     path('customer_detail_admin/<int:id>/', customer_detail_admin, name='customer_detail_admin'),
@@ -71,6 +74,7 @@ urlpatterns = [
 
     # sales
     path('api/add_sales_api/', add_sales_api, name='add_sales_api'),
+    path('api/add_sales_admin_api/', add_sales_admin_api, name='add_sales_admin_api'),
     path('api/SalesListByUserJson/', SalesListByUserJson.as_view(), name='SalesListByUserJson'),
     path('api/SalesListAdminJson/', SalesListAdminJson.as_view(), name='SalesListAdminJson'),
 
@@ -90,5 +94,12 @@ urlpatterns = [
     path('api/get_last_three_days_collection_report_for_user_api/', get_last_three_days_collection_report_for_user_api,
          name='get_last_three_days_collection_report_for_user_api'),
     path('api/get_daily_collections_by_staff/', get_daily_collections_by_staff, name='get_daily_collections_by_staff'),
+
+    # documents
+    path('api/add_document_api/', add_document_api, name='add_document_api'),
+    path('api/delete_document/', delete_document, name='delete_document'),
+    path('api/get_document_detail/', get_document_detail, name='get_document_detail'),
+    path('api/edit_document_api/', edit_document_api, name='edit_document_api'),
+    path('api/DocumentListAdminJson/', DocumentListAdminJson.as_view(), name='DocumentListAdminJson'),
 
 ]
