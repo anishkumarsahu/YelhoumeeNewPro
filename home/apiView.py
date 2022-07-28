@@ -945,6 +945,26 @@ def add_sales_admin_api(request):
             return JsonResponse({'message': 'error'}, safe=False)
 
 
+def list_sales_api(request):
+    try:
+        obj_list = Sale.objects.filter(isDeleted__exact=False).order_by('saleNo')
+        o_list = []
+        for obj in obj_list:
+            obj_dic = {
+                'ID': obj.pk,
+                'SaleID': obj.saleNo,
+                'CustomerName': obj.customerName,
+                'PaidAmount': obj.amountPaid,
+                'Detail': obj.saleNo + ' - ' + obj.customerName + ' @ ' + str(obj.pk),
+                'DisplayDetail': obj.saleNo + ' - ' + obj.customerName
+            }
+            o_list.append(obj_dic)
+
+        return JsonResponse({'message': 'success', 'data': o_list}, safe=False)
+    except:
+        return JsonResponse({'message': 'error'}, safe=False)
+
+
 class SalesListByUserJson(BaseDatatableView):
     order_columns = ['deliveryPhoto', 'saleID', 'customerName', 'productName', 'advancePaid', 'tenureInMonth',
                      'emiAmount',
@@ -1075,7 +1095,7 @@ class SalesListAdminJson(BaseDatatableView):
 
 class InstallmentListByAdminJson(BaseDatatableView):
     order_columns = ['saleNo', 'saleID.customerName', 'emiAmount', 'installmentDate', 'paidAmount', 'isPaid',
-                     'dueAmount', 'NextDueDate', 'remark', 'paymentReceivedOn']
+                     'dueAmount', 'NextDueDate', 'remark', 'assignedTo.name', 'collectedBy.name', 'paymentReceivedOn']
 
     def get_initial_queryset(self):
         try:
@@ -1101,6 +1121,7 @@ class InstallmentListByAdminJson(BaseDatatableView):
         if search:
             qs = qs.filter(
                 Q(saleID__customerName__icontains=search) | Q(saleID__productName__icontains=search)
+                | Q(assignTo__name__icontains=search) | Q(collectedBy__name__icontains=search)
                 | Q(installmentDate__icontains=search) | Q(remark__icontains=search)
                 | Q(paidAmount__icontains=search) | Q(NextDueDate__icontains=search) | Q(dueAmount__icontains=search)
             )
@@ -1111,7 +1132,10 @@ class InstallmentListByAdminJson(BaseDatatableView):
         json_data = []
         for item in qs:
             if item.isPaid == False:
-                action = '''<button data-inverted="" data-tooltip="Add Remark" data-position="bottom center" data-variation="mini" style="font-size:10px;" onclick = "GetRemark('{}')" class="ui circular facebook icon button blue">
+                action = '''<button data-inverted="" data-tooltip="Edit Detail" data-position="bottom center" data-variation="mini" style="font-size:10px;" onclick = "editDetail('{}')" class="ui circular facebook icon button purple">
+                      <i class="pen icon"></i>
+                      </button>
+                      <button data-inverted="" data-tooltip="Add Remark" data-position="bottom center" data-variation="mini" style="font-size:10px;" onclick = "GetRemark('{}')" class="ui circular facebook icon button blue">
                       <i class="clipboard outline icon"></i>
                       </button>
                       <button data-inverted="" data-tooltip="Take Installment" data-position="bottom center" data-variation="mini" style="font-size:10px;" onclick = "GetDetail('{}')" class="ui circular facebook icon button orange">
@@ -1120,22 +1144,26 @@ class InstallmentListByAdminJson(BaseDatatableView):
                       <a data-inverted="" data-tooltip="Sales Detail" data-position="bottom center" data-variation="mini" style="font-size:10px;" href="/sales_detail_admin/{}/" class="ui circular facebook icon button green">
                         <i class="receipt icon"></i>
                       </a>
-                     '''.format(item.pk, item.pk, item.saleID.pk),
+                     '''.format(item.pk, item.pk, item.pk, item.saleID.pk),
             else:
-                action = ''' <button data-inverted="" data-tooltip="Add Remark" data-position="bottom center" data-variation="mini" style="font-size:10px;" onclick = "GetRemark('{}')" class="ui circular facebook icon button blue">
+                action = '''<button data-inverted="" data-tooltip="Edit Detail" data-position="bottom center" data-variation="mini" style="font-size:10px;" onclick = "editDetail('{}')" class="ui circular facebook icon button purple">
+                      <i class="pen icon"></i>
+                      </button> <button data-inverted="" data-tooltip="Add Remark" data-position="bottom center" data-variation="mini" style="font-size:10px;" onclick = "GetRemark('{}')" class="ui circular facebook icon button blue">
                       <i class="clipboard outline icon"></i>
                       </button>
                 <a data-inverted="" data-tooltip="Sales Detail" data-position="bottom center" data-variation="mini" style="font-size:10px;" href="/sales_detail_admin/{}/" class="ui circular facebook icon button green">
                                         <i class="receipt icon"></i>
                                       </a>
-                                     '''.format(item.pk, item.saleID.pk),
+                                     '''.format(item.pk, item.pk, item.saleID.pk),
 
             if item.isPaid == True:
                 paid = '<div class="ui mini green label"> Yes </div>'
                 r_time = escape(item.paymentReceivedOn.strftime('%d-%m-%Y %I:%M %p')),
+                collectedBy = item.collectedBy.name
             else:
                 paid = '<div class="ui mini label red"> No </div>'
                 r_time = '-'
+                collectedBy = '-'
 
             try:
                 nextDueDate = escape(item.NextDueDate.strftime('%d-%m-%Y %I:%M %p')),
@@ -1151,6 +1179,8 @@ class InstallmentListByAdminJson(BaseDatatableView):
                 escape(item.dueAmount),
                 nextDueDate,
                 escape(item.remark),
+                escape(item.assignedTo.name),
+                collectedBy,
                 r_time,
 
                 action
@@ -1266,6 +1296,13 @@ def get_installment_detail(request):
     data = {
         'ID': instance.pk,
         'SaleID': instance.saleID.saleNo,
+        'SaleNo': instance.saleID.pk,
+        'EMIAmount': instance.emiAmount,
+        'PaidAmount': instance.paidAmount,
+        'DueAmount': instance.dueAmount,
+        'AssignTo': instance.assignedTo_id,
+        'Remark': instance.remark,
+        'InstallmentDate': instance.installmentDate.strftime('%d/%m/%Y'),
         'Name': instance.saleID.customerName,
         'Amount': instance.emiAmount,
         'Remarks': r_list
@@ -1324,6 +1361,94 @@ def add_installment_api(request):
 
             except:
                 pass
+
+            return JsonResponse({'message': 'success'}, safe=False)
+        except:
+            return JsonResponse({'message': 'error'}, safe=False)
+
+
+@transaction.atomic
+@csrf_exempt
+def add_new_installment_api(request):
+    if request.method == 'POST':
+        try:
+            newSaleID = request.POST.get("newSaleID")
+            newInstallmentAmount = request.POST.get("newInstallmentAmount")
+            newInstallmentDate = request.POST.get("newInstallmentDate")
+            newAssignTo = request.POST.get("newAssignTo")
+            newRemark = request.POST.get("newRemark")
+            htmlLat = request.POST.get("htmlLat")
+            htmlLong = request.POST.get("htmlLong")
+            ins = Installment()
+
+            user = StaffUser.objects.get(user_ID_id=request.user.pk)
+            ins.saleID_id = int(newSaleID)
+            ins.installmentDate = datetime.strptime(newInstallmentDate, '%d/%m/%Y')
+            ins.emiAmount = float(newInstallmentAmount)
+            ins.assignedTo_id = int(newAssignTo)
+            ins.remark = newRemark
+            ins.latitude = htmlLat
+            ins.longitude = htmlLong
+            ins.save()
+            rem = InstallmentRemark()
+            rem.installmentID_id = ins.pk
+            rem.remark = newRemark
+            rem.latitude = htmlLat
+            rem.longitude = htmlLong
+            rem.addedBy_id = user.pk
+            rem.save()
+
+            return JsonResponse({'message': 'success'}, safe=False)
+        except:
+            return JsonResponse({'message': 'error'}, safe=False)
+
+
+@transaction.atomic
+@csrf_exempt
+def edit_installment_api(request):
+    if request.method == 'POST':
+        try:
+            editID = request.POST.get("editID")
+            editSaleID = request.POST.get("editSaleID")
+            editRemark = request.POST.get("editRemark")
+            editDueAmount = request.POST.get("editDueAmount")
+            editPaidAmount = request.POST.get("editPaidAmount")
+            editInstallmentAmount = request.POST.get("editInstallmentAmount")
+            editInstallmentDate = request.POST.get("editInstallmentDate")
+            editAssignTo = request.POST.get("editAssignTo")
+            htmlLat = request.POST.get("htmlLat")
+            htmlLong = request.POST.get("htmlLong")
+            ins = Installment.objects.get(pk=int(editID))
+            prev_amount = ins.paidAmount
+            obj = Sale.objects.get(pk=ins.saleID.pk)
+            user = StaffUser.objects.get(user_ID_id=request.user.pk)
+            ins.paidAmount = float(editPaidAmount)
+            ins.assignedTo_id = int(editAssignTo)
+            ins.remark = editRemark
+            ins.collectedBy_id = user.pk
+            ins.dueAmount = float(editDueAmount)
+            ins.emiAmount = float(editInstallmentAmount)
+            ins.longitude = htmlLong
+            ins.longitude = htmlLong
+            ins.installmentDate = datetime.strptime(editInstallmentDate, '%d/%m/%Y')
+            if float(editPaidAmount) == 0.0:
+                ins.isPaid = False
+
+            else:
+                ins.isPaid = True
+                ins.collectedBy_id = user.pk
+                ins.paymentReceivedOn = datetime.today().date()
+            ins.save()
+            obj.amountPaid = (obj.amountPaid - float(prev_amount) + float(editPaidAmount))
+            obj.save()
+
+            rem = InstallmentRemark()
+            rem.installmentID_id = ins.pk
+            rem.remark = editRemark
+            rem.latitude = htmlLat
+            rem.longitude = htmlLong
+            rem.addedBy_id = user.pk
+            rem.save()
 
             return JsonResponse({'message': 'success'}, safe=False)
         except:

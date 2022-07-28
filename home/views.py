@@ -189,7 +189,12 @@ def installment_list(request):
 
 
 def installment_list_admin(request):
-    return render(request, 'home/admin/installmentListAdmin.html')
+    users = StaffUser.objects.filter(isActive__exact='Active', isDeleted__exact=False,
+                                     group__exact='Collection').order_by('name')
+    context = {
+        'users': users
+    }
+    return render(request, 'home/admin/installmentListAdmin.html', context)
 
 
 @check_group('Collection')

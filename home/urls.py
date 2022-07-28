@@ -75,6 +75,7 @@ urlpatterns = [
     # sales
     path('api/add_sales_api/', add_sales_api, name='add_sales_api'),
     path('api/add_sales_admin_api/', add_sales_admin_api, name='add_sales_admin_api'),
+    path('api/list_sales_api/', list_sales_api, name='list_sales_api'),
     path('api/SalesListByUserJson/', SalesListByUserJson.as_view(), name='SalesListByUserJson'),
     path('api/SalesListAdminJson/', SalesListAdminJson.as_view(), name='SalesListAdminJson'),
 
@@ -84,6 +85,8 @@ urlpatterns = [
     path('api/get_installment_detail/', get_installment_detail, name='get_installment_detail'),
     path('api/add_installment_api/', add_installment_api, name='add_installment_api'),
     path('api/add_installment_remark_api/', add_installment_remark_api, name='add_installment_remark_api'),
+    path('api/add_new_installment_api/', add_new_installment_api, name='add_new_installment_api'),
+    path('api/edit_installment_api/', edit_installment_api, name='edit_installment_api'),
 
     # report dashboard
     path('api/get_collection_user_report_api/', get_collection_user_report_api, name='get_collection_user_report_api'),

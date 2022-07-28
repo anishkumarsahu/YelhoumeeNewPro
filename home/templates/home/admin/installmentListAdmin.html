@@ -1,7 +1,7 @@
 {% extends 'home/admin/index.html' %}
 {% load static %}
 {% block title %}
-    <title>InstallmentList|Collection</title>
+    <title>InstallmentList|Admin</title>
 {% endblock %}
 {% block css %}
 {% endblock %}
@@ -34,6 +34,12 @@
             <div class="ui  pointing secondary menu">
                 <div style="cursor: pointer;" class="item active" data-tab="user"
                 >Installments List
+                </div>
+                <div style=" position: absolute;right: 1.5rem;top: 18px;">
+                    <a onclick="newInstallment()" class="ui green mini plus button right">
+                        <i class="plus square outline icon"></i>
+                        Add Installment
+                    </a>
                 </div>
             </div>
 
@@ -105,6 +111,8 @@
                                 <th>Due(₹)</th>
                                 <th>DueDate</th>
                                 <th>Remark</th>
+                                <th>AssignedTo</th>
+                                <th>CollectedBy</th>
                                 <th>Received On</th>
                                 <th>Action</th>
                             </tr>
@@ -222,6 +230,146 @@
         </div>
     </div>
 
+    <div class="ui modal" id="newInstallmentModal">
+        <i class="close icon"></i>
+        <div class="header">
+            Add New Installment
+        </div>
+        <div class="content">
+
+            <form class="ui tiny form" id="addFormNewInstallment">{% csrf_token %}
+                <div class="two required fields">
+                    <div class="field required">
+                        <label>Sale ID</label>
+                        <select class="ui dropdown clearable search fluid newSaleID" id="newSaleID">
+                            <option value="">Search By SaleID</option>
+
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Installment Amount</label>
+                        <input type="number" placeholder="Installment Amount" id="newInstallmentAmount">
+                    </div>
+
+                </div>
+                <div class="two required fields">
+                    <div class=" field required" id="installment_calendar">
+                        <label>Installment Date</label>
+                        <input type="text" name="newInstallmentDate" id="newInstallmentDate"
+                               placeholder="Installment Date">
+                    </div>
+                    <div class="field required">
+                        <label>Assign To</label>
+                        <select class="ui dropdown clearable search fluid " id="newAssignTo">
+                            <option value="">Search By Staff Name</option>
+                            {% for user in users %}
+                                <option value="{{ user.pk }}">{{ user.name }} - {{ user.address }}</option>
+                            {% endfor %}
+
+
+                        </select>
+                    </div>
+                </div>
+                <div class="one required fields">
+                    <div class="sixteen wide field">
+                        <label>Remark</label>
+                        <input type="text" placeholder="Remark" id="newRemark">
+                    </div>
+
+                </div>
+
+            </form>
+
+            <div class="actions" style="padding-top: 20px; padding-bottom: 20px ;float: right">
+                <div class="ui cancel button">Cancel</div>
+                <button id="saveBtnNewInstallment" class="ui right labeled icon button green"
+                        onclick="SaveNewInstallment()">
+                    Submit
+                    <i class="checkmark icon"></i>
+                </button>
+                <button id="saveBtnLoadNewInstallment" style="display: none;" class="ui green double loading button">
+                    Saving ....
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="ui modal" id="EditInstallmentModal">
+        <i class="close icon"></i>
+        <div class="header">
+            Edit Installment
+        </div>
+        <div class="content">
+
+            <form class="ui tiny form" id="EditFormNewInstallment">{% csrf_token %}
+                <div class="two required fields">
+                    <div class="field required">
+                        <label>Sale ID</label>
+                        <select class="ui dropdown clearable search fluid " id="editSaleID">
+                            <option value="">Search By SaleID</option>
+
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Installment Amount</label>
+                        <input type="number" placeholder="Installment Amount" id="editInstallmentAmount">
+                    </div>
+
+                </div>
+                <div class="two required fields">
+                    <div class="field">
+                        <label>Paid Amount</label>
+                        <input type="number" placeholder="Paid Amount" id="editPaidAmount">
+                    </div>
+
+                    <div class="field">
+                        <label>Due Amount</label>
+                        <input type="number" placeholder="Due Amount" id="editDueAmount">
+                    </div>
+
+                </div>
+                <div class="two required fields">
+                    <div class=" field required" id="installment_calendar_edit">
+                        <label>Installment Date</label>
+                        <input type="text" name="newInstallmentDate" id="editInstallmentDate"
+                               placeholder="Installment Date">
+                    </div>
+                    <div class="field required">
+                        <label>Assign To</label>
+                        <select class="ui dropdown clearable search fluid " id="editAssignTo">
+                            <option value="">Search By Staff Name</option>
+                            {% for user in users %}
+                                <option value="{{ user.pk }}">{{ user.name }} - {{ user.address }}</option>
+                            {% endfor %}
+
+
+                        </select>
+                    </div>
+                </div>
+                <div class="one required fields">
+                    <div class="sixteen wide field">
+                        <label>Remark</label>
+                        <input type="text" placeholder="Remark" id="editRemark">
+                    </div>
+
+                </div>
+                <input type="hidden" id="editID">
+            </form>
+
+            <div class="actions" style="padding-top: 20px; padding-bottom: 20px ;float: right">
+                <div class="ui cancel button">Cancel</div>
+                <button id="saveBtnEditInstallment" class="ui right labeled icon button green"
+                        onclick="SaveEditInstallment()">
+                    Submit
+                    <i class="checkmark icon"></i>
+                </button>
+                <button id="saveBtnLoadEditInstallment" style="display: none;" class="ui green double loading button">
+                    Saving ....
+                </button>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block js %}
@@ -280,6 +428,47 @@
                 }
             );
 
+        $('#installment_calendar')
+            .calendar({
+                    initialDate: today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear(),
+                    monthFirst: false,
+                    type: 'date',
+                    formatter: {
+                        date: function (date, settings) {
+                            if (!date) return '';
+                            var day = date.getDate();
+                            var month = date.getMonth() + 1;
+                            var year = date.getFullYear();
+                            return day + '/' + month + '/' + year;
+                        }
+                    },
+                    popupOptions: {
+                        observeChanges: false
+                    }
+
+                }
+            );
+        $('#installment_calendar_edit')
+            .calendar({
+                    initialDate: today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear(),
+                    monthFirst: false,
+                    type: 'date',
+                    formatter: {
+                        date: function (date, settings) {
+                            if (!date) return '';
+                            var day = date.getDate();
+                            var month = date.getMonth() + 1;
+                            var year = date.getFullYear();
+                            return day + '/' + month + '/' + year;
+                        }
+                    },
+                    popupOptions: {
+                        observeChanges: false
+                    }
+
+                }
+            );
+
         var userTab;
 
 
@@ -292,7 +481,7 @@
             buttons: [{
                 extend: 'excel',
                 exportOptions: {
-                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
                 }
             }
                 {% comment %}      , {
@@ -312,8 +501,10 @@
                 {"name": "dueAmount", "targets": 6, "orderable": true},
                 {"name": "NextDueDate", "targets": 7, "orderable": true},
                 {"name": "remark", "targets": 8, "orderable": true},
-                {"name": "paymentReceivedOn", "targets": 9, "orderable": true},
-                {"name": "action", "targets": 10, "orderable": false},
+                {"name": "assignedTo.name", "targets": 9, "orderable": true},
+                {"name": "collectedBy.name", "targets": 10, "orderable": true},
+                {"name": "paymentReceivedOn", "targets": 11, "orderable": true},
+                {"name": "action", "targets": 12, "orderable": false},
 
             ],
             aaSorting: [[3, 'asc']],
@@ -613,6 +804,277 @@
 
 
         }
+
+        function newInstallment() {
+            $('#newInstallmentModal').modal('show')
+
+        }
+
+        $(getSalesList());
+
+        function getSalesList() {
+            $.ajax({
+                type: 'get',
+                url: "{% url 'homeApp:list_sales_api' %}",
+
+                success: function (response) {
+
+                    $('#newSaleID').html('');
+                    $('#editSaleID').html('');
+                    $('#newSaleID').append(' <option value="">Search By SaleID</option>');
+                    $('#editSaleID').append(' <option value="">Search By SaleID</option>');
+                    var j;
+                    for (j = 0; j < response.data.length; j++) {
+
+                        $('#newSaleID').append('<option value="' + response.data[j]['ID'] + '" >' + response.data[j]['DisplayDetail'] + '</option>');
+                        $('#editSaleID').append('<option value="' + response.data[j]['ID'] + '" >' + response.data[j]['DisplayDetail'] + '</option>');
+
+                    }
+
+                },
+
+                error: function () {
+                    $('body')
+                        .toast({
+                            class: 'error',
+                            message: 'An error occurred !'
+                        })
+                    ;
+                }
+            });
+
+
+        }
+
+
+        function showLoadingN() {
+            $('#saveBtnNewInstallment').css('display', 'none');
+            $('#saveBtnLoadNewInstallment').css('display', '');
+
+        }
+
+        function hideLoadingN() {
+            $('#saveBtnNewInstallment').css('display', '');
+            $('#saveBtnLoadNewInstallment').css('display', 'none');
+
+        }
+
+        function SaveNewInstallment() {
+            showLoadingN();
+            var newSaleID = $('#newSaleID').val();
+            var newInstallmentAmount = $('#newInstallmentAmount').val();
+            var newInstallmentDate = $('#newInstallmentDate').val();
+            var newAssignTo = $('#newAssignTo').val();
+            var newRemark = $('#newRemark').val();
+            var htmlLong = $('#htmlLong').html();
+            var htmlLat = $('#htmlLat').html();
+
+
+            if (newSaleID === '' || newInstallmentAmount === ''
+                || newInstallmentDate === '' || newAssignTo === '' || newRemark === '') {
+                $('body')
+                    .toast({
+                        class: 'orange',
+                        message: '* fields are required.'
+                    })
+                ;
+                hideLoadingN();
+            } else {
+
+
+                data = new FormData();
+                data.append('newSaleID', newSaleID);
+                data.append('newInstallmentAmount', newInstallmentAmount);
+                data.append('newInstallmentDate', newInstallmentDate);
+                data.append('newAssignTo', newAssignTo);
+                data.append('newRemark', newRemark);
+                data.append('htmlLat', htmlLat);
+                data.append('htmlLong', htmlLong);
+
+                $.ajax({
+                    type: 'post',
+                    url: '{% url "homeApp:add_new_installment_api" %}',
+                    data: data,
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+
+
+                    success: function (response) {
+                        if (response.message === 'success') {
+                            $('body')
+                                .toast({
+                                    class: 'success',
+                                    message: 'New Installment added successfully.'
+                                });
+
+                            hideLoadingN();
+
+
+                            userTab.ajax.reload();
+                            $('#addFormNewInstallment').trigger('reset');
+                            $('#newInstallmentModal').modal('toggle');
+                        } else {
+                            $('body')
+                                .toast({
+                                    class: 'error',
+                                    message: 'An error occurred !'
+                                })
+                            ;
+                            hideLoadingN();
+                        }
+
+                        return response;
+                    },
+                    error: function () {
+                        $('body')
+                            .toast({
+                                class: 'error',
+                                message: 'An error occurred !'
+                            })
+                        ;
+                        hideLoadingN();
+                    }
+
+                });
+            }
+
+
+        }
+
+
+        function editDetail(id) {
+            $('#EditInstallmentModal').modal('show');
+            $.ajax({
+                type: 'get',
+                url: '{% url "homeApp:get_installment_detail"%}?id=' + id,
+
+                success: function (response) {
+                    $('#editID').val(response.data['ID']);
+                    $('#editSaleID').val(response.data['SaleNo']).change();
+                    $('#editInstallmentAmount').val(response.data['EMIAmount']);
+                    $('#editPaidAmount').val(response.data['PaidAmount']);
+                    $('#editDueAmount').val(response.data['DueAmount']);
+                    $('#editAssignTo').val(response.data['AssignTo']).change();
+                    $('#editRemark').val(response.data['Remark']);
+                    $('#editInstallmentDate').val(response.data['InstallmentDate']);
+
+
+                },
+                error: function () {
+                    $('body')
+                        .toast({
+                            class: 'error',
+                            message: 'An error occurred !'
+                        })
+                    ;
+                }
+            });
+        }
+
+
+        function showLoadingE() {
+            $('#saveBtnEditInstallment').css('display', 'none');
+            $('#saveBtnLoadEditInstallment').css('display', '');
+
+        }
+
+        function hideLoadingE() {
+            $('#saveBtnEditInstallment').css('display', '');
+            $('#saveBtnLoadEditInstallment').css('display', 'none');
+
+        }
+
+        function SaveEditInstallment() {
+            showLoadingE();
+            var editID = $('#editID').val();
+            var editSaleID = $('#editSaleID').val();
+            var editInstallmentAmount = $('#editInstallmentAmount').val();
+            var editInstallmentDate = $('#editInstallmentDate').val();
+            var editAssignTo = $('#editAssignTo').val();
+            var editRemark = $('#editRemark').val();
+            var editDueAmount = $('#editDueAmount').val();
+            var editPaidAmount = $('#editPaidAmount').val();
+            var htmlLong = $('#htmlLong').html();
+            var htmlLat = $('#htmlLat').html();
+            debugger;
+
+
+            if (editID === '' || editSaleID === '' || editRemark === '' || editDueAmount === '' || editPaidAmount === ''
+                || editInstallmentAmount === '' || editInstallmentDate === '' || editAssignTo === '') {
+                $('body')
+                    .toast({
+                        class: 'orange',
+                        message: '* fields are required.'
+                    })
+                ;
+                hideLoadingE();
+            } else {
+
+
+                data = new FormData();
+                data.append('editID', editID);
+                data.append('editSaleID', editSaleID);
+                data.append('editRemark', editRemark);
+                data.append('editDueAmount', editDueAmount);
+                data.append('editPaidAmount', editPaidAmount);
+                data.append('editInstallmentAmount', editInstallmentAmount);
+                data.append('editInstallmentDate', editInstallmentDate);
+                data.append('editAssignTo', editAssignTo);
+                data.append('htmlLat', htmlLat);
+                data.append('htmlLong', htmlLong);
+
+                $.ajax({
+                    type: 'post',
+                    url: '{% url "homeApp:edit_installment_api" %}',
+                    data: data,
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+
+
+                    success: function (response) {
+                        if (response.message === 'success') {
+                            $('body')
+                                .toast({
+                                    class: 'success',
+                                    message: 'Installment updated successfully.'
+                                });
+
+                            hideLoadingE();
+
+
+                            userTab.ajax.reload();
+                            $('#addFormEditInstallment').trigger('reset');
+                            $('#EditInstallmentModal').modal('toggle');
+                        } else {
+                            $('body')
+                                .toast({
+                                    class: 'error',
+                                    message: 'An error occurred !'
+                                })
+                            ;
+                            hideLoadingE();
+                        }
+
+                        return response;
+                    },
+                    error: function () {
+                        $('body')
+                            .toast({
+                                class: 'error',
+                                message: 'An error occurred !'
+                            })
+                        ;
+                        hideLoadingE();
+                    }
+
+                });
+            }
+
+
+        }
+
 
     </script>
 
