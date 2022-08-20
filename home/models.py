@@ -301,3 +301,19 @@ class Document(models.Model):
 
     class Meta:
         verbose_name_plural = 'N) Documents'
+
+
+class LoginAndLogoutStatus(models.Model):
+    userID = models.ForeignKey(StaffUser, blank=True, null=True, on_delete=models.CASCADE)
+    statusType = models.CharField(max_length=100, blank=True, null=True)
+    latitude = models.CharField(max_length=200, default='0.0')
+    longitude = models.CharField(max_length=200, default='0.0')
+    isDeleted = models.BooleanField(default=False)
+    datetime = models.DateTimeField(auto_now_add=True, auto_now=False)
+    lastUpdatedOn = models.DateTimeField(auto_now_add=False, auto_now=True)
+
+    def __str__(self):
+        return str(self.userID.name)
+
+    class Meta:
+        verbose_name_plural = 'O) Login-Logout'

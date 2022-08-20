@@ -227,17 +227,17 @@
         var today = new Date();
         $('#calender2')
             .calendar({
-                    initialDate: today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear(),
-                    monthFirst: false,
-                    type: 'date',
-                    formatter: {
-                        date: function (date, settings) {
-                            if (!date) return '';
-                            var day = date.getDate();
-                            var month = date.getMonth() + 1;
-                            var year = date.getFullYear();
-                            return day + '/' + month + '/' + year;
-                        }
+                initialDate: today.getDate() + '/' + (today.getMonth() + 2) + '/' + today.getFullYear(),
+                monthFirst: false,
+                type: 'date',
+                formatter: {
+                    date: function (date, settings) {
+                        if (!date) return '';
+                        var day = date.getDate();
+                        var month = date.getMonth() + 1;
+                        var year = date.getFullYear();
+                        return day + '/' + month + '/' + year;
+                    }
                     },
                     popupOptions: {
                         observeChanges: false

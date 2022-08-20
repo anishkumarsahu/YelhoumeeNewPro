@@ -1,12 +1,25 @@
 from functools import wraps
 
-from activation.models import Validity, EcomValidity
+from activation.models import Validity
+from activation.views import is_activated
 from django.contrib.auth import logout, authenticate, login
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import *
 # Create your views here.
 from django.views.decorators.csrf import csrf_exempt
+
+
+def login_or_logout(request, type):
+    try:
+        data = LoginAndLogoutStatus()
+        data.statusType = type
+        if request.user.username != 'anish':
+            staff = StaffUser.objects.get(user_ID_id=request.user.pk)
+            data.userID_id = staff.pk
+            data.save()
+    except:
+        pass
 
 
 def check_group(group_name):
@@ -29,9 +42,18 @@ def loginPage(request):
     #     return redirect('/admin_home/')
 
 
-@check_group('Admin')
+@check_group('Both')
 def admin_home(request):
-    return render(request, 'home/admin/index.html')
+    try:
+        val = Validity.objects.last()
+        message = "Your License is Valid till {}".format(val.expiryDate.strftime('%d-%m-%Y'))
+    except:
+        message = "You are using a trial version."
+
+    context = {
+        'message': message,
+    }
+    return render(request, 'home/admin/index.html', context)
 
 
 @check_group('Collection')
@@ -39,6 +61,8 @@ def collection_home(request):
     return render(request, 'home/collection/indexCollection.html')
 
 
+@check_group('Admin')
+@is_activated()
 def user_list(request):
     groups = StaffGroup.objects.filter(isDeleted__exact=False).order_by('name')
     context = {
@@ -47,6 +71,8 @@ def user_list(request):
     return render(request, 'home/admin/userList.html', context)
 
 
+@check_group('Both')
+@is_activated()
 def product_list(request):
     units = Unit.objects.filter(isDeleted__exact=False).order_by('name')
     categories = Category.objects.filter(isDeleted__exact=False).order_by('name')
@@ -60,10 +86,14 @@ def product_list(request):
     return render(request, 'home/admin/productList.html', context)
 
 
+@check_group('Both')
+@is_activated()
 def purchase_list(request):
     return render(request, 'home/admin/purchaseList.html')
 
 
+@check_group('Both')
+@is_activated()
 def purchase_add(request):
     suppliers = Supplier.objects.filter(isDeleted__exact=False).order_by('name')
     products = Product.objects.filter(isDeleted__exact=False).order_by('name')
@@ -74,14 +104,19 @@ def purchase_add(request):
     return render(request, 'home/admin/purchaseAdd.html', context)
 
 
+@check_group('Both')
+@is_activated()
 def supplier_add(request):
     return render(request, 'home/admin/supplierList.html')
+
 
 @check_group('Collection')
 def customer_list(request):
     return render(request, 'home/collection/customerListByStaff.html')
 
 
+@check_group('Both')
+@is_activated()
 def customer_list_admin(request):
     return render(request, 'home/admin/customerListAdmin.html')
 
@@ -97,7 +132,8 @@ def customer_add(request):
     return render(request, 'home/collection/customerAdd.html', context)
 
 
-@check_group('Admin')
+@check_group('Both')
+@is_activated()
 def customer_add_admin(request):
     context = {
     }
@@ -109,7 +145,8 @@ def sales_add(request):
     return render(request, 'home/collection/saleAdd.html')
 
 
-@check_group('Admin')
+@check_group('Both')
+@is_activated()
 def sales_add_admin(request):
     users = StaffUser.objects.filter(isActive__exact='Active', isDeleted__exact=False,
                                      group__exact='Collection').order_by('name')
@@ -124,10 +161,14 @@ def sales_list(request):
     return render(request, 'home/collection/salesListByStaff.html')
 
 
+@check_group('Both')
+@is_activated()
 def sales_list_admin(request):
     return render(request, 'home/admin/salesListByAdmin.html')
 
 
+@check_group('Both')
+@is_activated()
 def document_list_admin(request):
     return render(request, 'home/admin/documentList.html')
 
@@ -144,6 +185,8 @@ def sales_detail(request, id=None):
     return render(request, 'home/collection/salesDetail.html', context)
 
 
+@check_group('Both')
+@is_activated()
 def sales_detail_admin(request, id=None):
     instance = get_object_or_404(Sale, id=id)
     installments = Installment.objects.filter(isDeleted__exact=False, saleID_id__exact=instance.pk).order_by(
@@ -167,6 +210,8 @@ def customer_detail(request, id=None):
     return render(request, 'home/collection/customerDetail.html', context)
 
 
+@check_group('Both')
+@is_activated()
 def customer_detail_admin(request, id=None):
     instance = get_object_or_404(Customer, id=id)
     sales = Sale.objects.filter(isDeleted__exact=False, customerID_id=instance.pk).order_by(
@@ -179,6 +224,7 @@ def customer_detail_admin(request, id=None):
 
 
 def user_logout(request):
+    login_or_logout(request, 'Logout')
     logout(request)
     return redirect("homeApp:loginPage")
 
@@ -188,6 +234,8 @@ def installment_list(request):
     return render(request, 'home/collection/installmentListByUser.html')
 
 
+@check_group('Both')
+@is_activated()
 def installment_list_admin(request):
     users = StaffUser.objects.filter(isActive__exact='Active', isDeleted__exact=False,
                                      group__exact='Collection').order_by('name')
@@ -224,6 +272,7 @@ def postLogin(request):
 
         if user is not None:
             login(request, user)
+            login_or_logout(request, 'Login')
             # if 'Admin' in request.user.groups.values_list('name', flat=True):
             return JsonResponse({'message': 'success', 'data': '/home/'}, safe=False)
             # elif 'Collection' in request.user.groups.values_list('name', flat=True):
@@ -239,26 +288,10 @@ def postLogin(request):
 
 def homepage(request):
     if request.user.is_authenticated:
-        if 'Admin' in request.user.groups.values_list('name', flat=True):
+        if 'Both' in request.user.groups.values_list('name', flat=True):
             return redirect('/admin_home/')
         elif 'Collection' in request.user.groups.values_list('name', flat=True):
             return redirect('/collection_home/')
         else:
-            try:
-                val = Validity.objects.last()
-                message = "Your License is Valid till {}".format(val.expiryDate.strftime('%d-%m-%Y'))
-            except:
-                message = "You are using a trial version."
 
-            try:
-                valEcom = EcomValidity.objects.last()
-                messageEcom = "Your License is Valid till {}".format(valEcom.expiryDate.strftime('%d-%m-%Y'))
-            except:
-                messageEcom = "You are using a trial version."
-
-            context = {
-                'message': message,
-                'messageEcom': messageEcom
-            }
-
-            return render(request, 'home/main.html', context)
+            return render(request, 'home/login.html')

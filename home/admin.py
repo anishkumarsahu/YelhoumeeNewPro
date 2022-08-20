@@ -93,3 +93,10 @@ class SalesAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Sale, SalesAdmin)
+
+
+class LoginAndLogoutAdmin(admin.ModelAdmin):
+    list_display = ['userID', 'statusType', 'isDeleted', 'datetime']
+
+
+admin.site.register(LoginAndLogoutStatus, LoginAndLogoutAdmin)

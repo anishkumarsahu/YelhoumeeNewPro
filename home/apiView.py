@@ -64,8 +64,12 @@ def add_staff_api(request):
 
                 try:
                     g = Group.objects.get(name=UserGroup)
+                    h = Group.objects.get(name='Both')
                     g.user_set.add(new_user.pk)
                     g.save()
+                    if UserGroup != 'Collection':
+                        h.user_set.add(new_user.pk)
+                        h.save()
 
                 except:
                     g = Group()
@@ -73,6 +77,12 @@ def add_staff_api(request):
                     g.save()
                     g.user_set.add(new_user.pk)
                     g.save()
+                    if UserGroup != 'Collection':
+                        h = Group()
+                        h.name = 'Both'
+                        h.save()
+                        h.user_set.add(new_user.pk)
+                        h.save()
             return JsonResponse({'message': 'success'}, safe=False)
         except:
             return JsonResponse({'message': 'error'}, safe=False)
@@ -199,8 +209,12 @@ def edit_staff_api(request):
             new_user.groups.clear()
             try:
                 g = Group.objects.get(name=UserGroup)
+                h = Group.objects.get(name='Both')
                 g.user_set.add(new_user.pk)
                 g.save()
+                if UserGroup != 'Collection':
+                    h.user_set.add(new_user.pk)
+                    h.save()
 
             except:
                 g = Group()
@@ -208,6 +222,12 @@ def edit_staff_api(request):
                 g.save()
                 g.user_set.add(new_user.pk)
                 g.save()
+                if UserGroup != 'Collection':
+                    h = Group()
+                    h.name = 'Both'
+                    h.save()
+                    h.user_set.add(new_user.pk)
+                    h.save()
             return JsonResponse({'message': 'success'}, safe=False)
         except:
             return JsonResponse({'message': 'error'}, safe=False)
@@ -651,8 +671,11 @@ def add_customer_api(request):
             obj.idProofBack = idb
             user = StaffUser.objects.get(user_ID_id=request.user.pk)
             obj.addedBy_id = user.pk
-            obj.save()
-            obj.customerCode = str(obj.pk).zfill(5)
+            todayDate = datetime.today().date()
+            code = todayDate.strftime("%y%b")
+            totalCustomer = Customer.objects.filter(isDeleted=False, datetime__year=todayDate.year,
+                                                    datetime__month=todayDate.month)
+            obj.customerCode = str(code).upper() + str(totalCustomer.count()).zfill(3)
             obj.save()
 
             return JsonResponse({'message': 'success'}, safe=False)
@@ -1712,12 +1735,15 @@ class DocumentListAdminJson(BaseDatatableView):
     def prepare_results(self, qs):
         json_data = []
         for item in qs:
-            action = '''<button  data-inverted="" data-tooltip="Edit Detail" data-position="bottom center" data-variation="mini"  style="font-size:10px;" onclick = "GetUserDetails('{}')" class="ui circular facebook icon button green">
+            if 'Admin' in self.request.user.groups.values_list('name', flat=True):
+                action = '''<button  data-inverted="" data-tooltip="Edit Detail" data-position="bottom center" data-variation="mini"  style="font-size:10px;" onclick = "GetUserDetails('{}')" class="ui circular facebook icon button green">
                     <i class="pen icon"></i>
                   </button>
                   <button  data-inverted="" data-tooltip="Delete" data-position="bottom center" data-variation="mini"  style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
                     <i class="trash alternate icon"></i>
                   </button></td>'''.format(item.pk, item.pk),
+            else:
+                action = '''<button  class="ui mini label">Denied</a>'''
             docFile = '''<a href="{}" target="_blank" class="ui mini teal label">Preview</a>'''.format(
                 item.uploadedFile.url)
             json_data.append([

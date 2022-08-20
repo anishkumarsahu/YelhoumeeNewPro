@@ -21,7 +21,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('', include(('home.urls', 'home'), namespace='homeApp')),
     path('admin/', admin.site.urls),
-    path('activation/', include(('activation.urls', 'activation'), namespace='activationApp')),
+    path('activate/', include(('activation.urls', 'activation'), namespace='activationApp')),
     path('', include('pwa.urls')),
     # path('', include('home.urls', namespace='homeApp')),
     # path('activation/', include('activation.urls', namespace='activationApp')),

@@ -1,5 +1,6 @@
 {% load static %}
 {% load pwa %}
+{% load custom_has_group_tag %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -188,7 +189,7 @@
 
         </div>
     </div>
-
+    {% if request.user|has_group:"Admin" %}
     <div class="item">
         <div class="header">
             Staff
@@ -200,6 +201,7 @@
 
         </div>
     </div>
+    {% endif %}
     <div class="item">
         <div class="header">
             Documents
@@ -505,8 +507,18 @@
                     </tbody>
                 </table>
             </div>
+                {% if request.user|has_group:"Admin" %}
+                    <div class="ui error message" style="min-height: 60px;">
+                        <i class="close icon"></i>
+                        <div class="header">
+                            License Reminder!
+                        </div>
+                        {{ message }}
+                    </div>
+                {% endif %}
             </div>
         {% endblock %}
+
     </div>
 
 
