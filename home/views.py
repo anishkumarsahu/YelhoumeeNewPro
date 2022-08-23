@@ -295,3 +295,9 @@ def homepage(request):
         else:
 
             return render(request, 'home/login.html')
+
+
+@check_group('Both')
+@is_activated()
+def login_logout_report_admin(request, id=None):
+    return render(request, 'home/admin/loginLogoutList.html')

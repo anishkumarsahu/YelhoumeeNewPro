@@ -269,6 +269,10 @@
             dom: 'Blfrtip',
             "scrollY": "300px",
             "scrollX": true,
+            fixedColumns: {
+                left: 1,
+                right: 1
+            },
             buttons: [{
                 extend: 'excel',
                 exportOptions: {
@@ -290,8 +294,8 @@
                 {"name": "district", "targets": 4, "orderable": true},
                 {"name": "address", "targets": 5, "orderable": true},
                 {"name": "landmark", "targets": 6, "orderable": true},
-                {"name": "idProofFront", "targets": 7, "orderable": true},
-                {"name": "idProofBack", "targets": 8, "orderable": true},
+                {"name": "idProofFront", "targets": 7, "orderable": false},
+                {"name": "idProofBack", "targets": 8, "orderable": false},
                 {"name": "datetime", "targets": 9, "orderable": true},
                 {"name": "action", "targets": 10, "orderable": false},
 

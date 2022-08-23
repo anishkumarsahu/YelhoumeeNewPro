@@ -204,6 +204,10 @@
             dom: 'Blfrtip',
             "scrollY": "300px",
             "scrollX": true,
+            fixedColumns: {
+                left: 2,
+                right: 1
+            },
             buttons: [{
                 extend: 'excel',
                 exportOptions: {
@@ -229,7 +233,7 @@
                 {"name": "amountPaid", "targets": 8, "orderable": true},
                 {"name": "installmentStartDate", "targets": 9, "orderable": true},
                 {"name": "datetime", "targets": 10, "orderable": true},
-                {"name": "action", "targets": 11, "orderable": true},
+                {"name": "action", "targets": 11, "orderable": false},
 
             ],
             aaSorting: [[10, 'desc']],

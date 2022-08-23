@@ -38,6 +38,8 @@ urlpatterns = [
     path('installment_list_admin/', installment_list_admin, name='installment_list_admin'),
     path('sales_detail_admin/<int:id>/', sales_detail_admin, name='sales_detail_admin'),
 
+    path('login_logout_report_admin/', login_logout_report_admin, name='login_logout_report_admin'),
+
     # api Staff
     path('api/add_staff_api/', add_staff_api, name='add_staff_api'),
     path('api/delete_staff_user/', delete_staff_user, name='delete_staff_user'),
@@ -104,5 +106,7 @@ urlpatterns = [
     path('api/get_document_detail/', get_document_detail, name='get_document_detail'),
     path('api/edit_document_api/', edit_document_api, name='edit_document_api'),
     path('api/DocumentListAdminJson/', DocumentListAdminJson.as_view(), name='DocumentListAdminJson'),
+
+    path('api/LoginLogoutListAdminJson/', LoginLogoutListAdminJson.as_view(), name='LoginLogoutListAdminJson'),
 
 ]

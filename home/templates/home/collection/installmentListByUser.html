@@ -289,6 +289,10 @@
             dom: 'Blfrtip',
             "scrollY": "300px",
             "scrollX": true,
+            fixedColumns: {
+                left: 1,
+                right: 1
+            },
             buttons: [{
                 extend: 'excel',
                 exportOptions: {
@@ -303,7 +307,7 @@
                       }{% endcomment %}
             ],
             "columnDefs": [
-                {"name": "saleNo", "targets": 0, "orderable": true},
+                {"name": "saleID", "targets": 0, "orderable": true},
                 {"name": "saleID.customerName", "targets": 1, "orderable": true},
                 {"name": "emiAmount", "targets": 2, "orderable": true},
                 {"name": "installmentDate", "targets": 3, "orderable": true},

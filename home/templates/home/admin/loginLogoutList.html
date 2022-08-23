@@ -1,7 +1,7 @@
-{% extends 'home/collection/indexCollection.html' %}
+{% extends 'home/admin/index.html' %}
 {% load static %}
 {% block title %}
-    <title>SalesList|Collection</title>
+    <title>Login/Logout|Admin</title>
 {% endblock %}
 {% block css %}
 {% endblock %}
@@ -33,13 +33,7 @@
         <div class="sixteen wide column">
             <div class="ui  pointing secondary menu">
                 <div style="cursor: pointer;" class="item active" data-tab="user"
-                >Sales List
-                </div>
-                <div style=" position: absolute;right: 1.5rem;top: 18px;">
-                    <a href="{% url 'homeApp:sales_add' %}" class="ui green mini plus button right">
-                        <i class="plus square outline icon"></i>
-                        Add Sale
-                    </a>
+                >Login/Logout List
                 </div>
             </div>
 
@@ -97,23 +91,13 @@
 
                         </div>
 
-                        <table class="ui unstackable small  sortable celled very nowrap very compact table"
-                               id="UserTable"
+                        <table class="ui unstackable tiny sortable celled very nowrap very compact table" id="UserTable"
                                style="margin-top: 5px;width: 100%">
                             <thead>
                             <tr>
-                                <th>Photo</th>
-                                <th>SaleID</th>
-                                <th>Customer Name</th>
-                                <th>Product Name</th>
-                                <th>Advance(₹)</th>
-                                <th>Tenure</th>
-                                <th>EMI(₹)</th>
-                                <th>Total(₹)</th>
-                                <th>Paid(₹)</th>
-                                <th>ISD</th>
-                                <th>Added On</th>
+                                <th>Username</th>
                                 <th>Action</th>
+                                <th>Added On</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -122,42 +106,11 @@
                     </div>
                 </div>
 
-                <div class="ui basic modal custom" id="deleteUser">
-                    <div class="ui icon header">
-                        <i class="archive icon"></i>
-                        User Details will be Deleted
-                    </div>
-                    <div class="content">
-                        <p style="text-align: center">The User will be deleted, are you sure to delete this User?</p>
-                    </div>
-                    <div class="actions">
-                        <div class="ui red basic cancel inverted button">
-                            <i class="remove icon"></i>
-                            No
-                        </div>
-                        <input type="hidden" id="UserID">
-                        <div class="ui green ok inverted button" onclick="deleteUser()">
-                            <i class="checkmark icon"></i>
-                            Yes
-                        </div>
-                    </div>
-                </div>
-
 
             </div>
         </div>
     </div>
 
-    <div class="ui mini modal" id="imgModal">
-        <i class="close icon"></i>
-        <div class="header">Image Viewer</div>
-        <div class="image content aligned center">
-            <img class="image" id="imageLoad">
-            <div class="description">
-                <p></p>
-            </div>
-        </div>
-    </div>
 {% endblock %}
 
 {% block js %}
@@ -205,14 +158,10 @@
             dom: 'Blfrtip',
             "scrollY": "300px",
             "scrollX": true,
-            fixedColumns: {
-                left: 2,
-                right: 1
-            },
             buttons: [{
                 extend: 'excel',
                 exportOptions: {
-                    columns: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+                    columns: [0, 1, 2]
                 }
             }
                 {% comment %}      , {
@@ -223,94 +172,24 @@
                       }{% endcomment %}
             ],
             "columnDefs": [
-                {"name": "deliveryPhoto", "targets": 0, "orderable": false},
-                {"name": "saleNo", "targets": 1, "orderable": true},
-                {"name": "customerName", "targets": 2, "orderable": true},
-                {"name": "productName", "targets": 3, "orderable": true},
-                {"name": "advancePaid", "targets": 4, "orderable": true},
-                {"name": "tenureInMonth", "targets": 5, "orderable": true},
-                {"name": "emiAmount", "targets": 6, "orderable": true},
-                {"name": "totalAmount", "targets": 7, "orderable": true},
-                {"name": "amountPaid", "targets": 8, "orderable": true},
-                {"name": "installmentStartDate", "targets": 9, "orderable": true},
-                {"name": "datetime", "targets": 10, "orderable": true},
-                {"name": "action", "targets": 11, "orderable": false},
+                {"name": "userID", "targets": 0, "orderable": false},
+                {"name": "statusType", "targets": 1, "orderable": true},
+                {"name": "datetime", "targets": 2, "orderable": true},
 
             ],
-            aaSorting: [[10, 'desc']],
+            aaSorting: [[2, 'desc']],
             "lengthMenu": [[8, 25, 50, 100, -1], [8, 25, 50, 100, "All"]],
             "pageLength": 8,
             "processing": true,
             "serverSide": true,
-            "ajax": "{% url 'homeApp:SalesListByUserJson' %}"
+            "ajax": "{% url 'homeApp:LoginLogoutListAdminJson' %}"
         });
-
-
-        function delUser(id) {
-            $('#deleteUser')
-                .modal('show')
-            ;
-            $('#UserID').val(id)
-        }
-
-        function deleteUser() {
-            var id = $('#UserID').val();
-            var formdata = new FormData();
-            formdata.append('userID', id);
-
-            $.ajax({
-                url: "{% url 'homeApp:delete_staff_user' %}",
-                type: "post",
-                data: formdata,
-                contentType: false,
-                cache: false,
-                processData: false,
-
-                success: function (response) {
-                    if (response.message === 'success') {
-                        $('body')
-                            .toast({
-                                class: 'success',
-                                message: 'User Detail Deleted Successfully.'
-                            })
-                        ;
-
-
-                        userTab.ajax.reload();
-                    } else {
-                        $('body')
-                            .toast({
-                                class: 'error',
-                                message: 'An error occurred !'
-                            })
-                        ;
-
-                    }
-
-                    return response;
-                },
-                error: function () {
-                    $('body')
-                        .toast({
-                            class: 'error',
-                            message: 'An error occurred !'
-                        })
-                    ;
-                }
-            });
-
-        }
 
         function filterDetails() {
             var startDate = $('#startDateF').val();
             var endDate = $('#endDateF').val();
-            userTab.ajax.url('{% url 'homeApp:SalesListByUserJson' %}?startDate=' + startDate + '&endDate=' + endDate).load();
+            userTab.ajax.url('{% url 'homeApp:LoginLogoutListAdminJson' %}?startDate=' + startDate + '&endDate=' + endDate).load();
 
-        }
-
-        function showImgModal(img) {
-            $('#imgModal').modal('show')
-            $("#imageLoad").attr({"src": "" + img});
         }
 
     </script>

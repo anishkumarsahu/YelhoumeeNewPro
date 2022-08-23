@@ -113,10 +113,10 @@ class StaffUserListJson(BaseDatatableView):
         for item in qs:
             images = '<img class="ui avatar image" src="{}">'.format(item.photo.thumbnail.url)
 
-            action = '''<button data-inverted="" data-tooltip="Edit Detail" data-position="bottom center" data-variation="mini" style="font-size:10px;" onclick = "GetUserDetails('{}')" class="ui circular facebook icon button green">
+            action = '''<button data-inverted="" data-tooltip="Edit Detail" data-position="left center" data-variation="mini" style="font-size:10px;" onclick = "GetUserDetails('{}')" class="ui circular facebook icon button green">
                     <i class="pen icon"></i>
                   </button>
-                  <button data-inverted="" data-tooltip="Delete" data-position="bottom center" data-variation="mini" style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
+                  <button data-inverted="" data-tooltip="Delete" data-position="left center" data-variation="mini" style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
                     <i class="trash alternate icon"></i>
                   </button></td>'''.format(item.pk, item.pk),
 
@@ -289,10 +289,10 @@ class ProductListJson(BaseDatatableView):
     def prepare_results(self, qs):
         json_data = []
         for item in qs:
-            action = '''<button  data-inverted="" data-tooltip="Edit Detail" data-position="bottom center" data-variation="mini"  style="font-size:10px;" onclick = "GetUserDetails('{}')" class="ui circular facebook icon button green">
+            action = '''<button  data-inverted="" data-tooltip="Edit Detail" data-position="left center" data-variation="mini"  style="font-size:10px;" onclick = "GetUserDetails('{}')" class="ui circular facebook icon button green">
                     <i class="pen icon"></i>
                   </button>
-                  <button  data-inverted="" data-tooltip="Delete" data-position="bottom center" data-variation="mini" style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
+                  <button  data-inverted="" data-tooltip="Delete" data-position="left center" data-variation="mini" style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
                     <i class="trash alternate icon"></i>
                   </button></td>'''.format(item.pk, item.pk),
 
@@ -438,10 +438,10 @@ class SupplierListJson(BaseDatatableView):
     def prepare_results(self, qs):
         json_data = []
         for item in qs:
-            action = '''<button  data-inverted="" data-tooltip="Edit Detail" data-position="bottom center" data-variation="mini"  style="font-size:10px;" onclick = "GetUserDetails('{}')" class="ui circular facebook icon button green">
+            action = '''<button  data-inverted="" data-tooltip="Edit Detail" data-position="left center" data-variation="mini"  style="font-size:10px;" onclick = "GetUserDetails('{}')" class="ui circular facebook icon button green">
                     <i class="pen icon"></i>
                   </button>
-                  <button  data-inverted="" data-tooltip="Delete" data-position="bottom center" data-variation="mini"  style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
+                  <button  data-inverted="" data-tooltip="Delete" data-position="left center" data-variation="mini"  style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
                     <i class="trash alternate icon"></i>
                   </button></td>'''.format(item.pk, item.pk),
 
@@ -568,10 +568,10 @@ class PurchaseListJson(BaseDatatableView):
     def prepare_results(self, qs):
         json_data = []
         for item in qs:
-            action = '''<button  data-inverted="" data-tooltip="View Detail" data-position="bottom center" data-variation="mini"  style="font-size:10px;" onclick = "GetPurchaseDetail('{}')" class="ui circular facebook icon button green">
+            action = '''<button  data-inverted="" data-tooltip="View Detail" data-position="left center" data-variation="mini"  style="font-size:10px;" onclick = "GetPurchaseDetail('{}')" class="ui circular facebook icon button green">
                     <i class="receipt icon"></i>
                   </button>
-                  <button  data-inverted="" data-tooltip="Delete" data-position="bottom center" data-variation="mini"  style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
+                  <button  data-inverted="" data-tooltip="Delete" data-position="left center" data-variation="mini"  style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
                     <i class="trash alternate icon"></i>
                   </button></td>'''.format(item.pk, item.pk),
 
@@ -684,7 +684,7 @@ def add_customer_api(request):
 
 
 class CustomerListByUserJson(BaseDatatableView):
-    order_columns = ['photo', 'name', 'customerCode', 'phoneNumber', 'district', 'address', 'Landmark',
+    order_columns = ['photo', 'name', 'customerCode', 'phoneNumber', 'district', 'address', 'landmark',
                      'idProofFront', 'idProofBack', 'datetime']
 
     def get_initial_queryset(self):
@@ -709,7 +709,7 @@ class CustomerListByUserJson(BaseDatatableView):
                 Q(name__icontains=search)
                 | Q(customerCode__icontains=search) | Q(district__icontains=search) | Q(address__icontains=search)
                 | Q(phoneNumber__icontains=search)
-                | Q(datetime__icontains=search)
+                | Q(datetime__icontains=search) | Q(landmark__icontains=search)
             )
 
         return qs
@@ -724,7 +724,7 @@ class CustomerListByUserJson(BaseDatatableView):
                 item.idProofFront.large.url, item.idProofFront.thumbnail.url)
             idProofBack = '''<img style="cursor:pointer" onclick="showImgModal('{}')" class="ui avatar image" src="{}">'''.format(
                 item.idProofBack.large.url, item.idProofBack.thumbnail.url)
-            action = '''<a data-inverted="" data-tooltip="Customer Detail" data-position="bottom center" data-variation="mini" style="font-size:10px;" href="/customer_detail/{}/" class="ui circular facebook icon button green">
+            action = '''<a data-inverted="" data-tooltip="Customer Detail" data-position="left center" data-variation="mini" style="font-size:10px;" href="/customer_detail/{}/" class="ui circular facebook icon button green">
                         <i class="receipt icon"></i>
                       </a>
                      </td>'''.format(item.pk),
@@ -785,7 +785,7 @@ class CustomerListAdminJson(BaseDatatableView):
                 item.idProofFront.large.url, item.idProofFront.thumbnail.url)
             idProofBack = '''<img style="cursor:pointer" onclick="showImgModal('{}')" class="ui avatar image" src="{}">'''.format(
                 item.idProofBack.large.url, item.idProofBack.thumbnail.url)
-            action = '''<a data-inverted="" data-tooltip="Customer Detail" data-position="bottom center" data-variation="mini" style="font-size:10px;" href="/customer_detail_admin/{}/" class="ui circular facebook icon button green">
+            action = '''<a data-inverted="" data-tooltip="Customer Detail" data-position="left center" data-variation="mini" style="font-size:10px;" href="/customer_detail_admin/{}/" class="ui circular facebook icon button green">
                                 <i class="receipt icon"></i>
                               </a>
                              </td>'''.format(item.pk),
@@ -989,7 +989,7 @@ def list_sales_api(request):
 
 
 class SalesListByUserJson(BaseDatatableView):
-    order_columns = ['deliveryPhoto', 'saleID', 'customerName', 'productName', 'advancePaid', 'tenureInMonth',
+    order_columns = ['deliveryPhoto', 'saleNo', 'customerName', 'productName', 'advancePaid', 'tenureInMonth',
                      'emiAmount',
                      'totalAmount',
                      'amountPaid', 'installmentStartDate', 'datetime']
@@ -1029,7 +1029,7 @@ class SalesListByUserJson(BaseDatatableView):
         for item in qs:
             photo = '''<img style="cursor:pointer" onclick="showImgModal('{}')" class="ui avatar image" src="{}">'''.format(
                 item.deliveryPhoto.large.url, item.deliveryPhoto.thumbnail.url)
-            action = '''<a data-inverted="" data-tooltip="Sales Detail" data-position="bottom center" data-variation="mini" style="font-size:10px;" href="/sales_detail/{}/" class="ui circular facebook icon button green">
+            action = '''<a data-inverted="" data-tooltip="Sales Detail" data-position="left center" data-variation="mini" style="font-size:10px;" href="/sales_detail/{}/" class="ui circular facebook icon button green">
                     <i class="receipt icon"></i>
                   </a>
                  '''.format(item.pk),
@@ -1091,10 +1091,10 @@ class SalesListAdminJson(BaseDatatableView):
         for item in qs:
             photo = '''<img style="cursor:pointer" onclick="showImgModal('{}')" class="ui avatar image" src="{}">'''.format(
                 item.deliveryPhoto.large.url, item.deliveryPhoto.thumbnail.url)
-            action = '''<a data-inverted="" data-tooltip="Sales Detail" data-position="bottom center" data-variation="mini" href="/sales_detail_admin/{}/" style="font-size:10px;" onclick = "GetPurchaseDetail('{}')" class="ui circular facebook icon button green">
+            action = '''<a data-inverted="" data-tooltip="Sales Detail" data-position="left center" data-variation="mini" href="/sales_detail_admin/{}/" style="font-size:10px;" onclick = "GetPurchaseDetail('{}')" class="ui circular facebook icon button green">
                     <i class="receipt icon"></i>
                   </a>
-                  <button data-inverted="" data-tooltip="Delete Detail" data-position="bottom center" data-variation="mini" style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
+                  <button data-inverted="" data-tooltip="Delete Detail" data-position="left center" data-variation="mini" style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
                     <i class="trash alternate icon"></i>
                   </button></td>'''.format(item.pk, item.pk, item.pk),
             json_data.append([
@@ -1155,26 +1155,26 @@ class InstallmentListByAdminJson(BaseDatatableView):
         json_data = []
         for item in qs:
             if item.isPaid == False:
-                action = '''<button data-inverted="" data-tooltip="Edit Detail" data-position="bottom center" data-variation="mini" style="font-size:10px;" onclick = "editDetail('{}')" class="ui circular facebook icon button purple">
+                action = '''<button data-inverted="" data-tooltip="Edit Detail" data-position="left center" data-variation="mini" style="font-size:10px;" onclick = "editDetail('{}')" class="ui circular facebook icon button purple">
                       <i class="pen icon"></i>
                       </button>
-                      <button data-inverted="" data-tooltip="Add Remark" data-position="bottom center" data-variation="mini" style="font-size:10px;" onclick = "GetRemark('{}')" class="ui circular facebook icon button blue">
+                      <button data-inverted="" data-tooltip="Add Remark" data-position="left center" data-variation="mini" style="font-size:10px;" onclick = "GetRemark('{}')" class="ui circular facebook icon button blue">
                       <i class="clipboard outline icon"></i>
                       </button>
-                      <button data-inverted="" data-tooltip="Take Installment" data-position="bottom center" data-variation="mini" style="font-size:10px;" onclick = "GetDetail('{}')" class="ui circular facebook icon button orange">
+                      <button data-inverted="" data-tooltip="Take Installment" data-position="left center" data-variation="mini" style="font-size:10px;" onclick = "GetDetail('{}')" class="ui circular facebook icon button orange">
                         <i class="hand holding usd icon"></i>
                       </button>
-                      <a data-inverted="" data-tooltip="Sales Detail" data-position="bottom center" data-variation="mini" style="font-size:10px;" href="/sales_detail_admin/{}/" class="ui circular facebook icon button green">
+                      <a data-inverted="" data-tooltip="Sales Detail" data-position="left center" data-variation="mini" style="font-size:10px;" href="/sales_detail_admin/{}/" class="ui circular facebook icon button green">
                         <i class="receipt icon"></i>
                       </a>
                      '''.format(item.pk, item.pk, item.pk, item.saleID.pk),
             else:
-                action = '''<button data-inverted="" data-tooltip="Edit Detail" data-position="bottom center" data-variation="mini" style="font-size:10px;" onclick = "editDetail('{}')" class="ui circular facebook icon button purple">
+                action = '''<button data-inverted="" data-tooltip="Edit Detail" data-position="left center" data-variation="mini" style="font-size:10px;" onclick = "editDetail('{}')" class="ui circular facebook icon button purple">
                       <i class="pen icon"></i>
-                      </button> <button data-inverted="" data-tooltip="Add Remark" data-position="bottom center" data-variation="mini" style="font-size:10px;" onclick = "GetRemark('{}')" class="ui circular facebook icon button blue">
+                      </button> <button data-inverted="" data-tooltip="Add Remark" data-position="left center" data-variation="mini" style="font-size:10px;" onclick = "GetRemark('{}')" class="ui circular facebook icon button blue">
                       <i class="clipboard outline icon"></i>
                       </button>
-                <a data-inverted="" data-tooltip="Sales Detail" data-position="bottom center" data-variation="mini" style="font-size:10px;" href="/sales_detail_admin/{}/" class="ui circular facebook icon button green">
+                <a data-inverted="" data-tooltip="Sales Detail" data-position="left center" data-variation="mini" style="font-size:10px;" href="/sales_detail_admin/{}/" class="ui circular facebook icon button green">
                                         <i class="receipt icon"></i>
                                       </a>
                                      '''.format(item.pk, item.pk, item.saleID.pk),
@@ -1212,7 +1212,7 @@ class InstallmentListByAdminJson(BaseDatatableView):
 
 
 class InstallmentListByUserJson(BaseDatatableView):
-    order_columns = ['saleNo', 'saleID.customerName', 'emiAmount', 'installmentDate', 'paidAmount', 'isPaid',
+    order_columns = ['saleID', 'saleID.customerName', 'emiAmount', 'installmentDate', 'paidAmount', 'isPaid',
                      'dueAmount', 'NextDueDate', 'remark', 'paymentReceivedOn']
 
     def get_initial_queryset(self):
@@ -1251,21 +1251,21 @@ class InstallmentListByUserJson(BaseDatatableView):
         json_data = []
         for item in qs:
             if item.isPaid == False:
-                action = '''<button data-inverted="" data-tooltip="Add Remark" data-position="bottom center" data-variation="mini" style="font-size:10px;" onclick = "GetRemark('{}')" class="ui circular facebook icon button blue">
+                action = '''<button data-inverted="" data-tooltip="Add Remark" data-position="left center" data-variation="mini" style="font-size:10px;" onclick = "GetRemark('{}')" class="ui circular facebook icon button blue">
                       <i class="clipboard outline icon"></i>
                       </button>
-                      <button data-inverted="" data-tooltip="Take Installment" data-position="bottom center" data-variation="mini" style="font-size:10px;" onclick = "GetDetail('{}')" class="ui circular facebook icon button orange">
+                      <button data-inverted="" data-tooltip="Take Installment" data-position="left center" data-variation="mini" style="font-size:10px;" onclick = "GetDetail('{}')" class="ui circular facebook icon button orange">
                         <i class="hand holding usd icon"></i>
                       </button>
-                      <a data-inverted="" data-tooltip="Sales Detail" data-position="bottom center" data-variation="mini" style="font-size:10px;" href="/sales_detail/{}/" class="ui circular facebook icon button green">
+                      <a data-inverted="" data-tooltip="Sales Detail" data-position="left center" data-variation="mini" style="font-size:10px;" href="/sales_detail/{}/" class="ui circular facebook icon button green">
                         <i class="receipt icon"></i>
                       </a>
                      '''.format(item.pk, item.pk, item.saleID.pk),
             else:
-                action = ''' <button data-inverted="" data-tooltip="Add Remark" data-position="bottom center" data-variation="mini" style="font-size:10px;" onclick = "GetRemark('{}')" class="ui circular facebook icon button blue">
+                action = ''' <button data-inverted="" data-tooltip="Add Remark" data-position="left center" data-variation="mini" style="font-size:10px;" onclick = "GetRemark('{}')" class="ui circular facebook icon button blue">
                       <i class="clipboard outline icon"></i>
                       </button>
-                <a data-inverted="" data-tooltip="Sales Detail" data-position="bottom center" data-variation="mini" style="font-size:10px;" href="/sales_detail/{}/" class="ui circular facebook icon button green">
+                <a data-inverted="" data-tooltip="Sales Detail" data-position="left center" data-variation="mini" style="font-size:10px;" href="/sales_detail/{}/" class="ui circular facebook icon button green">
                                         <i class="receipt icon"></i>
                                       </a>
                                      '''.format(item.pk, item.saleID.pk),
@@ -1736,10 +1736,10 @@ class DocumentListAdminJson(BaseDatatableView):
         json_data = []
         for item in qs:
             if 'Admin' in self.request.user.groups.values_list('name', flat=True):
-                action = '''<button  data-inverted="" data-tooltip="Edit Detail" data-position="bottom center" data-variation="mini"  style="font-size:10px;" onclick = "GetUserDetails('{}')" class="ui circular facebook icon button green">
+                action = '''<button  data-inverted="" data-tooltip="Edit Detail" data-position="left center" data-variation="mini"  style="font-size:10px;" onclick = "GetUserDetails('{}')" class="ui circular facebook icon button green">
                     <i class="pen icon"></i>
                   </button>
-                  <button  data-inverted="" data-tooltip="Delete" data-position="bottom center" data-variation="mini"  style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
+                  <button  data-inverted="" data-tooltip="Delete" data-position="left center" data-variation="mini"  style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
                     <i class="trash alternate icon"></i>
                   </button></td>'''.format(item.pk, item.pk),
             else:
@@ -1806,3 +1806,44 @@ def edit_document_api(request):
             return JsonResponse({'message': 'success'}, safe=False)
         except:
             return JsonResponse({'message': 'error'}, safe=False)
+
+
+# Login/ Logout History
+
+class LoginLogoutListAdminJson(BaseDatatableView):
+    order_columns = ['userID', 'statusType', 'datetime']
+
+    def get_initial_queryset(self):
+        try:
+            startDateV = self.request.GET.get("startDate")
+            endDateV = self.request.GET.get("endDate")
+            sDate = datetime.strptime(startDateV, '%d/%m/%Y')
+            eDate = datetime.strptime(endDateV, '%d/%m/%Y')
+
+            # if 'Admin' in self.request.user.groups.values_list('name', flat=True):
+            return LoginAndLogoutStatus.objects.filter(isDeleted__exact=False, datetime__range=(
+            sDate.date(), eDate.date() + timedelta(days=1)), )
+        except:
+            return LoginAndLogoutStatus.objects.filter(isDeleted__exact=False)
+
+    def filter_queryset(self, qs):
+
+        search = self.request.GET.get('search[value]', None)
+        if search:
+            qs = qs.filter(
+                Q(userID__name__icontains=search) | Q(statusType__icontains=search) | Q(datetime__icontains=search)
+            )
+
+        return qs
+
+    def prepare_results(self, qs):
+        json_data = []
+        for item in qs:
+            json_data.append([
+                escape(item.userID.name),
+                escape(item.statusType),
+                escape(item.datetime.strftime('%d-%m-%Y %I:%M %p')),
+
+            ])
+
+        return json_data
