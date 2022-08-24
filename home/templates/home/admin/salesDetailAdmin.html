@@ -120,6 +120,8 @@
                                     {% endif %}
 
                                 </span>
+                                <label onclick="changeStatus()" class="ui label mini purple" style="cursor: pointer">Change
+                                    Status</label>
                             </div>
                             <div class="meta">
                                 <a> Added By: {{ instance.addedBy.name|capfirst }} On {{ instance.datetime }}</a> <br>
@@ -227,12 +229,92 @@
             <div class="ui cancel button">Close</div>
         </div>
     </div>
-
-
+    <div id="changeStatusModal" class="ui mini test modal front transition">
+        <div class="header">
+            Change Sales Status
+        </div>
+        <div class="content">
+            <p>Are you sure you want to change the status?</p>
+        </div>
+        <div class="actions">
+            <div class="ui negative button">
+                No
+            </div>
+            <div class="ui positive right labeled icon button" onclick="postChangeStatus()">
+                Yes
+                <i class="checkmark icon"></i>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block js %}
     <script>
+        function changeStatus() {
+            $('#changeStatusModal').modal('show');
+        }
+
+        function postChangeStatus() {
+            var id = {{ instance.pk }};
+
+            if (id === '') {
+                $('body')
+                    .toast({
+                        class: 'orange',
+                        message: 'Something went wrong. Please try again'
+                    })
+                ;
+            } else {
+
+
+                data = new FormData();
+                data.append('id', id);
+
+                $.ajax({
+                    type: 'post',
+                    url: '{% url "homeApp:change_sales_status" %}',
+                    data: data,
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+
+
+                    success: function (response) {
+                        if (response.message === 'success') {
+                            $('body')
+                                .toast({
+                                    class: 'success',
+                                    message: 'Sales status updated successfully.'
+                                });
+
+                            location.reload();
+                        } else {
+                            $('body')
+                                .toast({
+                                    class: 'error',
+                                    message: 'An error occurred !'
+                                })
+                            ;
+                        }
+
+                        return response;
+                    },
+                    error: function () {
+                        $('body')
+                            .toast({
+                                class: 'error',
+                                message: 'An error occurred !'
+                            })
+                        ;
+                    }
+
+                });
+            }
+
+
+        }
+
+
         function GetRemark(id) {
             $('#myModalRemark').modal('show');
             $.ajax({

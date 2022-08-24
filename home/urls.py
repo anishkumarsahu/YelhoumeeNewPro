@@ -78,6 +78,7 @@ urlpatterns = [
     path('api/add_sales_api/', add_sales_api, name='add_sales_api'),
     path('api/add_sales_admin_api/', add_sales_admin_api, name='add_sales_admin_api'),
     path('api/list_sales_api/', list_sales_api, name='list_sales_api'),
+    path('api/change_sales_status/', change_sales_status, name='change_sales_status'),
     path('api/SalesListByUserJson/', SalesListByUserJson.as_view(), name='SalesListByUserJson'),
     path('api/SalesListAdminJson/', SalesListAdminJson.as_view(), name='SalesListAdminJson'),
 

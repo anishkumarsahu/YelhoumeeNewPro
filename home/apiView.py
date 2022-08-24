@@ -628,7 +628,6 @@ def get_purchase_detail(request, id=None):
 def delete_purchase(request):
     if request.method == 'POST':
         id = request.POST.get("ID")
-        print(id)
         sale = Purchase.objects.get(pk=int(id))
         sale.isDeleted = True
         sale.save()
@@ -988,6 +987,17 @@ def list_sales_api(request):
         return JsonResponse({'message': 'error'}, safe=False)
 
 
+@csrf_exempt
+@transaction.atomic
+def change_sales_status(request):
+    if request.method == 'POST':
+        id = request.POST.get("id")
+        sale = Sale.objects.get(pk=int(id))
+        sale.isClosed = not sale.isClosed
+        sale.save()
+        return JsonResponse({'message': 'success'}, safe=False)
+
+
 class SalesListByUserJson(BaseDatatableView):
     order_columns = ['deliveryPhoto', 'saleNo', 'customerName', 'productName', 'advancePaid', 'tenureInMonth',
                      'emiAmount',
@@ -1129,13 +1139,13 @@ class InstallmentListByAdminJson(BaseDatatableView):
 
             return Installment.objects.filter(isDeleted__exact=False,
                                               installmentDate__range=(sDate.date(), eDate.date() + timedelta(days=1)),
-                                              saleID__isClosed__exact=False
+
                                               )
         except:
 
             return Installment.objects.filter(isDeleted__exact=False,
                                               installmentDate__exact=datetime.today().date(),
-                                              saleID__isClosed__exact=False
+
                                               )
 
     def filter_queryset(self, qs):
@@ -1154,7 +1164,7 @@ class InstallmentListByAdminJson(BaseDatatableView):
     def prepare_results(self, qs):
         json_data = []
         for item in qs:
-            if item.isPaid == False:
+            if item.isPaid == False and item.saleID.isClosed == False:
                 action = '''<button data-inverted="" data-tooltip="Edit Detail" data-position="left center" data-variation="mini" style="font-size:10px;" onclick = "editDetail('{}')" class="ui circular facebook icon button purple">
                       <i class="pen icon"></i>
                       </button>
@@ -1168,7 +1178,7 @@ class InstallmentListByAdminJson(BaseDatatableView):
                         <i class="receipt icon"></i>
                       </a>
                      '''.format(item.pk, item.pk, item.pk, item.saleID.pk),
-            else:
+            elif item.isPaid == True and item.saleID.isClosed == False:
                 action = '''<button data-inverted="" data-tooltip="Edit Detail" data-position="left center" data-variation="mini" style="font-size:10px;" onclick = "editDetail('{}')" class="ui circular facebook icon button purple">
                       <i class="pen icon"></i>
                       </button> <button data-inverted="" data-tooltip="Add Remark" data-position="left center" data-variation="mini" style="font-size:10px;" onclick = "GetRemark('{}')" class="ui circular facebook icon button blue">
@@ -1178,6 +1188,14 @@ class InstallmentListByAdminJson(BaseDatatableView):
                                         <i class="receipt icon"></i>
                                       </a>
                                      '''.format(item.pk, item.pk, item.saleID.pk),
+            else:
+                action = '''<button data-inverted="" data-tooltip="Add Remark" data-position="left center" data-variation="mini" style="font-size:10px;" onclick = "GetRemark('{}')" class="ui circular facebook icon button blue">
+                                      <i class="clipboard outline icon"></i>
+                                      </button>
+                                <a data-inverted="" data-tooltip="Sales Detail" data-position="left center" data-variation="mini" style="font-size:10px;" href="/sales_detail_admin/{}/" class="ui circular facebook icon button green">
+                                                        <i class="receipt icon"></i>
+                                                      </a>
+                                                     '''.format(item.pk, item.saleID.pk),
 
             if item.isPaid == True:
                 paid = '<div class="ui mini green label"> Yes </div>'
@@ -1225,14 +1243,14 @@ class InstallmentListByUserJson(BaseDatatableView):
             return Installment.objects.filter(isDeleted__exact=False,
                                               assignedTo__user_ID_id__exact=self.request.user.pk,
                                               installmentDate__range=(sDate.date(), eDate.date() + timedelta(days=1)),
-                                              saleID__isClosed__exact=False
+
                                               )
         except:
 
             return Installment.objects.filter(isDeleted__exact=False,
                                               assignedTo__user_ID_id__exact=self.request.user.pk,
                                               installmentDate__exact=datetime.today().date(),
-                                              saleID__isClosed__exact=False
+
                                               )
 
     def filter_queryset(self, qs):
@@ -1250,7 +1268,7 @@ class InstallmentListByUserJson(BaseDatatableView):
     def prepare_results(self, qs):
         json_data = []
         for item in qs:
-            if item.isPaid == False:
+            if item.isPaid == False and item.saleID.isClosed == False:
                 action = '''<button data-inverted="" data-tooltip="Add Remark" data-position="left center" data-variation="mini" style="font-size:10px;" onclick = "GetRemark('{}')" class="ui circular facebook icon button blue">
                       <i class="clipboard outline icon"></i>
                       </button>
