@@ -140,6 +140,16 @@ def customer_add_admin(request):
     return render(request, 'home/admin/customerAddAdmin.html', context)
 
 
+@check_group('Both')
+@is_activated()
+def customer_edit_admin(request, id=None):
+    instance = get_object_or_404(Customer, pk=id)
+    context = {
+        'instance': instance
+    }
+    return render(request, 'home/admin/customerEditAdmin.html', context)
+
+
 @check_group('Collection')
 def sales_add(request):
     return render(request, 'home/collection/saleAdd.html')

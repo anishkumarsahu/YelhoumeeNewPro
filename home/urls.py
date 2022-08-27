@@ -23,6 +23,7 @@ urlpatterns = [
 
     path('customer_detail/<int:id>/', customer_detail, name='customer_detail'),
     path('customer_detail_admin/<int:id>/', customer_detail_admin, name='customer_detail_admin'),
+    path('customer_edit_admin/<int:id>/', customer_edit_admin, name='customer_edit_admin'),
     path('sales_detail/<int:id>/', sales_detail, name='sales_detail'),
     path('installment_list/', installment_list, name='installment_list'),
     path('my_profile/', my_profile, name='my_profile'),
@@ -71,6 +72,7 @@ urlpatterns = [
     # api Customer
     path('api/list_customer_api/', list_customer_api, name='list_customer_api'),
     path('api/add_customer_api/', add_customer_api, name='add_customer_api'),
+    path('api/edit_customer_api/', edit_customer_api, name='edit_customer_api'),
     path('api/CustomerListByUserJson/', CustomerListByUserJson.as_view(), name='CustomerListByUserJson'),
     path('api/CustomerListAdminJson/', CustomerListAdminJson.as_view(), name='CustomerListAdminJson'),
 

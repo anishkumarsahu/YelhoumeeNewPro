@@ -17,7 +17,7 @@ from datetime import datetime, timedelta
 
 from activation.models import Validity
 from activation.views import is_activated, is_ecom_activated
-
+from dateutil.relativedelta import relativedelta
 from .models import *
 from home.models import *
 from django_datatables_view.base_datatable_view import BaseDatatableView
@@ -682,6 +682,52 @@ def add_customer_api(request):
             return JsonResponse({'message': 'error'}, safe=False)
 
 
+@transaction.atomic
+@csrf_exempt
+def edit_customer_api(request):
+    if request.method == 'POST':
+        try:
+            name = request.POST.get("name")
+            phone = request.POST.get("phone")
+            district = request.POST.get("district")
+            address = request.POST.get("address")
+            lat = request.POST.get("lat")
+            lng = request.POST.get("lng")
+            landmark = request.POST.get("landmark")
+            cusID = request.POST.get("cusID")
+            obj = Customer.objects.get(pk=int(cusID))
+            try:
+                photo = request.FILES["photo"]
+                obj.photo = photo
+            except:
+                pass
+            try:
+
+                idf = request.FILES["idf"]
+                obj.idProofFront = idf
+            except:
+                pass
+            try:
+                idb = request.FILES["idb"]
+                obj.idProofBack = idb
+            except:
+                pass
+
+            obj.latitude = lat
+            obj.longitude = lng
+            obj.name = name
+            obj.phoneNumber = phone
+            obj.district = district
+            obj.address = address
+            obj.landmark = landmark
+
+            obj.save()
+
+            return JsonResponse({'message': 'success'}, safe=False)
+        except:
+            return JsonResponse({'message': 'error'}, safe=False)
+
+
 class CustomerListByUserJson(BaseDatatableView):
     order_columns = ['photo', 'name', 'customerCode', 'phoneNumber', 'district', 'address', 'landmark',
                      'idProofFront', 'idProofBack', 'datetime']
@@ -784,10 +830,13 @@ class CustomerListAdminJson(BaseDatatableView):
                 item.idProofFront.large.url, item.idProofFront.thumbnail.url)
             idProofBack = '''<img style="cursor:pointer" onclick="showImgModal('{}')" class="ui avatar image" src="{}">'''.format(
                 item.idProofBack.large.url, item.idProofBack.thumbnail.url)
-            action = '''<a data-inverted="" data-tooltip="Customer Detail" data-position="left center" data-variation="mini" style="font-size:10px;" href="/customer_detail_admin/{}/" class="ui circular facebook icon button green">
+            action = '''<a data-inverted="" data-tooltip="Customer Edit" data-position="left center" data-variation="mini" style="font-size:10px;" href="/customer_edit_admin/{}/" class="ui circular facebook icon button purple">
+                                <i class="pen icon"></i>
+                              </a>
+                              <a data-inverted="" data-tooltip="Customer Detail" data-position="left center" data-variation="mini" style="font-size:10px;" href="/customer_detail_admin/{}/" class="ui circular facebook icon button green">
                                 <i class="receipt icon"></i>
                               </a>
-                             </td>'''.format(item.pk),
+                             </td>'''.format(item.pk, item.pk),
             json_data.append([
                 photo,  # escape HTML for security reasons
                 escape(item.name),
@@ -899,7 +948,7 @@ def add_sales_api(request):
                 inst.saleID_id = obj.pk
                 inst.emiAmount = obj.emiAmount
                 inst.assignedTo_id = user.pk
-                inst.installmentDate = obj.installmentStartDate + timedelta(days=(i) * 30)
+                inst.installmentDate = obj.installmentStartDate + relativedelta(months=+i)
                 inst.save()
 
             return JsonResponse({'message': 'success'}, safe=False)
