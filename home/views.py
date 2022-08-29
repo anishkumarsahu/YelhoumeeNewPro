@@ -166,6 +166,19 @@ def sales_add_admin(request):
     return render(request, 'home/admin/saleAddAdmin.html', context)
 
 
+@check_group('Both')
+@is_activated()
+def sales_edit_admin(request, id = None):
+    users = StaffUser.objects.filter(isActive__exact='Active', isDeleted__exact=False,
+                                     group__exact='Collection').order_by('name')
+    instance = get_object_or_404(Sale, pk = id)
+    context = {
+        'users': users,
+        'instance':instance
+    }
+    return render(request, 'home/admin/saleEditAdmin.html', context)
+
+
 @check_group('Collection')
 def sales_list(request):
     return render(request, 'home/collection/salesListByStaff.html')

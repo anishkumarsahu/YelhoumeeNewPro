@@ -17,6 +17,7 @@ urlpatterns = [
     path('customer_add_admin/', customer_add_admin, name='customer_add_admin'),
     path('sales_add/', sales_add, name='sales_add'),
     path('sales_add_admin/', sales_add_admin, name='sales_add_admin'),
+    path('sales_edit_admin/<int:id>/', sales_edit_admin, name='sales_edit_admin'),
     path('sales_list/', sales_list, name='sales_list'),
     path('sales_list_admin/', sales_list_admin, name='sales_list_admin'),
     path('document_list_admin/', document_list_admin, name='document_list_admin'),
@@ -79,6 +80,7 @@ urlpatterns = [
     # sales
     path('api/add_sales_api/', add_sales_api, name='add_sales_api'),
     path('api/add_sales_admin_api/', add_sales_admin_api, name='add_sales_admin_api'),
+    path('api/edit_sales_admin_api/', edit_sales_admin_api, name='edit_sales_admin_api'),
     path('api/list_sales_api/', list_sales_api, name='list_sales_api'),
     path('api/change_sales_status/', change_sales_status, name='change_sales_status'),
     path('api/SalesListByUserJson/', SalesListByUserJson.as_view(), name='SalesListByUserJson'),

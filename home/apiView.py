@@ -1,24 +1,13 @@
-import calendar
-from django.core import management
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db import transaction
 from django.db.models import Q, Sum, F
-from django.db.models.functions import Coalesce
 from django.http import JsonResponse
-from django.shortcuts import render, redirect, get_object_or_404, HttpResponse
-from django.template import loader
-from django.template.defaultfilters import register
+from django.shortcuts import get_object_or_404
 from django.utils.crypto import get_random_string
-from django.views.decorators.cache import cache_page
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import Group
 from datetime import datetime, timedelta
 
-from activation.models import Validity
-from activation.views import is_activated, is_ecom_activated
 from dateutil.relativedelta import relativedelta
-from .models import *
 from home.models import *
 from django_datatables_view.base_datatable_view import BaseDatatableView
 from django.utils.html import escape
@@ -1008,8 +997,73 @@ def add_sales_admin_api(request):
                 inst.saleID_id = obj.pk
                 inst.emiAmount = obj.emiAmount
                 inst.assignedTo_id = int(assignTo)
-                inst.installmentDate = obj.installmentStartDate + timedelta(days=(i) * 30)
+                inst.installmentDate = obj.installmentStartDate + relativedelta(months=+i)
                 inst.save()
+
+            return JsonResponse({'message': 'success'}, safe=False)
+        except:
+            return JsonResponse({'message': 'error'}, safe=False)
+
+
+@transaction.atomic
+@csrf_exempt
+def edit_sales_admin_api(request):
+    if request.method == 'POST':
+        try:
+
+            customer = request.POST.get("customer")
+            product = request.POST.get("product")
+            emi = request.POST.get("emi")
+            advance = request.POST.get("advance")
+            tenure = request.POST.get("tenure")
+            totalAmount = request.POST.get("totalAmount")
+            remark = request.POST.get("remark")
+            idate = request.POST.get("idate")
+            assignTo = request.POST.get("assignTo")
+            saleID = request.POST.get("saleID")
+            obj = Sale.objects.get(pk = int(saleID))
+            try:
+                photo = request.FILES["photo"]
+                obj.deliveryPhoto = photo
+            except:
+                pass
+            c = str(customer).split('@')
+            cus = Customer.objects.get(pk=int(c[1]))
+            p = str(product).split('@')
+            prev_product = Product.objects.get(pk = obj.productID_id)
+            prev_product.stock = (prev_product.stock+1)
+            prev_product.save()
+
+            pro = Product.objects.get(pk=int(p[1]))
+
+            obj.customerName = cus.name
+            obj.customerID_id = cus.pk
+            obj.productName = pro.name
+            obj.productID_id = pro.pk
+            obj.unit = pro.unitID
+            obj.quantity = 1
+            obj.rate = pro.sp
+            obj.advancePaid = float(advance)
+            obj.amountPaid = float(advance)
+            obj.tenureInMonth = float(tenure)
+            obj.emiAmount = float(emi)
+            obj.totalAmount = float(totalAmount)
+            obj.remark = remark
+
+            obj.assignedTo_id = int(assignTo)
+            obj.installmentStartDate = datetime.strptime(idate, '%d/%m/%Y')
+            obj.save()
+
+
+            pro.stock = pro.stock - 1
+            pro.save()
+            # for i in range(0, int(tenure)):
+            #     inst = Installment()
+            #     inst.saleID_id = obj.pk
+            #     inst.emiAmount = obj.emiAmount
+            #     inst.assignedTo_id = int(assignTo)
+            #     inst.installmentDate = obj.installmentStartDate + relativedelta(months=+i)
+            #     inst.save()
 
             return JsonResponse({'message': 'success'}, safe=False)
         except:
@@ -1073,7 +1127,7 @@ class SalesListByUserJson(BaseDatatableView):
         if search:
             qs = qs.filter(
                 Q(saleNo__icontains=search) | Q(customerName__icontains=search) | Q(
-                    customerID_customerCode__icontains=search)
+                    customerID__customerCode__icontains=search)
                 | Q(productName__icontains=search) | Q(advancePaid__icontains=search) | Q(
                     tenureInMonth__icontains=search)
                 | Q(emiAmount__icontains=search) | Q(totalAmount__icontains=search) | Q(amountPaid__icontains=search)
@@ -1135,7 +1189,7 @@ class SalesListAdminJson(BaseDatatableView):
         if search:
             qs = qs.filter(
                 Q(customerName__icontains=search) | Q(saleNo__icontains=search) | Q(
-                    customerID_customerCode__icontains=search)
+                    customerID__customerCode__icontains=search)
                 | Q(productName__icontains=search) | Q(advancePaid__icontains=search) | Q(
                     tenureInMonth__icontains=search)
                 | Q(emiAmount__icontains=search) | Q(totalAmount__icontains=search) | Q(amountPaid__icontains=search)
@@ -1150,12 +1204,14 @@ class SalesListAdminJson(BaseDatatableView):
         for item in qs:
             photo = '''<img style="cursor:pointer" onclick="showImgModal('{}')" class="ui avatar image" src="{}">'''.format(
                 item.deliveryPhoto.large.url, item.deliveryPhoto.thumbnail.url)
-            action = '''<a data-inverted="" data-tooltip="Sales Detail" data-position="left center" data-variation="mini" href="/sales_detail_admin/{}/" style="font-size:10px;" onclick = "GetPurchaseDetail('{}')" class="ui circular facebook icon button green">
+            action = '''<a data-inverted="" data-tooltip="Sales Edit" data-position="left center" data-variation="mini" style="font-size:10px;" href="/sales_edit_admin/{}/" class="ui circular facebook icon button purple">
+                                <i class="pen icon"></i>
+                              </a><a data-inverted="" data-tooltip="Sales Detail" data-position="left center" data-variation="mini" href="/sales_detail_admin/{}/" style="font-size:10px;" onclick = "GetPurchaseDetail('{}')" class="ui circular facebook icon button green">
                     <i class="receipt icon"></i>
                   </a>
                   <button data-inverted="" data-tooltip="Delete Detail" data-position="left center" data-variation="mini" style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
                     <i class="trash alternate icon"></i>
-                  </button></td>'''.format(item.pk, item.pk, item.pk),
+                  </button></td>'''.format(item.pk,item.pk, item.pk, item.pk),
             json_data.append([
                 photo,  # escape HTML for security reasons
                 escape(item.saleNo),
@@ -1203,7 +1259,7 @@ class InstallmentListByAdminJson(BaseDatatableView):
         if search:
             qs = qs.filter(
                 Q(saleID__customerName__icontains=search) | Q(saleID__productName__icontains=search)
-                | Q(assignTo__name__icontains=search) | Q(collectedBy__name__icontains=search)
+                | Q(assignedTo__name__icontains=search) | Q(collectedBy__name__icontains=search)
                 | Q(installmentDate__icontains=search) | Q(remark__icontains=search)
                 | Q(paidAmount__icontains=search) | Q(NextDueDate__icontains=search) | Q(dueAmount__icontains=search)
             )

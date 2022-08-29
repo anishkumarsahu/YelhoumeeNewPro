@@ -164,11 +164,11 @@
                         {% for installment in installments %}
                             <tr>
                                 <td>{{ forloop.counter }}</td>
-                                <td>{{ installment.installmentDate }}</td>
+                                <td>{{ installment.installmentDate|date:'d-m-Y' }}</td>
                                 <td>{{ installment.paidAmount }}</td>
                                 <td>{{ installment.dueAmount }}</td>
                                 <td>{{ installment.isPaid }}</td>
-                                <td>{{ installment.paymentReceivedOn }}</td>
+                                <td>{{ installment.paymentReceivedOn|date:'d-m-Y h:i a' }}</td>
                                 <td>{{ installment.collectedBy }}</td>
                                 <td>
                                     <button data-inverted="" data-tooltip="Add Remark" data-position="left center"
