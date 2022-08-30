@@ -112,6 +112,10 @@ urlpatterns = [
     path('api/edit_document_api/', edit_document_api, name='edit_document_api'),
     path('api/DocumentListAdminJson/', DocumentListAdminJson.as_view(), name='DocumentListAdminJson'),
 
+    # login and logout
     path('api/LoginLogoutListAdminJson/', LoginLogoutListAdminJson.as_view(), name='LoginLogoutListAdminJson'),
+
+    #change password
+    path('api/change_password_api/', change_password_api, name='change_password_api'),
 
 ]

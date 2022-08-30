@@ -1,3 +1,4 @@
+from django.contrib.auth import authenticate, login
 from django.db import transaction
 from django.db.models import Q, Sum, F
 from django.http import JsonResponse
@@ -1970,3 +1971,24 @@ class LoginLogoutListAdminJson(BaseDatatableView):
             ])
 
         return json_data
+
+@transaction.atomic
+def change_password_api(request):
+    if request.method == 'POST':
+        try:
+            password = request.POST.get('password')
+            data = StaffUser.objects.get(user_ID_id=request.user.pk)
+            data.userPassword = password
+            data.save()
+            user = User.objects.get(pk=request.user.pk)
+            user.set_password(password)
+            user.save()
+            user = authenticate(request, username=user.username, password=password)
+            if user is not None:
+                login(request, user)
+                return JsonResponse({'message': 'success'}, safe=False)
+
+            return JsonResponse({'message': 'success'}, safe=False)
+
+        except:
+            return JsonResponse({'message': 'error'}, safe=False)

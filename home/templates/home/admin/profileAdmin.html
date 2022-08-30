@@ -42,10 +42,152 @@
                     </div>
                 </div>
             </div>
+             <div style=" position: absolute;right: 1.5rem;top: 18px;">
+                    <button class="ui green mini plus button right" onclick="showUserModal()">
+                        <i class="plus square outline icon"></i>
+                        Change Password
+                    </button>
+                </div>
+
         </div>
     </div>
+
+
+                    <div class="ui tiny modal" id="myModalUser">
+                        <i class="close icon"></i>
+                        <div class="header">
+                            Change Password
+                        </div>
+                        <div class="content">
+
+                            <form class="ui tiny form" id="addForm">{% csrf_token %}
+
+                                  <div class="one required fields">
+                                    <div class="sixteen wide field">
+                                        <label>New Password</label>
+                                        <input type="password" name="NewPassword" placeholder="New Password" id="newPassword">
+                                    </div>
+
+                                </div>
+                                 <div class="one required fields">
+                                    <div class="sixteen wide field">
+                                        <label>Confirm Password</label>
+                                        <input type="password" name="confirmPassword" placeholder="Confirm Password" id="confirmPassword">
+                                    </div>
+
+                                </div>
+
+                            </form>
+
+                            <div class="actions" style="padding-top: 20px; padding-bottom: 20px ;float: right">
+                                <div class="ui cancel button">Cancel</div>
+                                <button class="ui right labeled icon button green" onclick="changePassword()">
+                                    Submit
+                                    <i class="checkmark icon"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
 {% endblock %}
 
 {% block js %}
+    <script>
 
+        function showUserModal() {
+            $('#myModalUser').modal('show');
+        }
+             function changePassword() {
+            var pass = $('#newPassword').val();
+            var passc = $('#confirmPassword').val();
+
+
+            if (pass === '' || passc === "") {
+                 $('body')
+                    .toast({
+                        class: 'orange',
+                        message: '* fields are required.'
+                    })
+                ;
+
+            }
+
+            else {
+                if (pass !== passc) {
+                      $('body')
+                    .toast({
+                        class: 'orange',
+                        message: 'Password not matched.'
+                    })
+                ;
+                }
+                else if (pass.length < 8) {
+                      $('body')
+                    .toast({
+                        class: 'orange',
+                        message: 'Password should be at least 8 characters long.'
+                    })
+                ;
+
+                }
+                else {
+                     var csrfmiddlewaretoken = $("input[name='csrfmiddlewaretoken']").val();
+
+                data = new FormData();
+                data.append('password', pass);
+
+
+                data.append('csrfmiddlewaretoken', csrfmiddlewaretoken);
+
+
+                $.ajax({
+                    type: 'post',
+                    url: '{% url "homeApp:change_password_api" %}',
+                    data: data,
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+
+
+                    success: function (response) {
+                        if (response.message === 'success') {
+                            $('body')
+                                .toast({
+                                    class: 'success',
+                                    message: 'Password changed Successfully.'
+                                })
+                            ;
+
+
+                            $('#addForm').trigger('reset');
+                            $('#myModalUser').modal('toggle');
+                        } else {
+                            $('body')
+                                .toast({
+                                    class: 'error',
+                                    message: 'An error occurred !'
+                                })
+                            ;
+
+                        }
+
+                        return response;
+                    },
+                    error: function () {
+                        $('body')
+                            .toast({
+                                class: 'error',
+                                message: 'An error occurred !'
+                            })
+                        ;
+
+
+            }
+           });
+            }
+            }
+             }
+
+
+
+    </script>
 {% endblock %}
