@@ -60,7 +60,7 @@
 
                                             <div class="three fields">
                                                 <div class="four wide mobile field">
-                                                    <div class="ui calendar" id="rangestart">
+                                                    <div class="ui calendar" id="rangestart" style="width: 50%">
                                                         <div class="ui input left icon">
                                                             <input class="" type="text" placeholder="Start Date"
                                                                    style="width:100%;"
@@ -69,7 +69,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="four wide mobile field">
-                                                    <div class="ui calendar" id="rangeend">
+                                                    <div class="ui calendar" id="rangeend" style="width: 50%">
                                                         <div class="ui input left icon">
                                                             <input class="" type="text" placeholder="End Date"
                                                                    style="width:100%;"
@@ -203,7 +203,7 @@
 
         userTab = $('#UserTable').DataTable({
             dom: 'Blfrtip',
-            "scrollY": "300px",
+            "scrollY": "350px",
             "scrollX": true,
             fixedColumns: {
                 left: 2,
@@ -238,8 +238,8 @@
 
             ],
             aaSorting: [[10, 'desc']],
-            "lengthMenu": [[8, 25, 50, 100, -1], [8, 25, 50, 100, "All"]],
-            "pageLength": 8,
+            "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+            "pageLength": 10,
             "processing": true,
             "serverSide": true,
             "ajax": "{% url 'homeApp:SalesListByUserJson' %}"

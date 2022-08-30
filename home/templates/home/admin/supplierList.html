@@ -286,7 +286,7 @@
 
         userTab = $('#UserTable').DataTable({
             dom: 'Blfrtip',
-            "scrollY": "300px",
+            "scrollY": "350px",
             "scrollX": true,
             fixedColumns: {
                 left: 1,
@@ -315,8 +315,8 @@
 
             ],
             aaSorting: [[0, 'asc']],
-            "lengthMenu": [[8, 25, 50, 100, -1], [8, 25, 50, 100, "All"]],
-            "pageLength": 8,
+            "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+            "pageLength": 10,
             "processing": true,
             "serverSide": true,
             "ajax": "{% url 'homeApp:SupplierListJson' %}"

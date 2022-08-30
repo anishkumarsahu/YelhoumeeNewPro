@@ -1,9 +1,10 @@
 from functools import wraps
 
+import xlwt
 from activation.models import Validity
 from activation.views import is_activated
 from django.contrib.auth import logout, authenticate, login
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import *
 # Create your views here.
@@ -324,3 +325,50 @@ def homepage(request):
 @is_activated()
 def login_logout_report_admin(request, id=None):
     return render(request, 'home/admin/loginLogoutList.html')
+
+
+def download_sales_report(request):
+    taxes = Sale.objects.filter(isDeleted__exact=False).order_by('rate')
+    counter = 0
+    # content-type of response
+    response = HttpResponse(content_type='application/ms-excel')
+    # decide file name
+    response['Content-Disposition'] = 'attachment; filename=SalesReport.xls'
+    wb = xlwt.Workbook(encoding='utf-8')
+    ws = wb.add_sheet('SalesWise')
+    row_num = 0
+    font_style = xlwt.XFStyle()
+    font_style.font.bold = True
+
+    columns = ['Sl No.', 'GST%', 'Taxable Amount', 'Tax Value', 'Total']
+
+    for col_num in range(len(columns)):
+        ws.write(row_num, col_num, columns[col_num], font_style)
+
+    font_style = xlwt.XFStyle()
+    row_num = 0
+    grandTatal = 0.0
+    for tax in taxes:
+        sales = Installment.objects.filter()
+        counter = counter + 1
+        taxableAmount = 0.0
+        taxAmount = 0.0
+        subTotal = 0.0
+        for s in sales:
+            taxableAmount = s.unitPrice * s.quantity
+            taxAmount = (s.total - taxableAmount)
+            subTotal = s.total
+            taxableAmount += taxableAmount
+            taxAmount += taxAmount
+            subTotal += subTotal
+        grandTatal = subTotal + grandTatal
+        row_num = row_num + 1
+        ws.write(row_num, 0, counter, font_style)
+        ws.write(row_num, 1, tax.rate, font_style)
+        ws.write(row_num, 2, taxableAmount, font_style)
+        ws.write(row_num, 3, taxAmount, font_style)
+        ws.write(row_num, 4, subTotal, font_style)
+    ws.write(row_num + 1, 3, "Grand Total", font_style)
+    ws.write(row_num + 1, 4, grandTatal, font_style)
+    wb.save(response)
+    return response
