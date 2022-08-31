@@ -630,6 +630,31 @@ def delete_purchase(request):
 
 
 # ---------------------------------customer------------------------------------
+@transaction.atomic
+@csrf_exempt
+def delete_customer_api(request):
+    if request.method == 'POST':
+        try:
+            id = request.POST.get("userID")
+            cus = Customer.objects.get(pk=int(id))
+            cus.isDeleted = True
+            cus.save()
+
+            obj = Sale.objects.filter(isDeleted__exact=False, customerID_id=cus.pk)
+            for o in obj:
+                o.isDeleted = True
+                o.save()
+                pro = Product.objects.get(pk=o.productID_id)
+                pro.stock = (pro.stock + 1)
+                pro.save()
+                ins = Installment.objects.filter(saleID_id=o.pk)
+                for i in ins:
+                    i.isDeleted = True
+                    i.save()
+            return JsonResponse({'message': 'success'}, safe=False)
+        except:
+            return JsonResponse({'message': 'error'}, safe=False)
+
 
 @transaction.atomic
 @csrf_exempt
@@ -826,7 +851,9 @@ class CustomerListAdminJson(BaseDatatableView):
                               <a data-inverted="" data-tooltip="Customer Detail" data-position="left center" data-variation="mini" style="font-size:10px;" href="/customer_detail_admin/{}/" class="ui circular facebook icon button green">
                                 <i class="receipt icon"></i>
                               </a>
-                             </td>'''.format(item.pk, item.pk),
+                             <button data-inverted="" data-tooltip="Delete Detail" data-position="left center" data-variation="mini" style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
+                    <i class="trash alternate icon"></i>
+                  </button>'''.format(item.pk, item.pk, item.pk),
             json_data.append([
                 photo,  # escape HTML for security reasons
                 escape(item.name),
@@ -887,6 +914,28 @@ def list_product_api(request):
 
 
 # -----------------------------------sales-----------------------------------------
+
+@transaction.atomic
+@csrf_exempt
+def delete_sale_api(request):
+    if request.method == 'POST':
+        try:
+            id = request.POST.get("userID")
+            obj = Sale.objects.get(pk=int(id))
+            obj.isDeleted = True
+            obj.save()
+            pro = Product.objects.get(pk=obj.productID_id)
+            pro.stock = (pro.stock + 1)
+            pro.save()
+            ins = Installment.objects.filter(saleID_id=obj.pk)
+            for i in ins:
+                i.isDeleted = True
+                i.save()
+            return JsonResponse({'message': 'success'}, safe=False)
+        except:
+            return JsonResponse({'message': 'error'}, safe=False)
+
+
 @transaction.atomic
 @csrf_exempt
 def add_sales_api(request):
@@ -1212,7 +1261,7 @@ class SalesListAdminJson(BaseDatatableView):
                   </a>
                   <button data-inverted="" data-tooltip="Delete Detail" data-position="left center" data-variation="mini" style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
                     <i class="trash alternate icon"></i>
-                  </button></td>'''.format(item.pk,item.pk, item.pk, item.pk),
+                  </button>'''.format(item.pk, item.pk, item.pk, item.pk),
             json_data.append([
                 photo,  # escape HTML for security reasons
                 escape(item.saleNo),

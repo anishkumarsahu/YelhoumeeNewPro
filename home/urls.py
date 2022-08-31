@@ -71,6 +71,8 @@ urlpatterns = [
     path('api/PurchaseListJson/', PurchaseListJson.as_view(), name='PurchaseListJson'),
 
     # api Customer
+
+    path('api/delete_customer_api/', delete_customer_api, name='delete_customer_api'),
     path('api/list_customer_api/', list_customer_api, name='list_customer_api'),
     path('api/add_customer_api/', add_customer_api, name='add_customer_api'),
     path('api/edit_customer_api/', edit_customer_api, name='edit_customer_api'),
@@ -78,6 +80,7 @@ urlpatterns = [
     path('api/CustomerListAdminJson/', CustomerListAdminJson.as_view(), name='CustomerListAdminJson'),
 
     # sales
+    path('api/delete_sale_api/', delete_sale_api, name='delete_sale_api'),
     path('api/add_sales_api/', add_sales_api, name='add_sales_api'),
     path('api/add_sales_admin_api/', add_sales_admin_api, name='add_sales_admin_api'),
     path('api/edit_sales_admin_api/', edit_sales_admin_api, name='edit_sales_admin_api'),

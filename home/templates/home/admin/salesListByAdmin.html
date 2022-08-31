@@ -124,10 +124,13 @@
                 <div class="ui basic modal custom" id="deleteUser">
                     <div class="ui icon header">
                         <i class="archive icon"></i>
-                        User Details will be Deleted
+                        Sale's Details will be Deleted
                     </div>
                     <div class="content">
-                        <p style="text-align: center">The User will be deleted, are you sure to delete this User?</p>
+                        <p style="text-align: center">The Sale's will be deleted, are you sure to delete this
+                            record?</p>
+                        <p style="text-align: center;font-weight: bold"><span class="ui text warning">This will lead to permanent deletion of sales record and installments records associated with it.</span>
+                        </p>
                     </div>
                     <div class="actions">
                         <div class="ui red basic cancel inverted button">
@@ -258,7 +261,7 @@
             formdata.append('userID', id);
 
             $.ajax({
-                url: "{% url 'homeApp:delete_staff_user' %}",
+                url: "{% url 'homeApp:delete_sale_api' %}",
                 type: "post",
                 data: formdata,
                 contentType: false,
@@ -270,7 +273,7 @@
                         $('body')
                             .toast({
                                 class: 'success',
-                                message: 'User Detail Deleted Successfully.'
+                                message: 'Sales Detail Deleted Successfully.'
                             })
                         ;
 
