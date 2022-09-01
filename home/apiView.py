@@ -755,7 +755,7 @@ class CustomerListByUserJson(BaseDatatableView):
             eDate = datetime.strptime(endDateV, '%d/%m/%Y')
 
             return Customer.objects.filter(isDeleted__exact=False, addedBy__user_ID_id__exact=self.request.user.pk,
-                                           datetime__range=(sDate.date(), eDate.date() + timedelta(days=1)))
+                                           datetime__range=(sDate.date(), eDate.date()))
 
         except:
 
@@ -816,7 +816,7 @@ class CustomerListAdminJson(BaseDatatableView):
             eDate = datetime.strptime(endDateV, '%d/%m/%Y')
 
             return Customer.objects.filter(isDeleted__exact=False,
-                                           datetime__range=(sDate.date(), eDate.date() + timedelta(days=1)))
+                                           datetime__range=(sDate.date(), eDate.date()))
 
         except:
 
@@ -1165,7 +1165,7 @@ class SalesListByUserJson(BaseDatatableView):
             eDate = datetime.strptime(endDateV, '%d/%m/%Y')
 
             return Sale.objects.filter(isDeleted__exact=False, addedBy__user_ID_id__exact=self.request.user.pk,
-                                       datetime__range=(sDate.date(), eDate.date() + timedelta(days=1)))
+                                       datetime__range=(sDate.date(), eDate.date()))
 
         except:
 
@@ -1227,7 +1227,7 @@ class SalesListAdminJson(BaseDatatableView):
             eDate = datetime.strptime(endDateV, '%d/%m/%Y')
 
             return Sale.objects.filter(isDeleted__exact=False,
-                                       datetime__range=(sDate.date(), eDate.date() + timedelta(days=1)))
+                                       datetime__range=(sDate.date(), eDate.date()))
 
         except:
 
@@ -1293,7 +1293,7 @@ class InstallmentListByAdminJson(BaseDatatableView):
             eDate = datetime.strptime(endDateV, '%d/%m/%Y')
 
             return Installment.objects.filter(isDeleted__exact=False,
-                                              installmentDate__range=(sDate.date(), eDate.date() + timedelta(days=1)),
+                                              installmentDate__range=(sDate.date(), eDate.date()),
 
                                               )
         except:
@@ -1397,7 +1397,7 @@ class InstallmentListByUserJson(BaseDatatableView):
 
             return Installment.objects.filter(isDeleted__exact=False,
                                               assignedTo__user_ID_id__exact=self.request.user.pk,
-                                              installmentDate__range=(sDate.date(), eDate.date() + timedelta(days=1)),
+                                              installmentDate__range=(sDate.date(), eDate.date()),
 
                                               )
         except:
@@ -1995,7 +1995,7 @@ class LoginLogoutListAdminJson(BaseDatatableView):
 
             # if 'Admin' in self.request.user.groups.values_list('name', flat=True):
             return LoginAndLogoutStatus.objects.filter(isDeleted__exact=False, datetime__range=(
-            sDate.date(), eDate.date() + timedelta(days=1)), )
+                sDate.date(), eDate.date()), )
         except:
             return LoginAndLogoutStatus.objects.filter(isDeleted__exact=False)
 
