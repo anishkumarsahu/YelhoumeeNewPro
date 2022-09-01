@@ -755,7 +755,7 @@ class CustomerListByUserJson(BaseDatatableView):
             eDate = datetime.strptime(endDateV, '%d/%m/%Y')
 
             return Customer.objects.filter(isDeleted__exact=False, addedBy__user_ID_id__exact=self.request.user.pk,
-                                           datetime__range=(sDate.date(), eDate.date()))
+                                           datetime__range=(sDate.date(), eDate.date() + timedelta(days=1)))
 
         except:
 
@@ -816,7 +816,7 @@ class CustomerListAdminJson(BaseDatatableView):
             eDate = datetime.strptime(endDateV, '%d/%m/%Y')
 
             return Customer.objects.filter(isDeleted__exact=False,
-                                           datetime__range=(sDate.date(), eDate.date()))
+                                           datetime__range=(sDate.date(), eDate.date() + timedelta(days=1)))
 
         except:
 
@@ -1165,7 +1165,7 @@ class SalesListByUserJson(BaseDatatableView):
             eDate = datetime.strptime(endDateV, '%d/%m/%Y')
 
             return Sale.objects.filter(isDeleted__exact=False, addedBy__user_ID_id__exact=self.request.user.pk,
-                                       datetime__range=(sDate.date(), eDate.date()))
+                                       datetime__range=(sDate.date(), eDate.date() + timedelta(days=1)))
 
         except:
 
@@ -1227,7 +1227,7 @@ class SalesListAdminJson(BaseDatatableView):
             eDate = datetime.strptime(endDateV, '%d/%m/%Y')
 
             return Sale.objects.filter(isDeleted__exact=False,
-                                       datetime__range=(sDate.date(), eDate.date()))
+                                       datetime__range=(sDate.date(), eDate.date() + timedelta(days=1)))
 
         except:
 
@@ -1995,7 +1995,7 @@ class LoginLogoutListAdminJson(BaseDatatableView):
 
             # if 'Admin' in self.request.user.groups.values_list('name', flat=True):
             return LoginAndLogoutStatus.objects.filter(isDeleted__exact=False, datetime__range=(
-                sDate.date(), eDate.date()), )
+                sDate.date(), eDate.date() + timedelta(days=1)), )
         except:
             return LoginAndLogoutStatus.objects.filter(isDeleted__exact=False)
 
