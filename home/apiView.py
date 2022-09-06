@@ -845,7 +845,9 @@ class CustomerListAdminJson(BaseDatatableView):
                 item.idProofFront.large.url, item.idProofFront.thumbnail.url)
             idProofBack = '''<img style="cursor:pointer" onclick="showImgModal('{}')" class="ui avatar image" src="{}">'''.format(
                 item.idProofBack.large.url, item.idProofBack.thumbnail.url)
-            action = '''<a data-inverted="" data-tooltip="Customer Edit" data-position="left center" data-variation="mini" style="font-size:10px;" href="/customer_edit_admin/{}/" class="ui circular facebook icon button purple">
+
+            if 'Admin' in self.request.user.groups.values_list('name', flat=True):
+                action = '''<a data-inverted="" data-tooltip="Customer Edit" data-position="left center" data-variation="mini" style="font-size:10px;" href="/customer_edit_admin/{}/" class="ui circular facebook icon button purple">
                                 <i class="pen icon"></i>
                               </a>
                               <a data-inverted="" data-tooltip="Customer Detail" data-position="left center" data-variation="mini" style="font-size:10px;" href="/customer_detail_admin/{}/" class="ui circular facebook icon button green">
@@ -854,6 +856,15 @@ class CustomerListAdminJson(BaseDatatableView):
                              <button data-inverted="" data-tooltip="Delete Detail" data-position="left center" data-variation="mini" style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
                     <i class="trash alternate icon"></i>
                   </button>'''.format(item.pk, item.pk, item.pk),
+            else:
+                action = '''<a data-inverted="" data-tooltip="Customer Edit" data-position="left center" data-variation="mini" style="font-size:10px;" href="/customer_edit_admin/{}/" class="ui circular facebook icon button purple">
+                                                <i class="pen icon"></i>
+                                              </a>
+                                              <a data-inverted="" data-tooltip="Customer Detail" data-position="left center" data-variation="mini" style="font-size:10px;" href="/customer_detail_admin/{}/" class="ui circular facebook icon button green">
+                                                <i class="receipt icon"></i>
+                                              </a>
+                                            '''.format(item.pk, item.pk),
+
             json_data.append([
                 photo,  # escape HTML for security reasons
                 escape(item.name),
@@ -1254,14 +1265,23 @@ class SalesListAdminJson(BaseDatatableView):
         for item in qs:
             photo = '''<img style="cursor:pointer" onclick="showImgModal('{}')" class="ui avatar image" src="{}">'''.format(
                 item.deliveryPhoto.large.url, item.deliveryPhoto.thumbnail.url)
-            action = '''<a data-inverted="" data-tooltip="Sales Edit" data-position="left center" data-variation="mini" style="font-size:10px;" href="/sales_edit_admin/{}/" class="ui circular facebook icon button purple">
-                                <i class="pen icon"></i>
-                              </a><a data-inverted="" data-tooltip="Sales Detail" data-position="left center" data-variation="mini" href="/sales_detail_admin/{}/" style="font-size:10px;" onclick = "GetPurchaseDetail('{}')" class="ui circular facebook icon button green">
-                    <i class="receipt icon"></i>
-                  </a>
-                  <button data-inverted="" data-tooltip="Delete Detail" data-position="left center" data-variation="mini" style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
-                    <i class="trash alternate icon"></i>
-                  </button>'''.format(item.pk, item.pk, item.pk, item.pk),
+            if 'Admin' in self.request.user.groups.values_list('name', flat=True):
+                action = '''<a data-inverted="" data-tooltip="Sales Edit" data-position="left center" data-variation="mini" style="font-size:10px;" href="/sales_edit_admin/{}/" class="ui circular facebook icon button purple">
+                                    <i class="pen icon"></i>
+                                  </a><a data-inverted="" data-tooltip="Sales Detail" data-position="left center" data-variation="mini" href="/sales_detail_admin/{}/" style="font-size:10px;" onclick = "GetPurchaseDetail('{}')" class="ui circular facebook icon button green">
+                        <i class="receipt icon"></i>
+                      </a>
+                      <button data-inverted="" data-tooltip="Delete Detail" data-position="left center" data-variation="mini" style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
+                        <i class="trash alternate icon"></i>
+                      </button>'''.format(item.pk, item.pk, item.pk, item.pk),
+            else:
+                action = '''<a data-inverted="" data-tooltip="Sales Edit" data-position="left center" data-variation="mini" style="font-size:10px;" href="/sales_edit_admin/{}/" class="ui circular facebook icon button purple">
+                                                    <i class="pen icon"></i>
+                                                  </a><a data-inverted="" data-tooltip="Sales Detail" data-position="left center" data-variation="mini" href="/sales_detail_admin/{}/" style="font-size:10px;" onclick = "GetPurchaseDetail('{}')" class="ui circular facebook icon button green">
+                                        <i class="receipt icon"></i>
+                                      </a>
+                                      '''.format(item.pk, item.pk, item.pk),
+
             if item.isClosed == True:
                 isClosed = '<div class="ui mini green label"> Yes </div>'
 
@@ -1327,6 +1347,7 @@ class InstallmentListByAdminJson(BaseDatatableView):
     def prepare_results(self, qs):
         json_data = []
         for item in qs:
+            action = ''
             if item.isPaid == False and item.saleID.isClosed == False:
                 action = '''<button data-inverted="" data-tooltip="Edit Detail" data-position="left center" data-variation="mini" style="font-size:10px;" onclick = "editDetail('{}')" class="ui circular facebook icon button purple">
                       <i class="pen icon"></i>
@@ -1340,7 +1361,7 @@ class InstallmentListByAdminJson(BaseDatatableView):
                       <a data-inverted="" data-tooltip="Sales Detail" data-position="left center" data-variation="mini" style="font-size:10px;" href="/sales_detail_admin/{}/" class="ui circular facebook icon button green">
                         <i class="receipt icon"></i>
                       </a>
-                     '''.format(item.pk, item.pk, item.pk, item.saleID.pk),
+                     '''.format(item.pk, item.pk, item.pk, item.saleID.pk)
             elif item.isPaid == True and item.saleID.isClosed == False:
                 action = '''<button data-inverted="" data-tooltip="Edit Detail" data-position="left center" data-variation="mini" style="font-size:10px;" onclick = "editDetail('{}')" class="ui circular facebook icon button purple">
                       <i class="pen icon"></i>
@@ -1350,7 +1371,7 @@ class InstallmentListByAdminJson(BaseDatatableView):
                 <a data-inverted="" data-tooltip="Sales Detail" data-position="left center" data-variation="mini" style="font-size:10px;" href="/sales_detail_admin/{}/" class="ui circular facebook icon button green">
                                         <i class="receipt icon"></i>
                                       </a>
-                                     '''.format(item.pk, item.pk, item.saleID.pk),
+                                     '''.format(item.pk, item.pk, item.saleID.pk)
             else:
                 action = '''<button data-inverted="" data-tooltip="Add Remark" data-position="left center" data-variation="mini" style="font-size:10px;" onclick = "GetRemark('{}')" class="ui circular facebook icon button blue">
                                       <i class="clipboard outline icon"></i>
@@ -1358,7 +1379,14 @@ class InstallmentListByAdminJson(BaseDatatableView):
                                 <a data-inverted="" data-tooltip="Sales Detail" data-position="left center" data-variation="mini" style="font-size:10px;" href="/sales_detail_admin/{}/" class="ui circular facebook icon button green">
                                                         <i class="receipt icon"></i>
                                                       </a>
-                                                     '''.format(item.pk, item.saleID.pk),
+                                                     '''.format(item.pk, item.saleID.pk)
+
+            if 'Admin' in self.request.user.groups.values_list('name', flat=True):
+                action = action + '''
+               <button data-inverted="" data-tooltip="Delete Detail" data-position="left center" data-variation="mini" style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
+                            <i class="trash alternate icon"></i>
+                          </button>
+               '''.format(item.pk)
 
             if item.isPaid == True:
                 paid = '<div class="ui mini green label"> Yes </div>'
@@ -1513,6 +1541,23 @@ def get_installment_detail(request):
         'Remarks': r_list
     }
     return JsonResponse({'data': data}, safe=False)
+
+
+@transaction.atomic
+@csrf_exempt
+def delete_installment_api(request):
+    if request.method == 'POST':
+        try:
+            id = request.POST.get("userID")
+            ins = Installment.objects.get(pk=int(id))
+            obj = Sale.objects.get(pk=ins.saleID.pk)
+            obj.amountPaid = (obj.amountPaid - ins.paidAmount)
+            obj.save()
+            ins.isDeleted = True
+            ins.save()
+            return JsonResponse({'message': 'success'}, safe=False)
+        except:
+            return JsonResponse({'message': 'error'}, safe=False)
 
 
 @transaction.atomic

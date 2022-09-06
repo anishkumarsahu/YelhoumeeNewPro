@@ -370,6 +370,27 @@
             </div>
         </div>
     </div>
+    <div class="ui basic modal custom" id="deleteUser">
+        <div class="ui icon header">
+            <i class="archive icon"></i>
+            Installment Details will be Deleted
+        </div>
+        <div class="content">
+            <p style="text-align: center">The detail will be deleted, are you sure to delete this Installment?</p>
+        </div>
+        <div class="actions">
+            <div class="ui red basic cancel inverted button">
+                <i class="remove icon"></i>
+                No
+            </div>
+            <input type="hidden" id="UserID">
+            <div class="ui green ok inverted button" onclick="deleteUser()">
+                <i class="checkmark icon"></i>
+                Yes
+            </div>
+        </div>
+    </div>
+
 {% endblock %}
 
 {% block js %}
@@ -1077,6 +1098,61 @@
                 });
             }
 
+
+        }
+
+        function delUser(id) {
+            $('#deleteUser')
+                .modal('show')
+            ;
+            $('#UserID').val(id)
+        }
+
+        function deleteUser() {
+            var id = $('#UserID').val();
+            var formdata = new FormData();
+            formdata.append('userID', id);
+
+            $.ajax({
+                url: "{% url 'homeApp:delete_installment_api' %}",
+                type: "post",
+                data: formdata,
+                contentType: false,
+                cache: false,
+                processData: false,
+
+                success: function (response) {
+                    if (response.message === 'success') {
+                        $('body')
+                            .toast({
+                                class: 'success',
+                                message: 'Installment Detail Deleted Successfully.'
+                            })
+                        ;
+
+
+                        userTab.ajax.reload();
+                    } else {
+                        $('body')
+                            .toast({
+                                class: 'error',
+                                message: 'An error occurred !'
+                            })
+                        ;
+
+                    }
+
+                    return response;
+                },
+                error: function () {
+                    $('body')
+                        .toast({
+                            class: 'error',
+                            message: 'An error occurred !'
+                        })
+                    ;
+                }
+            });
 
         }
 

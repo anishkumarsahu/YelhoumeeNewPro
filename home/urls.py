@@ -93,6 +93,7 @@ urlpatterns = [
     # installments
     path('api/InstallmentListByAdminJson/', InstallmentListByAdminJson.as_view(), name='InstallmentListByAdminJson'),
     path('api/InstallmentListByUserJson/', InstallmentListByUserJson.as_view(), name='InstallmentListByUserJson'),
+    path('api/delete_installment_api/', delete_installment_api, name='delete_installment_api'),
     path('api/get_installment_detail/', get_installment_detail, name='get_installment_detail'),
     path('api/add_installment_api/', add_installment_api, name='add_installment_api'),
     path('api/add_installment_remark_api/', add_installment_remark_api, name='add_installment_remark_api'),
