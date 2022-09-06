@@ -39,7 +39,7 @@ def add_staff_api(request):
             staff.userPassword = UserPwd
             staff.save()
             username = 'USER' + get_random_string(length=3, allowed_chars='1234567890')
-            while User.objects.filter(username__exact=username).count() > 0:
+            while User.objects.select_related().filter(username__exact=username).count() > 0:
                 username = 'USER' + get_random_string(length=5, allowed_chars='1234567890')
             else:
                 new_user = User()
@@ -83,7 +83,7 @@ class StaffUserListJson(BaseDatatableView):
 
     def get_initial_queryset(self):
         # if 'Admin' in self.request.user.groups.values_list('name', flat=True):
-        return StaffUser.objects.filter(isDeleted__exact=False)
+        return StaffUser.objects.select_related().filter(isDeleted__exact=False)
 
     def filter_queryset(self, qs):
 
@@ -133,10 +133,10 @@ def delete_staff_user(request):
     if request.method == 'POST':
         try:
             id = request.POST.get("userID")
-            staff = StaffUser.objects.get(pk=int(id))
+            staff = StaffUser.objects.select_related().get(pk=int(id))
             staff.isDeleted = True
             staff.save()
-            new_user = User.objects.get(pk=staff.user_ID_id)
+            new_user = User.objects.select_related().get(pk=staff.user_ID_id)
             new_user.is_active = False
             new_user.save()
 
@@ -179,7 +179,7 @@ def edit_staff_api(request):
             UserStatus = request.POST.get("UserStatus")
             UserPwd = request.POST.get("UserPwd")
 
-            staff = StaffUser.objects.get(pk=int(EditUserId))
+            staff = StaffUser.objects.select_related().get(pk=int(EditUserId))
             staff.name = CompanyUserName
             staff.phone = UserPhoneNo
             staff.email = UserEmail
@@ -189,7 +189,7 @@ def edit_staff_api(request):
             staff.userPassword = UserPwd
             staff.save()
 
-            new_user = User.objects.get(pk=staff.user_ID_id)
+            new_user = User.objects.select_related().get(pk=staff.user_ID_id)
             new_user.set_password(UserPwd)
             if UserStatus == 'Active':
                 new_user.is_active = True
@@ -260,7 +260,7 @@ class ProductListJson(BaseDatatableView):
 
     def get_initial_queryset(self):
         # if 'Admin' in self.request.user.groups.values_list('name', flat=True):
-        return Product.objects.filter(isDeleted__exact=False)
+        return Product.objects.select_related().filter(isDeleted__exact=False)
 
     def filter_queryset(self, qs):
 
@@ -309,7 +309,7 @@ def delete_product(request):
     if request.method == 'POST':
         try:
             id = request.POST.get("userID")
-            pro = Product.objects.get(pk=int(id))
+            pro = Product.objects.select_related().get(pk=int(id))
             pro.isDeleted = True
             pro.save()
 
@@ -352,7 +352,7 @@ def edit_product_api(request):
             mrp = request.POST.get("mrp")
             sp = request.POST.get("sp")
 
-            pro = Product.objects.get(id=int(Id))
+            pro = Product.objects.select_related().get(id=int(Id))
             pro.name = productName
             pro.unitID = unit
             pro.categoryID = category
@@ -398,7 +398,7 @@ def delete_supplier(request):
     if request.method == 'POST':
         try:
             id = request.POST.get("userID")
-            obj = Supplier.objects.get(pk=int(id))
+            obj = Supplier.objects.select_related().get(pk=int(id))
             obj.isDeleted = True
             obj.save()
             return JsonResponse({'message': 'success'}, safe=False)
@@ -411,7 +411,7 @@ class SupplierListJson(BaseDatatableView):
 
     def get_initial_queryset(self):
         # if 'Admin' in self.request.user.groups.values_list('name', flat=True):
-        return Supplier.objects.filter(isDeleted__exact=False)
+        return Supplier.objects.select_related().filter(isDeleted__exact=False)
 
     def filter_queryset(self, qs):
 
@@ -475,7 +475,7 @@ def edit_supplier_api(request):
             gst = request.POST.get("gst")
             address = request.POST.get("address")
 
-            obj = Supplier.objects.get(id=int(Id))
+            obj = Supplier.objects.select_related().get(id=int(Id))
             obj.name = supplierName
             obj.phone = phone
             obj.gst = gst
@@ -527,7 +527,7 @@ def add_purchase_api(request):
             p.gst = float(item_details[4])
             p.net = float(item_details[5])
             p.total = float(item_details[6])
-            pro = Product.objects.get(pk=int(int(item_details[0])))
+            pro = Product.objects.select_related().get(pk=int(int(item_details[0])))
             ori_stock = pro.stock
             pro.stock = (ori_stock + float(item_details[2]))
             pro.save()
@@ -541,7 +541,7 @@ class PurchaseListJson(BaseDatatableView):
 
     def get_initial_queryset(self):
         # if 'Admin' in self.request.user.groups.values_list('name', flat=True):
-        return Purchase.objects.filter(isDeleted__exact=False)
+        return Purchase.objects.select_related().filter(isDeleted__exact=False)
 
     def filter_queryset(self, qs):
 
@@ -590,7 +590,7 @@ def get_purchase_detail(request, id=None):
         'Phone': instance.supplierID.phone,
         'Address': instance.supplierID.address,
     }
-    items = PurchaseProduct.objects.filter(purchaseID_id=instance.pk)
+    items = PurchaseProduct.objects.select_related().filter(purchaseID_id=instance.pk)
     item_list = []
     for i in items:
         item_dic = {
@@ -618,12 +618,12 @@ def get_purchase_detail(request, id=None):
 def delete_purchase(request):
     if request.method == 'POST':
         id = request.POST.get("ID")
-        sale = Purchase.objects.get(pk=int(id))
+        sale = Purchase.objects.select_related().get(pk=int(id))
         sale.isDeleted = True
         sale.save()
-        sales_products = PurchaseProduct.objects.filter(purchaseID_id=int(id))
+        sales_products = PurchaseProduct.objects.select_related().filter(purchaseID_id=int(id))
         for pro in sales_products:
-            product = Product.objects.get(pk=pro.productID_id)
+            product = Product.objects.select_related().get(pk=pro.productID_id)
             product.stock = product.stock - pro.quantity
             product.save()
         return JsonResponse({'message': 'success'}, safe=False)
@@ -636,18 +636,18 @@ def delete_customer_api(request):
     if request.method == 'POST':
         try:
             id = request.POST.get("userID")
-            cus = Customer.objects.get(pk=int(id))
+            cus = Customer.objects.select_related().get(pk=int(id))
             cus.isDeleted = True
             cus.save()
 
-            obj = Sale.objects.filter(isDeleted__exact=False, customerID_id=cus.pk)
+            obj = Sale.objects.select_related().filter(isDeleted__exact=False, customerID_id=cus.pk)
             for o in obj:
                 o.isDeleted = True
                 o.save()
-                pro = Product.objects.get(pk=o.productID_id)
+                pro = Product.objects.select_related().get(pk=o.productID_id)
                 pro.stock = (pro.stock + 1)
                 pro.save()
-                ins = Installment.objects.filter(saleID_id=o.pk)
+                ins = Installment.objects.select_related().filter(saleID_id=o.pk)
                 for i in ins:
                     i.isDeleted = True
                     i.save()
@@ -683,12 +683,12 @@ def add_customer_api(request):
             obj.photo = photo
             obj.idProofFront = idf
             obj.idProofBack = idb
-            user = StaffUser.objects.get(user_ID_id=request.user.pk)
+            user = StaffUser.objects.select_related().get(user_ID_id=request.user.pk)
             obj.addedBy_id = user.pk
             todayDate = datetime.today().date()
             code = todayDate.strftime("%y%b")
-            totalCustomer = Customer.objects.filter(isDeleted=False, datetime__year=todayDate.year,
-                                                    datetime__month=todayDate.month)
+            totalCustomer = Customer.objects.select_related().filter(isDeleted=False, datetime__year=todayDate.year,
+                                                                     datetime__month=todayDate.month)
             obj.customerCode = str(code).upper() + str(totalCustomer.count()).zfill(3)
             obj.save()
 
@@ -710,7 +710,7 @@ def edit_customer_api(request):
             lng = request.POST.get("lng")
             landmark = request.POST.get("landmark")
             cusID = request.POST.get("cusID")
-            obj = Customer.objects.get(pk=int(cusID))
+            obj = Customer.objects.select_related().get(pk=int(cusID))
             try:
                 photo = request.FILES["photo"]
                 obj.photo = photo
@@ -754,12 +754,15 @@ class CustomerListByUserJson(BaseDatatableView):
             sDate = datetime.strptime(startDateV, '%d/%m/%Y')
             eDate = datetime.strptime(endDateV, '%d/%m/%Y')
 
-            return Customer.objects.filter(isDeleted__exact=False, addedBy__user_ID_id__exact=self.request.user.pk,
-                                           datetime__range=(sDate.date(), eDate.date() + timedelta(days=1)))
+            return Customer.objects.select_related().filter(isDeleted__exact=False,
+                                                            addedBy__user_ID_id__exact=self.request.user.pk,
+                                                            datetime__range=(
+                                                            sDate.date(), eDate.date() + timedelta(days=1)))
 
         except:
 
-            return Customer.objects.filter(isDeleted__exact=False, addedBy__user_ID_id__exact=self.request.user.pk)
+            return Customer.objects.select_related().filter(isDeleted__exact=False,
+                                                            addedBy__user_ID_id__exact=self.request.user.pk)
 
     def filter_queryset(self, qs):
 
@@ -815,12 +818,13 @@ class CustomerListAdminJson(BaseDatatableView):
             sDate = datetime.strptime(startDateV, '%d/%m/%Y')
             eDate = datetime.strptime(endDateV, '%d/%m/%Y')
 
-            return Customer.objects.filter(isDeleted__exact=False,
-                                           datetime__range=(sDate.date(), eDate.date() + timedelta(days=1)))
+            return Customer.objects.select_related().filter(isDeleted__exact=False,
+                                                            datetime__range=(
+                                                            sDate.date(), eDate.date() + timedelta(days=1)))
 
         except:
 
-            return Customer.objects.filter(isDeleted__exact=False)
+            return Customer.objects.select_related().filter(isDeleted__exact=False)
 
     def filter_queryset(self, qs):
 
@@ -884,7 +888,7 @@ class CustomerListAdminJson(BaseDatatableView):
 # customer and product API list
 def list_customer_api(request):
     try:
-        obj_list = Customer.objects.filter(isDeleted__exact=False).order_by('name')
+        obj_list = Customer.objects.select_related().filter(isDeleted__exact=False).select_related().order_by('name')
         o_list = []
         for obj in obj_list:
             obj_dic = {
@@ -905,7 +909,7 @@ def list_customer_api(request):
 
 def list_product_api(request):
     try:
-        obj_list = Product.objects.filter(isDeleted__exact=False).order_by('name')
+        obj_list = Product.objects.select_related().filter(isDeleted__exact=False).select_related().order_by('name')
 
         o_list = []
         for obj in obj_list:
@@ -932,13 +936,13 @@ def delete_sale_api(request):
     if request.method == 'POST':
         try:
             id = request.POST.get("userID")
-            obj = Sale.objects.get(pk=int(id))
+            obj = Sale.objects.select_related().get(pk=int(id))
             obj.isDeleted = True
             obj.save()
-            pro = Product.objects.get(pk=obj.productID_id)
+            pro = Product.objects.select_related().get(pk=obj.productID_id)
             pro.stock = (pro.stock + 1)
             pro.save()
-            ins = Installment.objects.filter(saleID_id=obj.pk)
+            ins = Installment.objects.select_related().filter(saleID_id=obj.pk)
             for i in ins:
                 i.isDeleted = True
                 i.save()
@@ -964,9 +968,9 @@ def add_sales_api(request):
             remark = request.POST.get("remark")
             idate = request.POST.get("idate")
             c = str(customer).split('@')
-            cus = Customer.objects.get(pk=int(c[1]))
+            cus = Customer.objects.select_related().get(pk=int(c[1]))
             p = str(product).split('@')
-            pro = Product.objects.get(pk=int(p[1]))
+            pro = Product.objects.select_related().get(pk=int(p[1]))
             obj = Sale()
             obj.latitude = lat
             obj.longitude = lng
@@ -984,7 +988,7 @@ def add_sales_api(request):
             obj.totalAmount = float(totalAmount)
             obj.remark = remark
             obj.deliveryPhoto = photo
-            user = StaffUser.objects.get(user_ID_id=request.user.pk)
+            user = StaffUser.objects.select_related().get(user_ID_id=request.user.pk)
             obj.addedBy_id = user.pk
             obj.assignedTo_id = user.pk
             obj.installmentStartDate = datetime.strptime(idate, '%d/%m/%Y')
@@ -1024,9 +1028,9 @@ def add_sales_admin_api(request):
             idate = request.POST.get("idate")
             assignTo = request.POST.get("assignTo")
             c = str(customer).split('@')
-            cus = Customer.objects.get(pk=int(c[1]))
+            cus = Customer.objects.select_related().get(pk=int(c[1]))
             p = str(product).split('@')
-            pro = Product.objects.get(pk=int(p[1]))
+            pro = Product.objects.select_related().get(pk=int(p[1]))
             obj = Sale()
             obj.latitude = lat
             obj.longitude = lng
@@ -1044,7 +1048,7 @@ def add_sales_admin_api(request):
             obj.totalAmount = float(totalAmount)
             obj.remark = remark
             obj.deliveryPhoto = photo
-            user = StaffUser.objects.get(user_ID_id=request.user.pk)
+            user = StaffUser.objects.select_related().get(user_ID_id=request.user.pk)
             obj.addedBy_id = user.pk
             obj.assignedTo_id = int(assignTo)
             obj.installmentStartDate = datetime.strptime(idate, '%d/%m/%Y')
@@ -1082,20 +1086,20 @@ def edit_sales_admin_api(request):
             idate = request.POST.get("idate")
             assignTo = request.POST.get("assignTo")
             saleID = request.POST.get("saleID")
-            obj = Sale.objects.get(pk = int(saleID))
+            obj = Sale.objects.select_related().get(pk=int(saleID))
             try:
                 photo = request.FILES["photo"]
                 obj.deliveryPhoto = photo
             except:
                 pass
             c = str(customer).split('@')
-            cus = Customer.objects.get(pk=int(c[1]))
+            cus = Customer.objects.select_related().get(pk=int(c[1]))
             p = str(product).split('@')
-            prev_product = Product.objects.get(pk = obj.productID_id)
-            prev_product.stock = (prev_product.stock+1)
+            prev_product = Product.objects.select_related().get(pk=obj.productID_id)
+            prev_product.stock = (prev_product.stock + 1)
             prev_product.save()
 
-            pro = Product.objects.get(pk=int(p[1]))
+            pro = Product.objects.select_related().get(pk=int(p[1]))
 
             obj.customerName = cus.name
             obj.customerID_id = cus.pk
@@ -1133,7 +1137,7 @@ def edit_sales_admin_api(request):
 
 def list_sales_api(request):
     try:
-        obj_list = Sale.objects.filter(isDeleted__exact=False).order_by('saleNo')
+        obj_list = Sale.objects.select_related().filter(isDeleted__exact=False).order_by('saleNo')
         o_list = []
         for obj in obj_list:
             obj_dic = {
@@ -1156,7 +1160,7 @@ def list_sales_api(request):
 def change_sales_status(request):
     if request.method == 'POST':
         id = request.POST.get("id")
-        sale = Sale.objects.get(pk=int(id))
+        sale = Sale.objects.select_related().get(pk=int(id))
         sale.isClosed = not sale.isClosed
         sale.save()
         return JsonResponse({'message': 'success'}, safe=False)
@@ -1175,12 +1179,15 @@ class SalesListByUserJson(BaseDatatableView):
             sDate = datetime.strptime(startDateV, '%d/%m/%Y')
             eDate = datetime.strptime(endDateV, '%d/%m/%Y')
 
-            return Sale.objects.filter(isDeleted__exact=False, addedBy__user_ID_id__exact=self.request.user.pk,
-                                       datetime__range=(sDate.date(), eDate.date() + timedelta(days=1)))
+            return Sale.objects.select_related().filter(isDeleted__exact=False,
+                                                        addedBy__user_ID_id__exact=self.request.user.pk,
+                                                        datetime__range=(
+                                                        sDate.date(), eDate.date() + timedelta(days=1)))
 
         except:
 
-            return Sale.objects.filter(isDeleted__exact=False, addedBy__user_ID_id__exact=self.request.user.pk)
+            return Sale.objects.select_related().filter(isDeleted__exact=False,
+                                                        addedBy__user_ID_id__exact=self.request.user.pk)
 
     def filter_queryset(self, qs):
 
@@ -1237,12 +1244,13 @@ class SalesListAdminJson(BaseDatatableView):
             sDate = datetime.strptime(startDateV, '%d/%m/%Y')
             eDate = datetime.strptime(endDateV, '%d/%m/%Y')
 
-            return Sale.objects.filter(isDeleted__exact=False,
-                                       datetime__range=(sDate.date(), eDate.date() + timedelta(days=1)))
+            return Sale.objects.select_related().filter(isDeleted__exact=False,
+                                                        datetime__range=(
+                                                        sDate.date(), eDate.date() + timedelta(days=1)))
 
         except:
 
-            return Sale.objects.filter(isDeleted__exact=False)
+            return Sale.objects.select_related().filter(isDeleted__exact=False)
 
     def filter_queryset(self, qs):
 
@@ -1309,7 +1317,7 @@ class SalesListAdminJson(BaseDatatableView):
 # ------------------------------------Installments-----------------------------------
 
 class InstallmentListByAdminJson(BaseDatatableView):
-    order_columns = ['saleNo', 'saleID.customerName', 'emiAmount', 'installmentDate', 'paidAmount', 'isPaid',
+    order_columns = ['saleID.saleNo', 'saleID.customerName', 'emiAmount', 'installmentDate', 'paidAmount', 'isPaid',
                      'dueAmount', 'NextDueDate', 'remark', 'assignedTo.name', 'collectedBy.name', 'paymentReceivedOn']
 
     def get_initial_queryset(self):
@@ -1319,16 +1327,16 @@ class InstallmentListByAdminJson(BaseDatatableView):
             sDate = datetime.strptime(startDateV, '%d/%m/%Y')
             eDate = datetime.strptime(endDateV, '%d/%m/%Y')
 
-            return Installment.objects.filter(isDeleted__exact=False,
-                                              installmentDate__range=(sDate.date(), eDate.date()),
+            return Installment.objects.select_related().filter(isDeleted__exact=False,
+                                                               installmentDate__range=(sDate.date(), eDate.date()),
 
-                                              )
+                                                               )
         except:
 
-            return Installment.objects.filter(isDeleted__exact=False,
-                                              installmentDate__exact=datetime.today().date(),
+            return Installment.objects.select_related().filter(isDeleted__exact=False,
+                                                               installmentDate__exact=datetime.today().date(),
 
-                                              )
+                                                               )
 
     def filter_queryset(self, qs):
 
@@ -1421,7 +1429,7 @@ class InstallmentListByAdminJson(BaseDatatableView):
 
 
 class InstallmentListByUserJson(BaseDatatableView):
-    order_columns = ['saleID', 'saleID.customerName', 'emiAmount', 'installmentDate', 'paidAmount', 'isPaid',
+    order_columns = ['saleID.saleNo', 'saleID.customerName', 'emiAmount', 'installmentDate', 'paidAmount', 'isPaid',
                      'dueAmount', 'NextDueDate', 'remark', 'paymentReceivedOn']
 
     def get_initial_queryset(self):
@@ -1431,18 +1439,18 @@ class InstallmentListByUserJson(BaseDatatableView):
             sDate = datetime.strptime(startDateV, '%d/%m/%Y')
             eDate = datetime.strptime(endDateV, '%d/%m/%Y')
 
-            return Installment.objects.filter(isDeleted__exact=False,
-                                              assignedTo__user_ID_id__exact=self.request.user.pk,
-                                              installmentDate__range=(sDate.date(), eDate.date()),
+            return Installment.objects.select_related().filter(isDeleted__exact=False,
+                                                               assignedTo__user_ID_id__exact=self.request.user.pk,
+                                                               installmentDate__range=(sDate.date(), eDate.date()),
 
-                                              )
+                                                               )
         except:
 
-            return Installment.objects.filter(isDeleted__exact=False,
-                                              assignedTo__user_ID_id__exact=self.request.user.pk,
-                                              installmentDate__exact=datetime.today().date(),
+            return Installment.objects.select_related().filter(isDeleted__exact=False,
+                                                               assignedTo__user_ID_id__exact=self.request.user.pk,
+                                                               installmentDate__exact=datetime.today().date(),
 
-                                              )
+                                                               )
 
     def filter_queryset(self, qs):
 
@@ -1511,7 +1519,8 @@ class InstallmentListByUserJson(BaseDatatableView):
 def get_installment_detail(request):
     id = request.GET.get('id')
     instance = get_object_or_404(Installment, id=id)
-    remarks = InstallmentRemark.objects.filter(installmentID_id=instance.pk, isDeleted__exact=False).order_by(
+    remarks = InstallmentRemark.objects.select_related().filter(installmentID_id=instance.pk,
+                                                                isDeleted__exact=False).order_by(
         'datetime')
     r_list = []
     for r in remarks:
@@ -1549,8 +1558,8 @@ def delete_installment_api(request):
     if request.method == 'POST':
         try:
             id = request.POST.get("userID")
-            ins = Installment.objects.get(pk=int(id))
-            obj = Sale.objects.get(pk=ins.saleID.pk)
+            ins = Installment.objects.select_related().get(pk=int(id))
+            obj = Sale.objects.select_related().get(pk=ins.saleID.pk)
             obj.amountPaid = (obj.amountPaid - ins.paidAmount)
             obj.save()
             ins.isDeleted = True
@@ -1572,9 +1581,9 @@ def add_installment_api(request):
             remark = request.POST.get("remark")
             htmlLat = request.POST.get("htmlLat")
             htmlLong = request.POST.get("htmlLong")
-            ins = Installment.objects.get(pk=int(ID))
-            obj = Sale.objects.get(pk=ins.saleID.pk)
-            user = StaffUser.objects.get(user_ID_id=request.user.pk)
+            ins = Installment.objects.select_related().get(pk=int(ID))
+            obj = Sale.objects.select_related().get(pk=ins.saleID.pk)
+            user = StaffUser.objects.select_related().get(user_ID_id=request.user.pk)
             ins.paidAmount = float(paidAmount)
             ins.isPaid = True
             ins.remark = remark
@@ -1631,7 +1640,7 @@ def add_new_installment_api(request):
             htmlLong = request.POST.get("htmlLong")
             ins = Installment()
 
-            user = StaffUser.objects.get(user_ID_id=request.user.pk)
+            user = StaffUser.objects.select_related().get(user_ID_id=request.user.pk)
             ins.saleID_id = int(newSaleID)
             ins.installmentDate = datetime.strptime(newInstallmentDate, '%d/%m/%Y')
             ins.emiAmount = float(newInstallmentAmount)
@@ -1668,10 +1677,10 @@ def edit_installment_api(request):
             editAssignTo = request.POST.get("editAssignTo")
             htmlLat = request.POST.get("htmlLat")
             htmlLong = request.POST.get("htmlLong")
-            ins = Installment.objects.get(pk=int(editID))
+            ins = Installment.objects.select_related().get(pk=int(editID))
             prev_amount = ins.paidAmount
-            obj = Sale.objects.get(pk=ins.saleID.pk)
-            user = StaffUser.objects.get(user_ID_id=request.user.pk)
+            obj = Sale.objects.select_related().get(pk=ins.saleID.pk)
+            user = StaffUser.objects.select_related().get(user_ID_id=request.user.pk)
             ins.paidAmount = float(editPaidAmount)
             ins.assignedTo_id = int(editAssignTo)
             ins.remark = editRemark
@@ -1714,8 +1723,8 @@ def add_installment_remark_api(request):
             addRemark = request.POST.get("addRemark")
             htmlLat = request.POST.get("htmlLat")
             htmlLong = request.POST.get("htmlLong")
-            ins = Installment.objects.get(pk=int(idRemark))
-            user = StaffUser.objects.get(user_ID_id=request.user.pk)
+            ins = Installment.objects.select_related().get(pk=int(idRemark))
+            user = StaffUser.objects.select_related().get(user_ID_id=request.user.pk)
             rem = InstallmentRemark()
             rem.installmentID_id = ins.pk
             rem.remark = addRemark
@@ -1731,14 +1740,15 @@ def add_installment_remark_api(request):
 # -------------------------------------------- # collection Report-----------------------------------
 
 def get_collection_user_report_api(request):
-    user = StaffUser.objects.get(user_ID_id=request.user.pk)
+    user = StaffUser.objects.select_related().get(user_ID_id=request.user.pk)
 
-    customer_objs = Customer.objects.filter(isDeleted__exact=False, addedBy_id=user.pk)
-    sale_objs = Sale.objects.filter(isDeleted__exact=False, addedBy_id=user.pk)
-    today_inst = Installment.objects.filter(isDeleted__exact=False, assignedTo_id=user.pk,
-                                            installmentDate__icontains=datetime.today().date())
-    collection = Installment.objects.filter(isDeleted__exact=False, collectedBy_id=user.pk,
-                                            paymentReceivedOn__icontains=datetime.today().date(), isPaid__exact=True)
+    customer_objs = Customer.objects.select_related().filter(isDeleted__exact=False, addedBy_id=user.pk)
+    sale_objs = Sale.objects.select_related().filter(isDeleted__exact=False, addedBy_id=user.pk)
+    today_inst = Installment.objects.select_related().filter(isDeleted__exact=False, assignedTo_id=user.pk,
+                                                             installmentDate__icontains=datetime.today().date())
+    collection = Installment.objects.select_related().filter(isDeleted__exact=False, collectedBy_id=user.pk,
+                                                             paymentReceivedOn__icontains=datetime.today().date(),
+                                                             isPaid__exact=True)
 
     c_total = 0.0
     for c in collection:
@@ -1754,12 +1764,13 @@ def get_collection_user_report_api(request):
 
 
 def get_admin_report_api(request):
-    customer_objs = Customer.objects.filter(isDeleted__exact=False)
-    sale_objs = Sale.objects.filter(isDeleted__exact=False)
-    today_inst = Installment.objects.filter(isDeleted__exact=False,
-                                            installmentDate__icontains=datetime.today().date())
-    collection = Installment.objects.filter(isDeleted__exact=False,
-                                            paymentReceivedOn__icontains=datetime.today().date(), isPaid__exact=True)
+    customer_objs = Customer.objects.select_related().filter(isDeleted__exact=False)
+    sale_objs = Sale.objects.select_related().filter(isDeleted__exact=False)
+    today_inst = Installment.objects.select_related().filter(isDeleted__exact=False,
+                                                             installmentDate__icontains=datetime.today().date())
+    collection = Installment.objects.select_related().filter(isDeleted__exact=False,
+                                                             paymentReceivedOn__icontains=datetime.today().date(),
+                                                             isPaid__exact=True)
 
     c_total = 0.0
     for c in collection:
@@ -1780,19 +1791,22 @@ def get_last_three_days_collection_report_for_admin_api(request):
     last_second_date = datetime.today().date() - timedelta(days=2)
     last_third_date = datetime.today().date() - timedelta(days=3)
 
-    first_collection = Installment.objects.filter(isDeleted__exact=False,
-                                                  paymentReceivedOn__icontains=last_first_date,
-                                                  isPaid__exact=True).aggregate(Sum('paidAmount'))
-    second_collection = Installment.objects.filter(isDeleted__exact=False,
-                                                   paymentReceivedOn__icontains=last_second_date,
-                                                   isPaid__exact=True).aggregate(Sum('paidAmount', default=0))
-    third_collection = Installment.objects.filter(isDeleted__exact=False,
-                                                  paymentReceivedOn__icontains=last_third_date,
-                                                  isPaid__exact=True).aggregate(Sum('paidAmount', default=0))
-    month_collection = Installment.objects.filter(isDeleted__exact=False,
-                                                  paymentReceivedOn__year=today.year,
-                                                  paymentReceivedOn__month=today.month,
-                                                  isPaid__exact=True).aggregate(Sum('paidAmount', default=0))
+    first_collection = Installment.objects.select_related().filter(isDeleted__exact=False,
+                                                                   paymentReceivedOn__icontains=last_first_date,
+                                                                   isPaid__exact=True).aggregate(Sum('paidAmount'))
+    second_collection = Installment.objects.select_related().filter(isDeleted__exact=False,
+                                                                    paymentReceivedOn__icontains=last_second_date,
+                                                                    isPaid__exact=True).aggregate(
+        Sum('paidAmount', default=0))
+    third_collection = Installment.objects.select_related().filter(isDeleted__exact=False,
+                                                                   paymentReceivedOn__icontains=last_third_date,
+                                                                   isPaid__exact=True).aggregate(
+        Sum('paidAmount', default=0))
+    month_collection = Installment.objects.select_related().filter(isDeleted__exact=False,
+                                                                   paymentReceivedOn__year=today.year,
+                                                                   paymentReceivedOn__month=today.month,
+                                                                   isPaid__exact=True).aggregate(
+        Sum('paidAmount', default=0))
 
     if first_collection['paidAmount__sum'] == None:
         f_c = 0.0
@@ -1832,23 +1846,27 @@ def get_last_three_days_collection_report_for_user_api(request):
     last_first_date = datetime.today().date() - timedelta(days=1)
     last_second_date = datetime.today().date() - timedelta(days=2)
     last_third_date = datetime.today().date() - timedelta(days=3)
-    user = StaffUser.objects.get(user_ID_id=request.user.pk)
-    first_collection = Installment.objects.filter(isDeleted__exact=False,
-                                                  paymentReceivedOn__icontains=last_first_date,
-                                                  isPaid__exact=True, collectedBy_id__exact=user.pk).aggregate(
+    user = StaffUser.objects.select_related().get(user_ID_id=request.user.pk)
+    first_collection = Installment.objects.select_related().filter(isDeleted__exact=False,
+                                                                   paymentReceivedOn__icontains=last_first_date,
+                                                                   isPaid__exact=True,
+                                                                   collectedBy_id__exact=user.pk).aggregate(
         Sum('paidAmount'))
-    second_collection = Installment.objects.filter(isDeleted__exact=False,
-                                                   paymentReceivedOn__icontains=last_second_date,
-                                                   isPaid__exact=True, collectedBy_id__exact=user.pk).aggregate(
+    second_collection = Installment.objects.select_related().filter(isDeleted__exact=False,
+                                                                    paymentReceivedOn__icontains=last_second_date,
+                                                                    isPaid__exact=True,
+                                                                    collectedBy_id__exact=user.pk).aggregate(
         Sum('paidAmount', default=0))
-    third_collection = Installment.objects.filter(isDeleted__exact=False,
-                                                  paymentReceivedOn__icontains=last_third_date,
-                                                  isPaid__exact=True, collectedBy_id__exact=user.pk).aggregate(
+    third_collection = Installment.objects.select_related().filter(isDeleted__exact=False,
+                                                                   paymentReceivedOn__icontains=last_third_date,
+                                                                   isPaid__exact=True,
+                                                                   collectedBy_id__exact=user.pk).aggregate(
         Sum('paidAmount', default=0))
-    month_collection = Installment.objects.filter(isDeleted__exact=False,
-                                                  paymentReceivedOn__year=today.year,
-                                                  paymentReceivedOn__month=today.month,
-                                                  isPaid__exact=True, collectedBy_id__exact=user.pk).aggregate(
+    month_collection = Installment.objects.select_related().filter(isDeleted__exact=False,
+                                                                   paymentReceivedOn__year=today.year,
+                                                                   paymentReceivedOn__month=today.month,
+                                                                   isPaid__exact=True,
+                                                                   collectedBy_id__exact=user.pk).aggregate(
         Sum('paidAmount', default=0))
 
     if first_collection['paidAmount__sum'] == None:
@@ -1885,18 +1903,20 @@ def get_last_three_days_collection_report_for_user_api(request):
 
 
 def get_daily_collections_by_staff(request):
-    users = StaffUser.objects.filter(isDeleted__exact=False, isActive__exact='Active').order_by('name')
+    users = StaffUser.objects.select_related().filter(isDeleted__exact=False, isActive__exact='Active').order_by('name')
     data = []
     for user in users:
 
-        user_collection = Installment.objects.filter(isDeleted__exact=False,
-                                                     paymentReceivedOn__icontains=datetime.today().date(),
-                                                     isPaid__exact=True, collectedBy_id__exact=user.pk).aggregate(
+        user_collection = Installment.objects.select_related().filter(isDeleted__exact=False,
+                                                                      paymentReceivedOn__icontains=datetime.today().date(),
+                                                                      isPaid__exact=True,
+                                                                      collectedBy_id__exact=user.pk).aggregate(
             Sum('paidAmount'))
-        user_collectables = Installment.objects.filter(Q(installmentDate__icontains=datetime.today().date()) |
-                                                       Q(paymentReceivedOn__icontains=datetime.today().date()
-                                                         ), isDeleted__exact=False,
-                                                       assignedTo_id__exact=user.pk).aggregate(Sum('emiAmount'))
+        user_collectables = Installment.objects.select_related().filter(
+            Q(installmentDate__icontains=datetime.today().date()) |
+            Q(paymentReceivedOn__icontains=datetime.today().date()
+              ), isDeleted__exact=False,
+            assignedTo_id__exact=user.pk).aggregate(Sum('emiAmount'))
 
         if user_collection['paidAmount__sum'] == None:
             collection = 0.0
@@ -1933,7 +1953,7 @@ def add_document_api(request):
             obj = Document()
             obj.title = title
             obj.uploadedFile = doc
-            user = StaffUser.objects.get(user_ID_id=request.user.pk)
+            user = StaffUser.objects.select_related().get(user_ID_id=request.user.pk)
             obj.addedBy_id = user.pk
             obj.save()
 
@@ -1947,7 +1967,7 @@ class DocumentListAdminJson(BaseDatatableView):
 
     def get_initial_queryset(self):
         # if 'Admin' in self.request.user.groups.values_list('name', flat=True):
-        return Document.objects.filter(isDeleted__exact=False)
+        return Document.objects.select_related().filter(isDeleted__exact=False)
 
     def filter_queryset(self, qs):
 
@@ -1991,7 +2011,7 @@ def delete_document(request):
     if request.method == 'POST':
         try:
             id = request.POST.get("userID")
-            obj = Document.objects.get(pk=int(id))
+            obj = Document.objects.select_related().get(pk=int(id))
             obj.isDeleted = True
             obj.save()
             return JsonResponse({'message': 'success'}, safe=False)
@@ -2018,7 +2038,7 @@ def edit_document_api(request):
             Id = request.POST.get("EditUserId")
             title = request.POST.get("title")
 
-            obj = Document.objects.get(id=int(Id))
+            obj = Document.objects.select_related().get(id=int(Id))
             obj.title = title
             try:
                 doc = request.FILES["doc"]
@@ -2026,7 +2046,7 @@ def edit_document_api(request):
             except:
                 pass
 
-            user = StaffUser.objects.get(user_ID_id=request.user.pk)
+            user = StaffUser.objects.select_related().get(user_ID_id=request.user.pk)
             obj.addedBy_id = user.pk
             obj.save()
 
@@ -2048,10 +2068,10 @@ class LoginLogoutListAdminJson(BaseDatatableView):
             eDate = datetime.strptime(endDateV, '%d/%m/%Y')
 
             # if 'Admin' in self.request.user.groups.values_list('name', flat=True):
-            return LoginAndLogoutStatus.objects.filter(isDeleted__exact=False, datetime__range=(
+            return LoginAndLogoutStatus.objects.select_related().filter(isDeleted__exact=False, datetime__range=(
                 sDate.date(), eDate.date() + timedelta(days=1)), )
         except:
-            return LoginAndLogoutStatus.objects.filter(isDeleted__exact=False)
+            return LoginAndLogoutStatus.objects.select_related().filter(isDeleted__exact=False)
 
     def filter_queryset(self, qs):
 
@@ -2080,10 +2100,10 @@ def change_password_api(request):
     if request.method == 'POST':
         try:
             password = request.POST.get('password')
-            data = StaffUser.objects.get(user_ID_id=request.user.pk)
+            data = StaffUser.objects.select_related().get(user_ID_id=request.user.pk)
             data.userPassword = password
             data.save()
-            user = User.objects.get(pk=request.user.pk)
+            user = User.objects.select_related().get(pk=request.user.pk)
             user.set_password(password)
             user.save()
             user = authenticate(request, username=user.username, password=password)

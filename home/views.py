@@ -20,7 +20,7 @@ def login_or_logout(request, type):
         data = LoginAndLogoutStatus()
         data.statusType = type
         if request.user.username != 'anish':
-            staff = StaffUser.objects.get(user_ID_id=request.user.pk)
+            staff = StaffUser.objects.select_related().get(user_ID_id=request.user.pk)
             data.userID_id = staff.pk
             data.save()
     except:
@@ -79,9 +79,9 @@ def user_list(request):
 @check_group('Both')
 @is_activated()
 def product_list(request):
-    units = Unit.objects.filter(isDeleted__exact=False).order_by('name')
-    categories = Category.objects.filter(isDeleted__exact=False).order_by('name')
-    brands = Brand.objects.filter(isDeleted__exact=False).order_by('name')
+    units = Unit.objects.select_related().filter(isDeleted__exact=False).order_by('name')
+    categories = Category.objects.select_related().filter(isDeleted__exact=False).order_by('name')
+    brands = Brand.objects.select_related().filter(isDeleted__exact=False).order_by('name')
 
     context = {
         'units': units,
@@ -100,8 +100,8 @@ def purchase_list(request):
 @check_group('Both')
 @is_activated()
 def purchase_add(request):
-    suppliers = Supplier.objects.filter(isDeleted__exact=False).order_by('name')
-    products = Product.objects.filter(isDeleted__exact=False).order_by('name')
+    suppliers = Supplier.objects.select_related().filter(isDeleted__exact=False).order_by('name')
+    products = Product.objects.select_related().filter(isDeleted__exact=False).order_by('name')
     context = {
         'suppliers': suppliers,
         'products': products
@@ -163,8 +163,8 @@ def sales_add(request):
 @check_group('Both')
 @is_activated()
 def sales_add_admin(request):
-    users = StaffUser.objects.filter(isActive__exact='Active', isDeleted__exact=False,
-                                     group__exact='Collection').order_by('name')
+    users = StaffUser.objects.select_related().filter(isActive__exact='Active', isDeleted__exact=False,
+                                                      group__exact='Collection').order_by('name')
     context = {
         'users': users
     }
@@ -174,8 +174,8 @@ def sales_add_admin(request):
 @check_group('Both')
 @is_activated()
 def sales_edit_admin(request, id=None):
-    users = StaffUser.objects.filter(isActive__exact='Active', isDeleted__exact=False,
-                                     group__exact='Collection').order_by('name')
+    users = StaffUser.objects.select_related().filter(isActive__exact='Active', isDeleted__exact=False,
+                                                      group__exact='Collection').order_by('name')
     instance = get_object_or_404(Sale, pk=id)
     context = {
         'users': users,
@@ -210,7 +210,8 @@ def document_list_admin(request):
 @check_group('Collection')
 def sales_detail(request, id=None):
     instance = get_object_or_404(Sale, id=id)
-    installments = Installment.objects.filter(isDeleted__exact=False, saleID_id__exact=instance.pk).order_by(
+    installments = Installment.objects.select_related().filter(isDeleted__exact=False,
+                                                               saleID_id__exact=instance.pk).order_by(
         'installmentDate')
     context = {
         'instance': instance,
@@ -223,7 +224,8 @@ def sales_detail(request, id=None):
 @is_activated()
 def sales_detail_admin(request, id=None):
     instance = get_object_or_404(Sale, id=id)
-    installments = Installment.objects.filter(isDeleted__exact=False, saleID_id__exact=instance.pk).order_by(
+    installments = Installment.objects.select_related().filter(isDeleted__exact=False,
+                                                               saleID_id__exact=instance.pk).order_by(
         'installmentDate')
     context = {
         'instance': instance,
@@ -235,7 +237,7 @@ def sales_detail_admin(request, id=None):
 @check_group('Collection')
 def customer_detail(request, id=None):
     instance = get_object_or_404(Customer, id=id)
-    sales = Sale.objects.filter(isDeleted__exact=False, customerID_id=instance.pk).order_by(
+    sales = Sale.objects.select_related().filter(isDeleted__exact=False, customerID_id=instance.pk).order_by(
         '-pk')
     context = {
         'instance': instance,
@@ -248,7 +250,7 @@ def customer_detail(request, id=None):
 @is_activated()
 def customer_detail_admin(request, id=None):
     instance = get_object_or_404(Customer, id=id)
-    sales = Sale.objects.filter(isDeleted__exact=False, customerID_id=instance.pk).order_by(
+    sales = Sale.objects.select_related().filter(isDeleted__exact=False, customerID_id=instance.pk).order_by(
         '-pk')
     context = {
         'instance': instance,
@@ -271,8 +273,8 @@ def installment_list(request):
 @check_group('Both')
 @is_activated()
 def installment_list_admin(request):
-    users = StaffUser.objects.filter(isActive__exact='Active', isDeleted__exact=False,
-                                     group__exact='Collection').order_by('name')
+    users = StaffUser.objects.select_related().filter(isActive__exact='Active', isDeleted__exact=False,
+                                                      group__exact='Collection').order_by('name')
     context = {
         'users': users
     }
@@ -351,19 +353,19 @@ def download_sales_report(request):
     e = datetime(eDate.year, eDate.month, x)
     eeDate = datetime.strptime(str(e.strftime("%d/%m/%Y")), '%d/%m/%Y')
     if status == 'All':
-        sales = Sale.objects.filter(isDeleted__exact=False, installmentStartDate__range=(
+        sales = Sale.objects.select_related().filter(isDeleted__exact=False, installmentStartDate__range=(
             ssDate.date(), eeDate.date() + timedelta(days=1))).order_by('installmentStartDate')
-        tenure = Sale.objects.filter(isDeleted__exact=False, installmentStartDate__range=(
+        tenure = Sale.objects.select_related().filter(isDeleted__exact=False, installmentStartDate__range=(
             ssDate.date(), eeDate.date() + timedelta(days=1))).aggregate(Max('tenureInMonth'))
     elif status == 'Opened':
-        sales = Sale.objects.filter(isDeleted__exact=False, installmentStartDate__range=(
+        sales = Sale.objects.select_related().filter(isDeleted__exact=False, installmentStartDate__range=(
             ssDate.date(), eeDate.date() + timedelta(days=1)), isClosed=False).order_by('installmentStartDate')
-        tenure = Sale.objects.filter(isDeleted__exact=False, installmentStartDate__range=(
+        tenure = Sale.objects.select_related().filter(isDeleted__exact=False, installmentStartDate__range=(
             ssDate.date(), eeDate.date() + timedelta(days=1)), isClosed=False).aggregate(Max('tenureInMonth'))
     elif status == 'Closed':
-        sales = Sale.objects.filter(isDeleted__exact=False, installmentStartDate__range=(
+        sales = Sale.objects.select_related().filter(isDeleted__exact=False, installmentStartDate__range=(
             ssDate.date(), eeDate.date() + timedelta(days=1)), isClosed=True).order_by('installmentStartDate')
-        tenure = Sale.objects.filter(isDeleted__exact=False, installmentStartDate__range=(
+        tenure = Sale.objects.select_related().filter(isDeleted__exact=False, installmentStartDate__range=(
             ssDate.date(), eeDate.date() + timedelta(days=1)), isClosed=True).aggregate(Max('tenureInMonth'))
     else:
         pass
@@ -421,8 +423,9 @@ def download_sales_report(request):
         month = 1
         for i in ins_month_list:
             ins_month_total = 0.0
-            ins = Installment.objects.filter(saleID_id=sa.pk, isDeleted=False, installmentDate__month=i.month,
-                                             installmentDate__year=i.year, isPaid=True)
+            ins = Installment.objects.select_related().filter(saleID_id=sa.pk, isDeleted=False,
+                                                              installmentDate__month=i.month,
+                                                              installmentDate__year=i.year, isPaid=True)
             for t in ins:
                 ins_month_total = ins_month_total + t.paidAmount
 
