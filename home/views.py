@@ -1,9 +1,13 @@
+import calendar
+from datetime import datetime, timedelta
 from functools import wraps
 
 import xlwt
 from activation.models import Validity
 from activation.views import is_activated
+from dateutil.relativedelta import relativedelta
 from django.contrib.auth import logout, authenticate, login
+from django.db.models import Max
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import *
@@ -169,13 +173,13 @@ def sales_add_admin(request):
 
 @check_group('Both')
 @is_activated()
-def sales_edit_admin(request, id = None):
+def sales_edit_admin(request, id=None):
     users = StaffUser.objects.filter(isActive__exact='Active', isDeleted__exact=False,
                                      group__exact='Collection').order_by('name')
-    instance = get_object_or_404(Sale, pk = id)
+    instance = get_object_or_404(Sale, pk=id)
     context = {
         'users': users,
-        'instance':instance
+        'instance': instance
     }
     return render(request, 'home/admin/saleEditAdmin.html', context)
 
@@ -189,6 +193,12 @@ def sales_list(request):
 @is_activated()
 def sales_list_admin(request):
     return render(request, 'home/admin/salesListByAdmin.html')
+
+
+@check_group('Both')
+@is_activated()
+def report_admin(request):
+    return render(request, 'home/admin/ReportSalesByAdmin.html')
 
 
 @check_group('Both')
@@ -328,8 +338,53 @@ def login_logout_report_admin(request, id=None):
 
 
 def download_sales_report(request):
-    taxes = Sale.objects.filter(isDeleted__exact=False).order_by('rate')
+    status = request.GET.get('status')
+    startDate = request.GET.get('startDate')
+    endDate = request.GET.get('endDate')
+    sDate = datetime.strptime(startDate, '%m/%Y')
+    eDate = datetime.strptime(endDate, '%m/%Y')
+
+    s = datetime(sDate.year, sDate.month, 1)
+    ssDate = datetime.strptime(str(s.strftime("%d/%m/%Y")), '%d/%m/%Y')
+
+    x = calendar.monthrange(eDate.year, eDate.month)[1]
+    e = datetime(eDate.year, eDate.month, x)
+    eeDate = datetime.strptime(str(e.strftime("%d/%m/%Y")), '%d/%m/%Y')
+    if status == 'All':
+        sales = Sale.objects.filter(isDeleted__exact=False, installmentStartDate__range=(
+            ssDate.date(), eeDate.date() + timedelta(days=1))).order_by('installmentStartDate')
+        tenure = Sale.objects.filter(isDeleted__exact=False, installmentStartDate__range=(
+            ssDate.date(), eeDate.date() + timedelta(days=1))).aggregate(Max('tenureInMonth'))
+    elif status == 'Opened':
+        sales = Sale.objects.filter(isDeleted__exact=False, installmentStartDate__range=(
+            ssDate.date(), eeDate.date() + timedelta(days=1)), isClosed=False).order_by('installmentStartDate')
+        tenure = Sale.objects.filter(isDeleted__exact=False, installmentStartDate__range=(
+            ssDate.date(), eeDate.date() + timedelta(days=1)), isClosed=False).aggregate(Max('tenureInMonth'))
+    elif status == 'Closed':
+        sales = Sale.objects.filter(isDeleted__exact=False, installmentStartDate__range=(
+            ssDate.date(), eeDate.date() + timedelta(days=1)), isClosed=True).order_by('installmentStartDate')
+        tenure = Sale.objects.filter(isDeleted__exact=False, installmentStartDate__range=(
+            ssDate.date(), eeDate.date() + timedelta(days=1)), isClosed=True).aggregate(Max('tenureInMonth'))
+    else:
+        pass
+    ins_month_list = []
+
+    columns = ['Invoice Date', 'CustomerID', 'Customer Name', 'Address', 'District', 'Contact No.', 'Alt No.',
+               'Item Name'
+        , 'Delivered By', 'Staff Assigned for Collection', 'DOC', 'Advance', 'Inst. Amount', 'Tenure', 'Total Amount',
+               'Overall Paid', 'Balance', ]
+
+    try:
+        t = tenure['tenureInMonth__max']
+        if t is None:
+            t = 0
+    except:
+        t = 0
     counter = 0
+    for i in range(int(t)):
+        month_year = ssDate.date() + relativedelta(months=+i)
+        columns.insert(len(columns) - 2, month_year.strftime("%y%b"))
+        ins_month_list.append(month_year)
     # content-type of response
     response = HttpResponse(content_type='application/ms-excel')
     # decide file name
@@ -340,35 +395,42 @@ def download_sales_report(request):
     font_style = xlwt.XFStyle()
     font_style.font.bold = True
 
-    columns = ['Sl No.', 'GST%', 'Taxable Amount', 'Tax Value', 'Total']
-
     for col_num in range(len(columns)):
         ws.write(row_num, col_num, columns[col_num], font_style)
 
     font_style = xlwt.XFStyle()
     row_num = 0
-    grandTatal = 0.0
-    for tax in taxes:
-        sales = Installment.objects.filter()
-        counter = counter + 1
-        taxableAmount = 0.0
-        taxAmount = 0.0
-        subTotal = 0.0
-        for s in sales:
-            taxableAmount = s.unitPrice * s.quantity
-            taxAmount = (s.total - taxableAmount)
-            subTotal = s.total
-            taxableAmount += taxableAmount
-            taxAmount += taxAmount
-            subTotal += subTotal
-        grandTatal = subTotal + grandTatal
+    for sa in sales:
+
         row_num = row_num + 1
-        ws.write(row_num, 0, counter, font_style)
-        ws.write(row_num, 1, tax.rate, font_style)
-        ws.write(row_num, 2, taxableAmount, font_style)
-        ws.write(row_num, 3, taxAmount, font_style)
-        ws.write(row_num, 4, subTotal, font_style)
-    ws.write(row_num + 1, 3, "Grand Total", font_style)
-    ws.write(row_num + 1, 4, grandTatal, font_style)
+        ws.write(row_num, 0, str(sa.datetime.strftime('%d-%m-%Y')), font_style)
+        ws.write(row_num, 1, sa.customerID.customerCode, font_style)
+        ws.write(row_num, 2, sa.customerName, font_style)
+        ws.write(row_num, 3, sa.customerID.address, font_style)
+        ws.write(row_num, 4, sa.customerID.district, font_style)
+        ws.write(row_num, 5, sa.customerID.phoneNumber, font_style)
+        ws.write(row_num, 6, '', font_style)
+        ws.write(row_num, 7, sa.productName, font_style)
+        ws.write(row_num, 8, sa.addedBy.name, font_style)
+        ws.write(row_num, 9, sa.assignedTo.name, font_style)
+        ws.write(row_num, 10, str(sa.installmentStartDate.strftime('%d-%m-%Y')), font_style)
+        ws.write(row_num, 11, sa.advancePaid, font_style)
+        ws.write(row_num, 12, sa.emiAmount, font_style)
+        ws.write(row_num, 13, sa.tenureInMonth, font_style)
+        ws.write(row_num, 14, sa.totalAmount, font_style)
+        month = 1
+        for i in ins_month_list:
+            ins_month_total = 0.0
+            ins = Installment.objects.filter(saleID_id=sa.pk, isDeleted=False, installmentDate__month=i.month,
+                                             installmentDate__year=i.year, isPaid=True)
+            for t in ins:
+                ins_month_total = ins_month_total + t.paidAmount
+
+            ws.write(row_num, 14 + month, ins_month_total, font_style)
+            month = month + 1
+        ws.write(row_num, 15 + len(ins_month_list), sa.amountPaid, font_style)
+        ws.write(row_num, 16 + len(ins_month_list), (sa.totalAmount - sa.amountPaid), font_style)
+    # ws.write(row_num + 1, 3, "Grand Total", font_style)
+    # ws.write(row_num + 1, 4, grandTatal, font_style)
     wb.save(response)
     return response

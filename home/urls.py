@@ -21,6 +21,7 @@ urlpatterns = [
     path('sales_list/', sales_list, name='sales_list'),
     path('sales_list_admin/', sales_list_admin, name='sales_list_admin'),
     path('document_list_admin/', document_list_admin, name='document_list_admin'),
+    path('report_admin/', report_admin, name='report_admin'),
 
     path('customer_detail/<int:id>/', customer_detail, name='customer_detail'),
     path('customer_detail_admin/<int:id>/', customer_detail_admin, name='customer_detail_admin'),
@@ -118,7 +119,10 @@ urlpatterns = [
     # login and logout
     path('api/LoginLogoutListAdminJson/', LoginLogoutListAdminJson.as_view(), name='LoginLogoutListAdminJson'),
 
-    #change password
+    # change password
     path('api/change_password_api/', change_password_api, name='change_password_api'),
+
+    # report Downloads
+    path('download_sales_report/', download_sales_report, name='download_sales_report'),
 
 ]

@@ -112,6 +112,7 @@
                                 <th>Paid(₹)</th>
                                 <th>ISD</th>
                                 <th>Added On</th>
+                                <th>IsClosed?</th>
                                 <th>Action</th>
                             </tr>
                             </thead>
@@ -236,7 +237,8 @@
                 {"name": "amountPaid", "targets": 8, "orderable": true},
                 {"name": "installmentStartDate", "targets": 9, "orderable": true},
                 {"name": "datetime", "targets": 10, "orderable": true},
-                {"name": "action", "targets": 11, "orderable": false},
+                {"name": "isClosed", "targets": 11, "orderable": true},
+                {"name": "action", "targets": 12, "orderable": false},
 
             ],
             aaSorting: [[10, 'desc']],

@@ -1217,7 +1217,7 @@ class SalesListAdminJson(BaseDatatableView):
     order_columns = ['deliveryPhoto', 'saleNo', 'customerName', 'productName', 'advancePaid', 'tenureInMonth',
                      'emiAmount',
                      'totalAmount',
-                     'amountPaid', 'installmentStartDate', 'datetime']
+                     'amountPaid', 'installmentStartDate', 'datetime', 'isClosed']
 
     def get_initial_queryset(self):
         try:
@@ -1238,8 +1238,8 @@ class SalesListAdminJson(BaseDatatableView):
         search = self.request.GET.get('search[value]', None)
         if search:
             qs = qs.filter(
-                Q(customerName__icontains=search) | Q(saleNo__icontains=search) | Q(
-                    customerID__customerCode__icontains=search)
+                Q(isClosed__icontains=search) | Q(customerName__icontains=search)
+                | Q(saleNo__icontains=search) | Q(customerID__customerCode__icontains=search)
                 | Q(productName__icontains=search) | Q(advancePaid__icontains=search) | Q(
                     tenureInMonth__icontains=search)
                 | Q(emiAmount__icontains=search) | Q(totalAmount__icontains=search) | Q(amountPaid__icontains=search)
@@ -1262,6 +1262,12 @@ class SalesListAdminJson(BaseDatatableView):
                   <button data-inverted="" data-tooltip="Delete Detail" data-position="left center" data-variation="mini" style="font-size:10px;" onclick ="delUser('{}')" class="ui circular youtube icon button" style="margin-left: 3px">
                     <i class="trash alternate icon"></i>
                   </button>'''.format(item.pk, item.pk, item.pk, item.pk),
+            if item.isClosed == True:
+                isClosed = '<div class="ui mini green label"> Yes </div>'
+
+            else:
+                isClosed = '<div class="ui mini label red"> No </div>'
+
             json_data.append([
                 photo,  # escape HTML for security reasons
                 escape(item.saleNo),
@@ -1274,6 +1280,7 @@ class SalesListAdminJson(BaseDatatableView):
                 escape(item.amountPaid),
                 escape(item.installmentStartDate.strftime('%d-%m-%Y')),
                 escape(item.datetime.strftime('%d-%m-%Y %I:%M %p')),
+                isClosed,
                 action
             ])
         return json_data
@@ -1308,7 +1315,8 @@ class InstallmentListByAdminJson(BaseDatatableView):
         search = self.request.GET.get('search[value]', None)
         if search:
             qs = qs.filter(
-                Q(saleID__customerName__icontains=search) | Q(saleID__productName__icontains=search)
+                Q(saleID__saleNo__icontains=search) | Q(saleID__customerName__icontains=search) |
+                Q(saleID__productName__icontains=search)
                 | Q(assignedTo__name__icontains=search) | Q(collectedBy__name__icontains=search)
                 | Q(installmentDate__icontains=search) | Q(remark__icontains=search)
                 | Q(paidAmount__icontains=search) | Q(NextDueDate__icontains=search) | Q(dueAmount__icontains=search)
@@ -1413,6 +1421,7 @@ class InstallmentListByUserJson(BaseDatatableView):
         search = self.request.GET.get('search[value]', None)
         if search:
             qs = qs.filter(
+                Q(saleID__saleNo__icontains=search) |
                 Q(saleID__customerName__icontains=search) | Q(saleID__productName__icontains=search)
                 | Q(installmentDate__icontains=search) | Q(remark__icontains=search)
                 | Q(paidAmount__icontains=search) | Q(NextDueDate__icontains=search) | Q(dueAmount__icontains=search)
@@ -1842,17 +1851,17 @@ def get_daily_collections_by_staff(request):
         user_collectables = Installment.objects.filter(Q(installmentDate__icontains=datetime.today().date()) |
                                                        Q(paymentReceivedOn__icontains=datetime.today().date()
                                                          ), isDeleted__exact=False,
-                                                       assignedTo_id__exact=user.pk).aggregate(Sum('paidAmount'))
+                                                       assignedTo_id__exact=user.pk).aggregate(Sum('emiAmount'))
 
         if user_collection['paidAmount__sum'] == None:
             collection = 0.0
         else:
             collection = user_collection['paidAmount__sum']
 
-        if user_collectables['paidAmount__sum'] == None:
+        if user_collectables['emiAmount__sum'] == None:
             collectable = 0.0
         else:
-            collectable = user_collectables['paidAmount__sum']
+            collectable = user_collectables['emiAmount__sum']
         try:
             pc = round(((collection / collectable) * 100), 2)
         except:
