@@ -51,6 +51,7 @@ urlpatterns = [
     path('api/StaffUserListJson/', StaffUserListJson.as_view(), name='StaffUserListJson'),
 
     # api Product
+    path('api/list_product_api/', list_product_api, name='list_product_api'),
     path('api/add_product_api/', add_product_api, name='add_product_api'),
     path('api/delete_product/', delete_product, name='delete_product'),
     path('api/get_product_detail/', get_product_detail, name='get_product_detail'),
@@ -65,7 +66,7 @@ urlpatterns = [
     path('api/SupplierListJson/', SupplierListJson.as_view(), name='SupplierListJson'),
 
     # api purchase
-    path('api/list_product_api/', list_product_api, name='list_product_api'),
+
     path('api/add_purchase_api/', add_purchase_api, name='add_purchase_api'),
     path('api/delete_purchase/', delete_purchase, name='delete_purchase'),
     path('api/get_purchase_detail/<int:id>/', get_purchase_detail, name='get_purchase_detail'),

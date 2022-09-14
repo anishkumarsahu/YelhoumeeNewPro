@@ -12,6 +12,7 @@ from dateutil.relativedelta import relativedelta
 from home.models import *
 from django_datatables_view.base_datatable_view import BaseDatatableView
 from django.utils.html import escape
+from django.core.cache import cache
 
 
 @transaction.atomic
@@ -249,7 +250,7 @@ def add_product_api(request):
             pro.mrp = float(mrp)
             pro.sp = float(sp)
             pro.save()
-
+            cache.delete('ProductListCache')
             return JsonResponse({'message': 'success'}, safe=False)
         except:
             return JsonResponse({'message': 'error'}, safe=False)
@@ -312,7 +313,7 @@ def delete_product(request):
             pro = Product.objects.select_related().get(pk=int(id))
             pro.isDeleted = True
             pro.save()
-
+            cache.delete('ProductListCache')
             return JsonResponse({'message': 'success'}, safe=False)
         except:
             return JsonResponse({'message': 'error'}, safe=False)
@@ -362,7 +363,7 @@ def edit_product_api(request):
             pro.mrp = float(mrp)
             pro.sp = float(sp)
             pro.save()
-
+            cache.delete('ProductListCache')
             return JsonResponse({'message': 'success'}, safe=False)
         except:
             return JsonResponse({'message': 'error'}, safe=False)
@@ -651,6 +652,7 @@ def delete_customer_api(request):
                 for i in ins:
                     i.isDeleted = True
                     i.save()
+            cache.delete('CustomerList')
             return JsonResponse({'message': 'success'}, safe=False)
         except:
             return JsonResponse({'message': 'error'}, safe=False)
@@ -737,7 +739,7 @@ def edit_customer_api(request):
             obj.landmark = landmark
 
             obj.save()
-
+            cache.delete('CustomerList')
             return JsonResponse({'message': 'success'}, safe=False)
         except:
             return JsonResponse({'message': 'error'}, safe=False)
@@ -888,19 +890,26 @@ class CustomerListAdminJson(BaseDatatableView):
 # customer and product API list
 def list_customer_api(request):
     try:
-        obj_list = Customer.objects.select_related().filter(isDeleted__exact=False).select_related().order_by('name')
         o_list = []
-        for obj in obj_list:
-            obj_dic = {
-                'ID': obj.pk,
-                'Name': obj.name,
-                'District': obj.district,
-                'Address': obj.address,
-                'Phone': obj.phoneNumber,
-                'Detail': obj.name + ' - ' + obj.address + ' @ ' + str(obj.pk),
-                'DisplayDetail': obj.name + ' - ' + obj.address
-            }
-            o_list.append(obj_dic)
+        if cache.get('CustomerList'):
+            o_list = cache.get('CustomerList')
+
+        else:
+            obj_list = Customer.objects.select_related().filter(isDeleted__exact=False).select_related().order_by(
+                'name')
+
+            for obj in obj_list:
+                obj_dic = {
+                    'ID': obj.pk,
+                    'Name': obj.name,
+                    'District': obj.district,
+                    'Address': obj.address,
+                    'Phone': obj.phoneNumber,
+                    'Detail': obj.name + ' - ' + obj.address + ' @ ' + str(obj.pk),
+                    'DisplayDetail': obj.name + ' - ' + obj.address
+                }
+                o_list.append(obj_dic)
+            cache.set('CustomerList', o_list, timeout=None)
 
         return JsonResponse({'message': 'success', 'data': o_list}, safe=False)
     except:
@@ -909,20 +918,23 @@ def list_customer_api(request):
 
 def list_product_api(request):
     try:
-        obj_list = Product.objects.select_related().filter(isDeleted__exact=False).select_related().order_by('name')
-
         o_list = []
-        for obj in obj_list:
-            obj_dic = {
-                'ID': obj.pk,
-                'Name': obj.name,
-                'Category': obj.categoryID,
-                'NetTotal': obj.sp,
-                'Detail': obj.name + ' - ' + obj.categoryID + ' @' + str(obj.pk),
-                'DisplayDetail': obj.name + ' - ' + obj.categoryID + ' - ' + obj.brandID + ' (₹ {})'.format(obj.sp)
-            }
-            o_list.append(obj_dic)
+        if cache.get('ProductListCache'):
+            o_list = cache.get('ProductListCache')
+        else:
+            obj_list = Product.objects.select_related().filter(isDeleted__exact=False).select_related().order_by('name')
 
+            for obj in obj_list:
+                obj_dic = {
+                    'ID': obj.pk,
+                    'Name': obj.name,
+                    'Category': obj.categoryID,
+                    'NetTotal': obj.sp,
+                    'Detail': obj.name + ' - ' + obj.categoryID + ' @' + str(obj.pk),
+                    'DisplayDetail': obj.name + ' - ' + obj.categoryID + ' - ' + obj.brandID + ' (₹ {})'.format(obj.sp)
+                }
+                o_list.append(obj_dic)
+            cache.set('ProductListCache', o_list, timeout=None)
         return JsonResponse({'message': 'success', 'data': o_list}, safe=False)
     except:
         return JsonResponse({'message': 'error'}, safe=False)
@@ -946,7 +958,9 @@ def delete_sale_api(request):
             for i in ins:
                 i.isDeleted = True
                 i.save()
+            cache.delete('SalesListCache')
             return JsonResponse({'message': 'success'}, safe=False)
+
         except:
             return JsonResponse({'message': 'error'}, safe=False)
 
@@ -1004,7 +1018,7 @@ def add_sales_api(request):
                 inst.assignedTo_id = user.pk
                 inst.installmentDate = obj.installmentStartDate + relativedelta(months=+i)
                 inst.save()
-
+            cache.delete('SalesListCache')
             return JsonResponse({'message': 'success'}, safe=False)
         except:
             return JsonResponse({'message': 'error'}, safe=False)
@@ -1064,7 +1078,7 @@ def add_sales_admin_api(request):
                 inst.assignedTo_id = int(assignTo)
                 inst.installmentDate = obj.installmentStartDate + relativedelta(months=+i)
                 inst.save()
-
+            cache.delete('SalesListCache')
             return JsonResponse({'message': 'success'}, safe=False)
         except:
             return JsonResponse({'message': 'error'}, safe=False)
@@ -1129,7 +1143,7 @@ def edit_sales_admin_api(request):
             #     inst.assignedTo_id = int(assignTo)
             #     inst.installmentDate = obj.installmentStartDate + relativedelta(months=+i)
             #     inst.save()
-
+            cache.delete('SalesListCache')
             return JsonResponse({'message': 'success'}, safe=False)
         except:
             return JsonResponse({'message': 'error'}, safe=False)
@@ -1137,19 +1151,22 @@ def edit_sales_admin_api(request):
 
 def list_sales_api(request):
     try:
-        obj_list = Sale.objects.select_related().filter(isDeleted__exact=False).order_by('saleNo')
         o_list = []
-        for obj in obj_list:
-            obj_dic = {
-                'ID': obj.pk,
-                'SaleID': obj.saleNo,
-                'CustomerName': obj.customerName,
-                'PaidAmount': obj.amountPaid,
-                'Detail': obj.saleNo + ' - ' + obj.customerName + ' @ ' + str(obj.pk),
-                'DisplayDetail': obj.saleNo + ' - ' + obj.customerName
-            }
-            o_list.append(obj_dic)
-
+        if cache.get('SalesListCache'):
+            o_list = cache.get('SalesListCache')
+        else:
+            obj_list = Sale.objects.select_related().filter(isDeleted__exact=False).order_by('saleNo')
+            for obj in obj_list:
+                obj_dic = {
+                    'ID': obj.pk,
+                    'SaleID': obj.saleNo,
+                    'CustomerName': obj.customerName,
+                    'PaidAmount': obj.amountPaid,
+                    'Detail': obj.saleNo + ' - ' + obj.customerName + ' @ ' + str(obj.pk),
+                    'DisplayDetail': obj.saleNo + ' - ' + obj.customerName
+                }
+                o_list.append(obj_dic)
+            cache.set('SalesListCache', o_list, timeout=None)
         return JsonResponse({'message': 'success', 'data': o_list}, safe=False)
     except:
         return JsonResponse({'message': 'error'}, safe=False)
@@ -1163,6 +1180,7 @@ def change_sales_status(request):
         sale = Sale.objects.select_related().get(pk=int(id))
         sale.isClosed = not sale.isClosed
         sale.save()
+        cache.delete('SalesListCache')
         return JsonResponse({'message': 'success'}, safe=False)
 
 
