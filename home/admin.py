@@ -100,3 +100,13 @@ class LoginAndLogoutAdmin(admin.ModelAdmin):
 
 
 admin.site.register(LoginAndLogoutStatus, LoginAndLogoutAdmin)
+
+
+class InstallmentListAdmin(admin.ModelAdmin):
+    search_fields = ['saleID', 'emiAmount', 'assignedTo', 'collectedBy', 'remark']
+    list_display = ['saleID', 'installmentDate', 'emiAmount', 'paidAmount', 'dueAmount', 'NextDueDate', 'remark',
+                    'assignedTo',
+                    'collectedBy', 'paymentReceivedOn', 'datetime']
+
+
+admin.site.register(Installment, InstallmentListAdmin)

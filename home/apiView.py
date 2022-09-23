@@ -1931,9 +1931,7 @@ def get_daily_collections_by_staff(request):
                                                                       collectedBy_id__exact=user.pk).aggregate(
             Sum('paidAmount'))
         user_collectables = Installment.objects.select_related().filter(
-            Q(installmentDate__icontains=datetime.today().date()) |
-            Q(paymentReceivedOn__icontains=datetime.today().date()
-              ), isDeleted__exact=False,
+            installmentDate__icontains=datetime.today().date(), isDeleted__exact=False,
             assignedTo_id__exact=user.pk).aggregate(Sum('emiAmount'))
 
         if user_collection['paidAmount__sum'] == None:
