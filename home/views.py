@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from functools import wraps
 
 import xlwt
-from activation.models import Validity
+from activation.models import *
 from activation.views import is_activated
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth import logout, authenticate, login
@@ -49,14 +49,18 @@ def loginPage(request):
 
 @check_group('Both')
 def admin_home(request):
-    try:
-        val = Validity.objects.last()
-        message = "Your License is Valid till {}".format(val.expiryDate.strftime('%d-%m-%Y'))
-    except:
-        message = "You are using a trial version."
+    # try:
+    val = Validity.objects.last()
+    message = "Your App License is Valid till {}".format(val.expiryDate.strftime('%d-%m-%Y'))
+    server = EcomValidity.objects.last()
+    serverMessage = "Your Server is Valid till {}".format(server.expiryDate.strftime('%d-%m-%Y'))
+    # except:
+    #     message = "You are using a trial version."
+    #     serverMessage = "You are using a trial version."
 
     context = {
         'message': message,
+        'serverMessage': serverMessage
     }
     return render(request, 'home/admin/index.html', context)
 

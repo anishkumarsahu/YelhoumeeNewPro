@@ -1765,7 +1765,7 @@ def get_collection_user_report_api(request):
     today_inst = Installment.objects.select_related().filter(isDeleted__exact=False, assignedTo_id=user.pk,
                                                              installmentDate__icontains=datetime.today().date())
     collection = Installment.objects.select_related().filter(isDeleted__exact=False, collectedBy_id=user.pk,
-                                                             paymentReceivedOn__icontains=datetime.today().date(),
+                                                             installmentDate__icontains=datetime.today().date(),
                                                              isPaid__exact=True)
 
     c_total = 0.0
@@ -1787,7 +1787,7 @@ def get_admin_report_api(request):
     today_inst = Installment.objects.select_related().filter(isDeleted__exact=False,
                                                              installmentDate__icontains=datetime.today().date())
     collection = Installment.objects.select_related().filter(isDeleted__exact=False,
-                                                             paymentReceivedOn__icontains=datetime.today().date(),
+                                                             installmentDate__icontains=datetime.today().date(),
                                                              isPaid__exact=True)
 
     c_total = 0.0
@@ -1809,23 +1809,30 @@ def get_last_three_days_collection_report_for_admin_api(request):
     last_second_date = datetime.today().date() - timedelta(days=2)
     last_third_date = datetime.today().date() - timedelta(days=3)
 
+    today_collection = Installment.objects.select_related().filter(isDeleted__exact=False,
+                                                                   installmentDate__icontains=today,
+                                                                   isPaid__exact=True).aggregate(Sum('paidAmount'))
     first_collection = Installment.objects.select_related().filter(isDeleted__exact=False,
-                                                                   paymentReceivedOn__icontains=last_first_date,
+                                                                   installmentDate__icontains=last_first_date,
                                                                    isPaid__exact=True).aggregate(Sum('paidAmount'))
     second_collection = Installment.objects.select_related().filter(isDeleted__exact=False,
-                                                                    paymentReceivedOn__icontains=last_second_date,
+                                                                    installmentDate__icontains=last_second_date,
                                                                     isPaid__exact=True).aggregate(
         Sum('paidAmount', default=0))
     third_collection = Installment.objects.select_related().filter(isDeleted__exact=False,
-                                                                   paymentReceivedOn__icontains=last_third_date,
+                                                                   installmentDate__icontains=last_third_date,
                                                                    isPaid__exact=True).aggregate(
         Sum('paidAmount', default=0))
     month_collection = Installment.objects.select_related().filter(isDeleted__exact=False,
-                                                                   paymentReceivedOn__year=today.year,
-                                                                   paymentReceivedOn__month=today.month,
+                                                                   installmentDate__year=today.year,
+                                                                   installmentDate__month=today.month,
                                                                    isPaid__exact=True).aggregate(
         Sum('paidAmount', default=0))
 
+    if today_collection['paidAmount__sum'] == None:
+        to_c = 0.0
+    else:
+        to_c = today_collection['paidAmount__sum']
     if first_collection['paidAmount__sum'] == None:
         f_c = 0.0
     else:
@@ -1850,6 +1857,7 @@ def get_last_three_days_collection_report_for_admin_api(request):
         'last_first_date': last_first_date,
         'last_second_date': last_second_date,
         'last_third_date': last_third_date,
+        'today_collection': to_c,
         'first_collection': f_c,
         'second_collection': s_c,
         'third_collection': t_c,

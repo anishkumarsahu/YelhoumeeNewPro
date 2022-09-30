@@ -225,6 +225,9 @@
                 <a class="item" href="{% url 'homeApp:report_admin' %}">
                     <div><i class="file excel icon"></i>Sales Report</div>
                 </a>
+                <a class="item" href="{% url 'homeApp:report_admin' %}">
+                    <div><i class="hand holding usd icon"></i>Installments Report</div>
+                </a>
 
             </div>
         </div>
@@ -421,35 +424,37 @@
                     </div>
                 </div>
            </div>
-            <h5 class="ui top attached header">
-                Daily Trending's
-            </h5>
-            <div class="ui attached segment">
-                <table class="ui teal celled  tiny unstackable table" style="text-align: center">
-                    <thead>
-                    <tr>
-                        <th id="date3">Date3</th>
-                        <th id="date2">Date2</th>
-                        <th id="date1">Date1</th>
-                        <th id="mtd">MTD</th>
+                <h5 class="ui top attached header">
+                    Daily Trending's
+                </h5>
+                <div class="ui attached segment">
+                    <table class="ui teal celled  tiny unstackable table" style="text-align: center">
+                        <thead>
+                        <tr>
+                            <th id="date3">Date3</th>
+                            <th id="date2">Date2</th>
+                            <th id="date1">Date1</th>
+                            <th id="date0">Date0</th>
+                            <th id="mtd">MTD</th>
 
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td id="amount3">0.0</td>
-                        <td id="amount2">0.0</td>
-                        <td id="amount1">0.0</td>
-                        <td id="mtdAmount">0.0</td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td id="amount3">0.0</td>
+                            <td id="amount2">0.0</td>
+                            <td id="amount1">0.0</td>
+                            <td id="amount0">0.0</td>
+                            <td id="mtdAmount">0.0</td>
 
-                    </tr>
+                        </tr>
 
-                    </tbody>
-                </table>
-            </div>
-            <h5 class="ui top attached header">
-                Today's Installments
-            </h5>
+                        </tbody>
+                    </table>
+                </div>
+                <h5 class="ui top attached header">
+                    Today's Installments
+                </h5>
             <div class="ui attached segment">
                 <table class="ui teal celled tiny unstackable table" style="text-align: center">
                     <thead>
@@ -478,7 +483,8 @@
                         <div class="header">
                             License Reminder!
                         </div>
-                        {{ message }}
+                        <p style="font-weight: bold">{{ message }}</p>
+                        <p style="color: crimson; font-weight: bold">{{ serverMessage }}</p>
                     </div>
                 {% endif %}
             </div>
@@ -584,9 +590,11 @@
                     $('#date3').html(response.data['last_third_date']);
                     $('#date2').html(response.data['last_second_date']);
                     $('#date1').html(response.data['last_first_date']);
+                    $('#date0').html(response.data['today']);
                     $('#amount3').html(response.data['third_collection']);
                     $('#amount2').html(response.data['second_collection']);
                     $('#amount1').html(response.data['first_collection']);
+                    $('#amount0').html(response.data['today_collection']);
                     $('#mtdAmount').html(response.data['month_collection']);
 
 
