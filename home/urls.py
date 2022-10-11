@@ -22,6 +22,7 @@ urlpatterns = [
     path('sales_list_admin/', sales_list_admin, name='sales_list_admin'),
     path('document_list_admin/', document_list_admin, name='document_list_admin'),
     path('report_admin/', report_admin, name='report_admin'),
+    path('installment_report_admin/', installment_report_admin, name='installment_report_admin'),
 
     path('customer_detail/<int:id>/', customer_detail, name='customer_detail'),
     path('customer_detail_admin/<int:id>/', customer_detail_admin, name='customer_detail_admin'),
@@ -126,5 +127,6 @@ urlpatterns = [
 
     # report Downloads
     path('download_sales_report/', download_sales_report, name='download_sales_report'),
+    path('download_installment_report/', download_installment_report, name='download_installment_report'),
 
 ]

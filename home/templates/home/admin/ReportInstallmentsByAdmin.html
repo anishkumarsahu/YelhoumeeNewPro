@@ -1,7 +1,7 @@
 {% extends 'home/admin/index.html' %}
 {% load static %}
 {% block title %}
-    <title>Report|Admin</title>
+    <title>InstallmentReport|Admin</title>
 {% endblock %}
 {% block css %}
 {% endblock %}
@@ -33,7 +33,7 @@
         <div class="sixteen wide column">
             <div class="ui  pointing secondary menu">
                 <div style="cursor: pointer;" class="item active" data-tab="user"
-                >Sales Report
+                >Installments Report
                 </div>
             </div>
 
@@ -44,11 +44,11 @@
                         <div class="ui segment" style="width: 100%">
                             <div class="ui icon header">
                                 <i class="cogs icon"></i>
-                                Generate Sales Report
+                                Generate Installments Report
                             </div>
                             <div class="ui divider"></div>
-                            <label class="ui tiny label purple">All sales with installment start date within the given
-                                month range will be filtered. </label>
+                            <label class="ui tiny label purple">All reports are based on the installments list and
+                                user.</label>
 
                             <div class="ui left aligned segment">
                                 <div class="ui tiny form">
@@ -56,17 +56,19 @@
                                         <div class="field"></div>
 
                                         <div class="field">
-                                            <label>Sales Status</label>
+                                            <label>Staff User</label>
                                             <select class="ui dropdown" id="status">
 
                                                 <option value="All" selected>All</option>
-                                                <option value="Opened">Opened</option>
-                                                <option value="Closed">Closed</option>
+                                                {% for user in users %}
+                                                    <option value="{{ user.pk }}">{{ user.name|capfirst }}</option>
+                                                {% endfor %}
+
 
                                             </select>
                                         </div>
                                         <div class="field">
-                                            <label>Start Date</label>
+                                            <label>Installment Start Date</label>
                                             <div class="ui calendar" id="rangestart">
                                                 <div class="ui input left icon">
                                                     <i class="calendar icon"></i>
@@ -75,7 +77,7 @@
                                             </div>
                                         </div>
                                         <div class="field">
-                                            <label>End Date</label>
+                                            <label>Installment End Date</label>
                                             <div class="ui calendar" id="rangeend">
                                                 <div class="ui input left icon">
                                                     <i class="calendar icon"></i>
@@ -109,7 +111,7 @@
         $('#rangestart').calendar({
             initialDate: today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear(),
             monthFirst: false,
-            type: 'month',
+            type: 'day',
             endCalendar: $('#rangeend'),
             formatter: {
                 date: function (date, settings) {
@@ -117,14 +119,14 @@
                     var day = date.getDate();
                     var month = date.getMonth() + 1;
                     var year = date.getFullYear();
-                    return month + '/' + year;
+                    return day + '/' + month + '/' + year;
                 }
             }
         });
         $('#rangeend').calendar({
             initialDate: today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear(),
             monthFirst: false,
-            type: 'month',
+            type: 'day',
             startCalendar: $('#rangestart'),
             formatter: {
                 date: function (date, settings) {
@@ -132,7 +134,7 @@
                     var day = date.getDate();
                     var month = date.getMonth() + 1;
                     var year = date.getFullYear();
-                    return month + '/' + year;
+                    return day + '/' + month + '/' + year;
                 }
             }
         });
@@ -143,7 +145,7 @@
             var startDate = $('#startDate').val();
             var endDate = $('#endDate').val();
 
-            window.location.href = "{% url 'homeApp:download_sales_report' %}?status=" + status + '&startDate=' + startDate + '&endDate=' + endDate
+            window.location.href = "{% url 'homeApp:download_installment_report' %}?status=" + status + '&startDate=' + startDate + '&endDate=' + endDate
 
         }
 

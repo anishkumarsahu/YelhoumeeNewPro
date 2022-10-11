@@ -7,7 +7,7 @@ from activation.models import *
 from activation.views import is_activated
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth import logout, authenticate, login
-from django.db.models import Max
+from django.db.models import Max, Sum
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import *
@@ -203,6 +203,15 @@ def sales_list_admin(request):
 @is_activated()
 def report_admin(request):
     return render(request, 'home/admin/ReportSalesByAdmin.html')
+
+
+def installment_report_admin(request):
+    users = StaffUser.objects.select_related().filter(isActive__exact='Active', isDeleted__exact=False
+                                                      ).order_by('name')
+    context = {
+        'users': users,
+    }
+    return render(request, 'home/admin/ReportInstallmentsByAdmin.html', context)
 
 
 @check_group('Both')
@@ -441,3 +450,96 @@ def download_sales_report(request):
     # ws.write(row_num + 1, 4, grandTatal, font_style)
     wb.save(response)
     return response
+
+
+def download_installment_report(request):
+    status = request.GET.get('status')
+    startDate = request.GET.get('startDate')
+    endDate = request.GET.get('endDate')
+    sDate = datetime.strptime(startDate, '%d/%m/%Y')
+    eDate = datetime.strptime(endDate, '%d/%m/%Y')
+    delta = eDate - sDate  # returns timedelta
+    date_list = []
+    columns = ['Staff Name']
+    for i in range(delta.days + 1):
+        day = sDate + timedelta(days=i)
+        date_list.append(day.date())
+        columns.append(day.strftime('%d-%m-%Y'))
+
+    user_column_list = []
+    user_pk_list = []
+    if status == 'All':
+        staffs = StaffUser.objects.filter(isDeleted__exact=False).order_by('name')
+        for s in staffs:
+            user_column_list.append(s.name)
+            user_pk_list.append(s.pk)
+        response = HttpResponse(content_type='application/ms-excel')
+        # decide file name
+        response['Content-Disposition'] = 'attachment; filename=InstallmentReport.xls'
+        wb = xlwt.Workbook(encoding='utf-8')
+        ws = wb.add_sheet('UserWise')
+        row_num = 0
+        font_style = xlwt.XFStyle()
+        font_style.font.bold = True
+
+        for col_num in range(len(columns)):
+            ws.write(row_num, col_num, str(columns[col_num]), font_style)
+
+        font_style = xlwt.XFStyle()
+        row_num = 0
+        for (user, pk) in zip(user_column_list, user_pk_list):
+            row_num = row_num + 1
+            ws.write(row_num, 0, user, font_style)
+            i = 0
+            for d in date_list:
+                i = i + 1
+                user_collection = Installment.objects.select_related().filter(isDeleted__exact=False,
+                                                                              paymentReceivedOn__icontains=d,
+                                                                              isPaid__exact=True,
+                                                                              collectedBy_id__exact=int(pk)).aggregate(
+                    Sum('paidAmount'))
+                if user_collection['paidAmount__sum'] == None:
+                    collection = 0.0
+                else:
+                    collection = user_collection['paidAmount__sum']
+                ws.write(row_num, i, str(collection), font_style)
+        wb.save(response)
+        return response
+
+    else:
+        staffs = StaffUser.objects.filter(isDeleted__exact=False, pk=int(status)).order_by('name')
+        for s in staffs:
+            user_column_list.append(s.name)
+            user_pk_list.append(s.pk)
+        response = HttpResponse(content_type='application/ms-excel')
+        # decide file name
+        response['Content-Disposition'] = 'attachment; filename=InstallmentReport.xls'
+        wb = xlwt.Workbook(encoding='utf-8')
+        ws = wb.add_sheet('UserWise')
+        row_num = 0
+        font_style = xlwt.XFStyle()
+        font_style.font.bold = True
+
+        for col_num in range(len(columns)):
+            ws.write(row_num, col_num, str(columns[col_num]), font_style)
+
+        font_style = xlwt.XFStyle()
+        row_num = 0
+        for (user, pk) in zip(user_column_list, user_pk_list):
+            row_num = row_num + 1
+            ws.write(row_num, 0, user, font_style)
+            i = 0
+            for d in date_list:
+                i = i + 1
+                user_collection = Installment.objects.select_related().filter(isDeleted__exact=False,
+                                                                              paymentReceivedOn__icontains=d,
+                                                                              isPaid__exact=True,
+                                                                              collectedBy_id__exact=int(pk)).aggregate(
+                    Sum('paidAmount'))
+                if user_collection['paidAmount__sum'] == None:
+                    collection = 0.0
+                else:
+                    collection = user_collection['paidAmount__sum']
+                ws.write(row_num, i, str(collection), font_style)
+        wb.save(response)
+        return response
