@@ -188,6 +188,11 @@ def edit_staff_api(request):
             staff.group = UserGroup
             staff.isActive = UserStatus
             staff.userPassword = UserPwd
+            try:
+                photo = request.FILES["imageUploadEdit"]
+                staff.photo = photo
+            except:
+                pass
             staff.save()
 
             new_user = User.objects.select_related().get(pk=staff.user_ID_id)
