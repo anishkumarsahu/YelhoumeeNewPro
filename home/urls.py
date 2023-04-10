@@ -129,4 +129,7 @@ urlpatterns = [
     path('download_sales_report/', download_sales_report, name='download_sales_report'),
     path('download_installment_report/', download_installment_report, name='download_installment_report'),
 
+
+    path('compare_money_api/', compare_money_api, name='compare_money_api'),
+
 ]

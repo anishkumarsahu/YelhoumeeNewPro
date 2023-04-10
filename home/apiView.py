@@ -2144,3 +2144,27 @@ def change_password_api(request):
 
         except:
             return JsonResponse({'message': 'error'}, safe=False)
+
+
+def compare_money_api(request):
+    sales  = Sale.objects.filter(isDeleted=False,isClosed=False)
+    s_list = []
+    for s in sales:
+        installments = Installment.objects.filter(saleID_id=s.pk,isDeleted=False,isPaid=True)
+        install = 0.0
+        for i in installments:
+            install = install + i.paidAmount
+        s_dic = {
+            'saleID': s.saleNo,
+            'sAmount':s.totalAmount,
+            'sAdvancePaid':s.advancePaid,
+            'sAmountPaid':s.amountPaid,
+            'sInstall': install,
+            'sPaid':s.advancePaid + install
+        }
+        s_list.append(s_dic)
+        s.amountPaid = s.advancePaid + install
+        s.save()
+
+
+    return JsonResponse({'data': s_list}, safe=False)
